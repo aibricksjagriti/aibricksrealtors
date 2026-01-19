@@ -30,7 +30,7 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/auth/login`,
+        `${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -72,16 +72,25 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
             <X size={20} />
           </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 h-[500px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 h-[520px]">
             {/* LEFT */}
-            <div className="hidden md:flex bg-gradient-to-r from-[#5a082a] via-[#8D0B41] to-[#a63b1e] p-8 text-white items-center justify-center">
-              <Image
-                src="/home/abu-dhabi.webp"
-                alt="Login"
-                width={260}
-                height={400}
-                priority
-              />
+            <div className="hidden md:flex  p-8 text-white items-center justify-center">
+              <div className="relative">
+                {/* Bubble */}
+                <div className="absolute -top-4 -left-6 bg-ochre text-darkgray px-5 py-3 rounded-full text-lg font-semibold shadow">
+                  Live the <span className="text-brickred">Future</span>
+                </div>
+
+                {/* Person Image */}
+                <Image
+                  src="/login-1.png" // add image in public folder
+                  alt="Login"
+                  width={440}
+                  height={600}
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </div>
 
             {/* RIGHT */}
@@ -89,7 +98,13 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
               <h2 className="text-2xl font-semibold">
                 Login to Unlock Bottom Prices
               </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Exclusive Deals & Free Site Visit
+              </p>
 
+              <div className="mt-4 bg-amber-50 text-amber-700 px-4 py-2 rounded-md text-sm font-medium mb-2">
+                ⚡ Trusted by <strong>1 Lac+</strong> Home Buyers
+              </div>
               <form
                 ref={formRef}
                 onSubmit={handleSubmit}
@@ -123,17 +138,17 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#C9A24D] py-3 rounded-lg font-semibold flex justify-center"
+                  className="w-full bg-[#C9A24D] text-xl text-lightcream py-3 rounded-lg font-semibold flex justify-center cursor-pointer"
                 >
                   {loading ? <Loader2 className="animate-spin" /> : "Login"}
                 </button>
               </form>
 
-              <p className="text-center text-sm mt-6">
+              <p className="text-center text-md mt-6">
                 Don't have an account?{" "}
                 <button
                   onClick={onRegisterClick}
-                  className="text-[#C9A24D] font-semibold"
+                  className="text-[#C9A24D] font-semibold cursor-pointer hover:text-brickred"
                 >
                   Register
                 </button>

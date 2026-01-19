@@ -27,7 +27,7 @@ export default function RegisterModal({ open, onClose, onLoginClick }) {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/auth/register`,
+        `${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/auth/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -72,19 +72,19 @@ export default function RegisterModal({ open, onClose, onLoginClick }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* LEFT SECTION */}
-          <div className="hidden md:flex relative bg-gradient-to-r from-[#5a082a] via-[#8D0B41] to-[#a63b1e] p-8 text-white items-center justify-center">
+          <div className="hidden md:flex relative  p-8 text-white items-center justify-center">
             <div className="relative">
               {/* Bubble */}
-              <div className="absolute -top-10 -left-12 bg-white text-darkgray px-5 py-3 rounded-full text-lg font-semibold shadow">
-                Live the <span className="text-ochre">Future</span>
+              <div className="absolute -top-6 -left-6 bg-ochre text-darkgray px-5 py-3 rounded-full text-lg font-semibold shadow">
+                Live the <span className="text-brickred">Future</span>
               </div>
 
               {/* Person Image */}
               <Image
-                src="/home/abu-dhabi.webp" // add image in public folder
+                src="/login-1.png" // add image in public folder
                 alt="Register"
-                width={260}
-                height={400}
+                width={440}
+                height={700}
                 className="object-contain"
                 priority
               />
@@ -161,7 +161,7 @@ export default function RegisterModal({ open, onClose, onLoginClick }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-4 rounded-lg bg-[#C9A24D] text-darkgray font-semibold py-3 hover:opacity-90 transition flex items-center justify-center"
+                className="w-full mt-4 rounded-lg bg-[#C9A24D] font-semibold py-3 hover:opacity-90 transition flex items-center justify-center cursor-pointer text-xl text-lightcream"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" />
@@ -171,14 +171,14 @@ export default function RegisterModal({ open, onClose, onLoginClick }) {
               </button>
             </form>
 
-            <p className="text-center text-sm mt-6">
+            <p className="text-center text-md mt-6">
               Already have an account?{" "}
               <button
                 onClick={() => {
                   onClose();
                   onLoginClick();
                 }}
-                className="text-[#C9A24D]"
+                className="text-[#C9A24D] cursor-pointer hover:text-brickred"
               >
                 Login
               </button>
