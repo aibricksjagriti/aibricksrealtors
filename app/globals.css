@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+/* ===============================
+    Root Color Variables
+   =============================== */
+:root {
+  /* Base Theme */
+  --foreground: #343131;
+  --background: #f8f8f8;
+
+  /* Custom Palette */
+  --color-darkgray: #343131;
+  --color-brickred: #8D0B41;
+  --color-ochre: #d5b258;
+  --color-lightcream: #F7EEDF;
+}
+
+/* ===============================
+    Tailwind Inline Theme Config
+   =============================== */
+@theme inline {
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  /* Custom Colors */
+  --color-darkgray: var(--color-darkgray);
+  --color-brickred: var(--color-brickred);
+  --color-ochre: var(--color-ochre);
+  --color-lightcream: var(--color-lightcream);
+
+  /* Font setup */
+  /* --font-serif: "DM Serif Display", serif;
+  --font-sans: "Inter", sans-serif; */
+  --font-serif: "Cinzel", serif;
+  --font-sans: "Lato", sans-serif;
+}
+
+/* ===============================
+    Dark Mode
+   =============================== */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --foreground: #ededed;
+    --background: #343131;
+  }
+} */
+
+/* ===============================
+    Base Styles
+   =============================== */
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* ===============================
+    Layout / Section Helpers
+   =============================== */
+
+/* Header & Footer */
+.header, header {
+  background-color: var(--color-brickred);
+  color: var(--color-lightcream);
+}
+
+/* .footer, footer {
+  background-color: var(--color-brickred);
+  color: var(--color-lightcream);
+} */
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--color-brickred);
+  color: var(--color-lightcream);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 10px rgba(141, 11, 65, 0.3);
+}
+
+.btn-primary:hover {
+  background-color: #75103c;
+  box-shadow: 0 0 20px rgba(141, 11, 65, 0.5);
+}
+
+.btn-secondary {
+  background-color: var(--color-ochre);
+  color: var(--color-darkgray);
+  transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #c29b4f;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  /* color: var(--color-darkgray); */
+  font-family: var(--font-serif);
+}
+
+/* Section Background Variants */
+.section-contrast {
+  background-color: var(--color-ochre);
+}
+
+.section-light {
+  background-color: var(--color-lightcream);
+}
+
+/* ===============================
+    Animation Helpers
+   =============================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.2; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  display: flex;
+  animation: scroll 20s linear infinite;
+}
+
+@layer utilities {
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+  }
+}
+
+.badge {
+  @apply text-xs bg-gray-100 px-3 py-1 rounded-full;
+}
+
+.btn-primary {
+  @apply bg-brickred text-white px-6 py-3 rounded-lg font-semibold hover:bg-ochre transition;
+}
+
+.btn-outline {
+  @apply border border-brickred text-brickred px-6 py-3 rounded-lg font-semibold hover:bg-brickred hover:text-white transition;
+}
+
+.section-title {
+  @apply text-3xl font-semibold;
+}
+

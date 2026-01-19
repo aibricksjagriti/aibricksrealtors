@@ -1,0 +1,2583 @@
+{
+	"info": {
+		"_postman_id": "aibricks-backend-api-v1",
+		"name": "AI Bricks Backend API v1.0.0",
+		"description": "Complete API collection for AI Bricks Backend Platform\n\n**Base URL:** `http://localhost:3000/api`\n\n**Version:** 1.0.0\n\n**Features:**\n- Property management with embedded seller data\n- User authentication and authorization\n- Advanced search and filtering\n- Contact form submission (public POST, admin GET)\n- Property visit scheduling (public POST, admin GET)\n- I am interested form (public POST, admin GET)\n- Admin-only data retrieval endpoints\n- Default admin user: admin@gmail.com / admin@123\n- Performance optimized (seller data denormalized)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "aibricks"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Check if the API is running and healthy"
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"body": "{\n  \"success\": true,\n  \"message\": \"AI Bricks API is running\",\n  \"timestamp\": \"2026-01-12T10:30:00.000Z\",\n  \"uptime\": 12345.67,\n  \"environment\": \"development\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Authentication v1",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data && jsonData.data.token) {",
+									"    pm.environment.set(\"token\", jsonData.data.token);",
+									"    pm.environment.set(\"userId\", jsonData.data.user.id);",
+									"    console.log(\"Token and User ID saved to environment\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"phoneNumber\": \"+919876543210\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user account. Returns JWT token for authentication."
+					},
+					"response": [
+						{
+							"name": "Success - User Registered",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"phoneNumber\": \"+919876543210\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"user-id-123\",\n      \"name\": \"John Doe\",\n      \"email\": \"john.doe@example.com\",\n      \"phoneNumber\": \"+919876543210\",\n      \"role\": \"user\",\n      \"isActive\": true,\n      \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n      \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyLWlkLTEyMyIsImlhdCI6MTYxMDMwMDAwMCwiZXhwIjoxNjEwOTA0ODAwfQ.example\"\n  }\n}"
+						},
+						{
+							"name": "Error - Email Already Exists",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"errors\": [\n    {\n      \"msg\": \"User with this email already exists\",\n      \"param\": \"email\",\n      \"location\": \"body\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data && jsonData.data.token) {",
+									"    pm.environment.set(\"token\", jsonData.data.token);",
+									"    pm.environment.set(\"userId\", jsonData.data.user.id);",
+									"    console.log(\"Token and User ID saved to environment\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login user and get JWT token for authentication."
+					},
+					"response": [
+						{
+							"name": "Success - Login Successful",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/auth/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"user-id-123\",\n      \"name\": \"John Doe\",\n      \"email\": \"john.doe@example.com\",\n      \"phoneNumber\": \"+919876543210\",\n      \"role\": \"user\",\n      \"isActive\": true,\n      \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n      \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyLWlkLTEyMyIsImlhdCI6MTYxMDMwMDAwMCwiZXhwIjoxNjEwOTA0ODAwfQ.example\"\n  }\n}"
+						},
+						{
+							"name": "Error - Invalid Credentials",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"wrongpassword\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/auth/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Invalid credentials\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get the current logged-in user's profile. Requires authentication."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/auth/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"auth",
+										"me"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"user-id-123\",\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phoneNumber\": \"+919876543210\",\n    \"role\": \"user\",\n    \"isActive\": true,\n    \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n    \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n  }\n}"
+						},
+						{
+							"name": "Error - Unauthorized",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/auth/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"auth",
+										"me"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Not authorized to access this route. Please provide a token.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Updated\",\n  \"phoneNumber\": \"+919876543211\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Update the current user's profile. Requires authentication."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"John Updated\",\n  \"phoneNumber\": \"+919876543211\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/auth/profile",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Profile updated successfully\",\n  \"data\": {\n    \"id\": \"user-id-123\",\n    \"name\": \"John Updated\",\n    \"email\": \"john.doe@example.com\",\n    \"phoneNumber\": \"+919876543211\",\n    \"role\": \"user\",\n    \"isActive\": true,\n    \"updatedAt\": \"2026-01-12T11:00:00.000Z\"\n  }\n}"
+						}
+					]
+				}
+			],
+			"description": "Authentication endpoints for user registration, login, and profile management"
+		},
+		{
+			"name": "Properties v1",
+			"item": [
+				{
+					"name": "Get All Properties",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties?propertyType=Apartment&listingType=Sale&city=Pune&activeStatus=Yes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties"
+							],
+							"query": [
+								{
+									"key": "propertyType",
+									"value": "Apartment",
+									"description": "Filter by property type (Apartment, Villa, Townhouse, etc.)",
+									"disabled": true
+								},
+								{
+									"key": "listingType",
+									"value": "Sale",
+									"description": "Filter by listing type (Sale, Rent)",
+									"disabled": true
+								},
+								{
+									"key": "propertyStatus",
+									"value": "Ready to Move",
+									"description": "Filter by status (Ready to Move, Under Construction, Resale)",
+									"disabled": true
+								},
+								{
+									"key": "city",
+									"value": "Pune",
+									"description": "Filter by city",
+									"disabled": true
+								},
+								{
+									"key": "locality",
+									"value": "",
+									"description": "Filter by locality/area",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "",
+									"description": "Minimum price filter",
+									"disabled": true
+								},
+								{
+									"key": "maxPrice",
+									"value": "",
+									"description": "Maximum price filter",
+									"disabled": true
+								},
+								{
+									"key": "activeStatus",
+									"value": "Yes",
+									"description": "Filter by active status (Yes, No)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all properties with optional filters. Seller info is embedded directly in each property for optimal performance."
+					},
+					"response": [
+						{
+							"name": "Success - With Filters",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties?propertyType=Apartment&city=Pune",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties"
+									],
+									"query": [
+										{
+											"key": "propertyType",
+											"value": "Apartment"
+										},
+										{
+											"key": "city",
+											"value": "Pune"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"id\": \"property-id-1\",\n      \"userId\": \"user-id-123\",\n      \"propertyTitle\": \"Luxury 3 BHK Apartment\",\n      \"propertyType\": \"Apartment\",\n      \"subType\": \"3 BHK\",\n      \"listingType\": \"Sale\",\n      \"propertyStatus\": \"Ready to Move\",\n      \"furnishing\": \"Furnished\",\n      \"builtUpArea\": 1500,\n      \"carpetArea\": 1200,\n      \"floorNumber\": 5,\n      \"totalFloors\": 10,\n      \"facingDirection\": \"East\",\n      \"ownershipType\": \"Freehold\",\n      \"country\": \"India\",\n      \"state\": \"Maharashtra\",\n      \"city\": \"Pune\",\n      \"locality\": \"Hinjewadi\",\n      \"totalPrice\": 3500000,\n      \"pricePerSquareFoot\": 2333,\n      \"projectName\": \"Luxury Heights\",\n      \"builderName\": \"ABC Developers\",\n      \"amenities\": [\"Gym\", \"Swimming Pool\", \"Parking\"],\n      \"seller\": {\n        \"sellerType\": \"Agent\",\n        \"sellerName\": \"John Doe\",\n        \"phoneNumber\": \"+919876543210\",\n        \"email\": \"john@example.com\",\n        \"companyName\": \"ABC Realty\",\n        \"verifiedBadge\": \"Yes\",\n        \"responseRate\": \"95%\",\n        \"rating\": 4.8\n      },\n      \"activeStatus\": \"Yes\",\n      \"createdAt\": {\n        \"_seconds\": 1705046400,\n        \"_nanoseconds\": 0\n      },\n      \"updatedAt\": {\n        \"_seconds\": 1705046400,\n        \"_nanoseconds\": 0\n      }\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Property",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PROPERTY_ID_HERE",
+									"description": "Property ID from Firestore"
+								}
+							]
+						},
+						"description": "Get a single property by its ID. Seller info is embedded directly in the property document."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/abc123xyz",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"abc123xyz"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"abc123xyz\",\n    \"userId\": \"user-id-123\",\n    \"propertyTitle\": \"Luxury 3 BHK Apartment\",\n    \"propertyType\": \"Apartment\",\n    \"subType\": \"3 BHK\",\n    \"listingType\": \"Sale\",\n    \"propertyStatus\": \"Ready to Move\",\n    \"furnishing\": \"Furnished\",\n    \"builtUpArea\": 1500,\n    \"carpetArea\": 1200,\n    \"floorNumber\": 5,\n    \"totalFloors\": 10,\n    \"facingDirection\": \"East\",\n    \"ownershipType\": \"Freehold\",\n    \"country\": \"India\",\n    \"state\": \"Maharashtra\",\n    \"city\": \"Mumbai\",\n    \"locality\": \"Andheri\",\n    \"landmark\": \"Near Metro Station\",\n    \"totalPrice\": 3500000,\n    \"pricePerSquareFoot\": 2333,\n    \"projectName\": \"Luxury Heights\",\n    \"builderName\": \"ABC Developers\",\n    \"amenities\": [\"Gym\", \"Swimming Pool\", \"Parking\", \"Garden\"],\n    \"imageGallery\": [],\n    \"floorPlanImages\": [],\n    \"listingDate\": \"2026-01-01\",\n    \"totalViews\": 150,\n    \"totalInquiries\": 25,\n    \"shortlistedCount\": 10,\n    \"featuredListing\": \"Yes\",\n    \"premiumListing\": \"No\",\n    \"soldStatus\": \"No\",\n    \"activeStatus\": \"Yes\",\n    \"seller\": {\n      \"sellerType\": \"Agent\",\n      \"sellerName\": \"John Doe\",\n      \"phoneNumber\": \"+919876543210\",\n      \"email\": \"john@example.com\",\n      \"companyName\": \"ABC Realty\",\n      \"verifiedBadge\": \"Yes\",\n      \"responseRate\": \"95%\",\n      \"rating\": 4.8\n    },\n    \"createdAt\": {\n      \"_seconds\": 1705046400,\n      \"_nanoseconds\": 0\n    },\n    \"updatedAt\": {\n      \"_seconds\": 1705046400,\n      \"_nanoseconds\": 0\n    }\n  }\n}"
+						},
+						{
+							"name": "Error - Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/invalid-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"invalid-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Property not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Trending Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties/trending?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties",
+								"trending"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of trending properties to return (max 50)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get trending projects sorted by view count. Returns most viewed properties."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/trending?limit=10",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"trending"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 10,\n  \"data\": [\n    {\n      \"id\": \"property-id-1\",\n      \"propertyTitle\": \"Luxury 3 BHK Apartment\",\n      \"propertyType\": \"Apartment\",\n      \"subType\": \"3 BHK\",\n      \"listingType\": \"Sale\",\n      \"propertyStatus\": \"Ready to Move\",\n      \"totalPrice\": 3500000,\n      \"city\": \"Mumbai\",\n      \"locality\": \"Andheri\",\n      \"mainPropertyImage\": \"https://example.com/images/property1.jpg\",\n      \"totalViews\": 500,\n      \"totalInquiries\": 50,\n      \"shortlistedCount\": 25,\n      \"featuredListing\": \"Yes\",\n      \"premiumListing\": \"Yes\",\n      \"listingDate\": \"2026-01-01\",\n      \"activeStatus\": \"Yes\",\n      \"trendingScore\": 500,\n      \"seller\": {\n        \"sellerType\": \"Agent\",\n        \"sellerName\": \"John Doe\",\n        \"phoneNumber\": \"+919876543210\",\n        \"email\": \"john@example.com\",\n        \"companyName\": \"ABC Realty\",\n        \"verifiedBadge\": \"Yes\",\n        \"responseRate\": \"95%\",\n        \"rating\": 4.8\n      },\n      \"createdAt\": {\n        \"_seconds\": 1705046400,\n        \"_nanoseconds\": 0\n      },\n      \"updatedAt\": {\n        \"_seconds\": 1705046400,\n        \"_nanoseconds\": 0\n      }\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get My Properties",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties/my-properties",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties",
+								"my-properties"
+							]
+						},
+						"description": "Get all properties owned by the currently logged-in user. Requires authentication."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/my-properties",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"my-properties"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"id\": \"property-id-1\",\n      \"userId\": \"user-id-123\",\n      \"propertyTitle\": \"My Luxury Apartment\",\n      \"propertyType\": \"Apartment\",\n      \"subType\": \"3 BHK\",\n      \"listingType\": \"Sale\",\n      \"propertyStatus\": \"Ready to Move\",\n      \"city\": \"Mumbai\",\n      \"locality\": \"Andheri\",\n      \"totalPrice\": 3500000,\n      \"seller\": {\n        \"sellerType\": \"Agent\",\n        \"sellerName\": \"John Doe\",\n        \"phoneNumber\": \"+919876543210\",\n        \"email\": \"john@example.com\",\n        \"companyName\": \"ABC Realty\",\n        \"verifiedBadge\": \"Yes\"\n      },\n      \"activeStatus\": \"Yes\",\n      \"createdAt\": {\n        \"_seconds\": 1705046400,\n        \"_nanoseconds\": 0\n      },\n      \"updatedAt\": {\n        \"_seconds\": 1705046400,\n        \"_nanoseconds\": 0\n      }\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Search Properties",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties/search?q=Luxury&propertyType=Apartment&city=Pune&minPrice=5000000&maxPrice=15000000&sortBy=price_asc&page=1&limit=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "Luxury",
+									"description": "Text search query (searches title, location, project name, builder name)",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Alternative to 'q' for text search",
+									"disabled": true
+								},
+								{
+									"key": "propertyType",
+									"value": "Apartment",
+									"description": "Filter by property type",
+									"disabled": true
+								},
+								{
+									"key": "city",
+									"value": "Pune",
+									"description": "Filter by city",
+									"disabled": true
+								},
+								{
+									"key": "locality",
+									"value": "",
+									"description": "Filter by locality/area",
+									"disabled": true
+								},
+								{
+									"key": "state",
+									"value": "",
+									"description": "Filter by state",
+									"disabled": true
+								},
+								{
+									"key": "developer",
+									"value": "",
+									"description": "Filter by developer/builder name",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "5000000",
+									"description": "Minimum price filter",
+									"disabled": true
+								},
+								{
+									"key": "maxPrice",
+									"value": "15000000",
+									"description": "Maximum price filter",
+									"disabled": true
+								},
+								{
+									"key": "handover",
+									"value": "",
+									"description": "Filter by property status (Ready to Move, Under Construction, Resale)",
+									"disabled": true
+								},
+								{
+									"key": "propertyStatus",
+									"value": "",
+									"description": "Alternative to 'handover' for property status",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "price_asc",
+									"description": "Sort order: price_asc, price_desc, newest",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination (default: 1)",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Results per page (default: 20)",
+									"disabled": true
+								},
+								{
+									"key": "activeStatus",
+									"value": "Yes",
+									"description": "Filter by active status (Yes, No). Default: Yes",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Advanced search with multiple filters. Supports text search, property type, location, developer, price range, handover status, and sorting. Includes pagination."
+					},
+					"response": [
+						{
+							"name": "Success - With Pagination",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/search?q=Luxury&city=Pune&minPrice=5000000&maxPrice=15000000&page=1&limit=20",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "Luxury"
+										},
+										{
+											"key": "city",
+											"value": "Pune"
+										},
+										{
+											"key": "minPrice",
+											"value": "5000000"
+										},
+										{
+											"key": "maxPrice",
+											"value": "15000000"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "20"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 15,\n  \"total\": 35,\n  \"page\": 1,\n  \"limit\": 20,\n  \"totalPages\": 2,\n  \"data\": [\n    {\n      \"id\": \"property-id-1\",\n      \"propertyTitle\": \"Luxury 3 BHK Apartment\",\n      \"propertyType\": \"Apartment\",\n      \"subType\": \"3 BHK\",\n      \"city\": \"Pune\",\n      \"locality\": \"Hinjewadi\",\n      \"totalPrice\": 7500000,\n      \"seller\": {\n        \"sellerType\": \"Agent\",\n        \"sellerName\": \"John Doe\",\n        \"phoneNumber\": \"+919876543210\",\n        \"email\": \"john@example.com\",\n        \"companyName\": \"ABC Realty\",\n        \"verifiedBadge\": \"Yes\"\n      },\n      \"activeStatus\": \"Yes\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Property",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"propertyTitle\": \"Luxury 3 BHK Apartment in Andheri\",\n  \"propertyType\": \"Apartment\",\n  \"subType\": \"3 BHK\",\n  \"listingType\": \"Sale\",\n  \"propertyStatus\": \"Ready to Move\",\n  \"furnishing\": \"Furnished\",\n  \"builtUpArea\": 1500,\n  \"carpetArea\": 1200,\n  \"floorNumber\": 5,\n  \"totalFloors\": 15,\n  \"facingDirection\": \"East\",\n  \"ownershipType\": \"Freehold\",\n  \"country\": \"India\",\n  \"state\": \"Maharashtra\",\n  \"city\": \"Mumbai\",\n  \"locality\": \"Andheri\",\n  \"landmark\": \"Andheri Metro Station\",\n  \"totalPrice\": 3500000,\n  \"pricePerSquareFoot\": 2333,\n  \"projectName\": \"Luxury Heights\",\n  \"builderName\": \"ABC Developers\",\n  \"amenities\": [\"Swimming Pool\", \"Gym\", \"Park\", \"Security\"],\n  \"sellerType\": \"Agent\",\n  \"sellerName\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\",\n  \"email\": \"john@example.com\",\n  \"companyName\": \"ABC Realty\",\n  \"verifiedBadge\": \"Yes\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties"
+							]
+						},
+						"description": "Create a new property. Seller info is embedded directly in the property document. Requires authentication. Only required fields are propertyTitle and propertyType."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"propertyTitle\": \"Luxury 3 BHK Apartment in Andheri\",\n  \"propertyType\": \"Apartment\",\n  \"subType\": \"3 BHK\",\n  \"listingType\": \"Sale\",\n  \"propertyStatus\": \"Ready to Move\",\n  \"city\": \"Mumbai\",\n  \"locality\": \"Andheri\",\n  \"totalPrice\": 3500000\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Property created successfully\",\n  \"data\": {\n    \"id\": \"new-property-id-123\",\n    \"userId\": \"user-id-123\",\n    \"propertyTitle\": \"Luxury 3 BHK Apartment in Andheri\",\n    \"propertyType\": \"Apartment\",\n    \"subType\": \"3 BHK\",\n    \"listingType\": \"Sale\",\n    \"propertyStatus\": \"Ready to Move\",\n    \"city\": \"Mumbai\",\n    \"locality\": \"Andheri\",\n    \"totalPrice\": 3500000,\n    \"seller\": {\n      \"sellerType\": \"Agent\",\n      \"sellerName\": \"John Doe\",\n      \"phoneNumber\": \"+919876543210\",\n      \"email\": \"john@example.com\",\n      \"companyName\": \"ABC Realty\",\n      \"verifiedBadge\": \"Yes\",\n      \"responseRate\": null,\n      \"rating\": null\n    },\n    \"activeStatus\": \"Yes\",\n    \"createdAt\": {\n      \"_seconds\": 1705046400,\n      \"_nanoseconds\": 0\n    },\n    \"updatedAt\": {\n      \"_seconds\": 1705046400,\n      \"_nanoseconds\": 0\n    }\n  }\n}"
+						},
+						{
+							"name": "Error - Validation Failed",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"propertyTitle\": \"AB\",\n  \"propertyType\": \"InvalidType\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"errors\": [\n    {\n      \"msg\": \"Property title must be between 3 and 200 characters\",\n      \"param\": \"propertyTitle\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Invalid property type\",\n      \"param\": \"propertyType\",\n      \"location\": \"body\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Property",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"propertyTitle\": \"Updated Property Title\",\n  \"totalPrice\": 3800000,\n  \"sellerName\": \"Updated Seller Name\",\n  \"sellerType\": \"Builder\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PROPERTY_ID_HERE",
+									"description": "Property ID to update"
+								}
+							]
+						},
+						"description": "Update a property. Only the property owner can update. Seller info updates are embedded directly in the property document. Requires authentication."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"propertyTitle\": \"Updated Property Title\",\n  \"totalPrice\": 3800000\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/abc123xyz",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"abc123xyz"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Property updated successfully\",\n  \"data\": {\n    \"id\": \"abc123xyz\",\n    \"propertyTitle\": \"Updated Property Title\",\n    \"totalPrice\": 3800000,\n    \"seller\": {\n      \"sellerType\": \"Builder\",\n      \"sellerName\": \"Updated Seller Name\",\n      \"phoneNumber\": \"+919876543210\",\n      \"email\": \"john@example.com\",\n      \"companyName\": \"ABC Realty\",\n      \"verifiedBadge\": \"Yes\"\n    },\n    \"updatedAt\": {\n      \"_seconds\": 1705046500,\n      \"_nanoseconds\": 0\n    }\n  }\n}"
+						},
+						{
+							"name": "Error - Not Found",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"propertyTitle\": \"Updated Title\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/invalid-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"invalid-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Property not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Property",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/properties/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"properties",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PROPERTY_ID_HERE",
+									"description": "Property ID to delete"
+								}
+							]
+						},
+						"description": "Delete a property. Only the property owner can delete. Requires authentication."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/abc123xyz",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"abc123xyz"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Property deleted successfully\"\n}"
+						},
+						{
+							"name": "Error - Not Found",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/properties/invalid-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"properties",
+										"invalid-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Property not found\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Property management endpoints. All endpoints return properties with seller info embedded directly for optimal performance."
+		},
+		{
+			"name": "Contact v1",
+			"item": [
+				{
+					"name": "Submit Contact Form",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\",\n  \"query\": \"I am interested in learning more about your properties and would like to schedule a consultation.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/contact",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"contact"
+							]
+						},
+						"description": "Submit a contact form. Public endpoint - no authentication required."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\",\n  \"query\": \"I am interested in learning more about your properties and would like to schedule a consultation.\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/contact",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"contact"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Contact form submitted successfully\",\n  \"data\": {\n    \"id\": \"contact-id-123\",\n    \"name\": \"John Doe\",\n    \"phoneNumber\": \"+919876543210\",\n    \"createdAt\": \"2026-01-12T10:30:00.000Z\"\n  }\n}"
+						},
+						{
+							"name": "Error - Validation Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"J\",\n  \"phoneNumber\": \"123\",\n  \"query\": \"Short\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/contact",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"contact"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"errors\": [\n    {\n      \"msg\": \"Name must be between 2 and 100 characters\",\n      \"param\": \"name\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Please provide a valid phone number\",\n      \"param\": \"phoneNumber\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Query must be between 10 and 1000 characters\",\n      \"param\": \"query\",\n      \"location\": \"body\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Contacts (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/contact?limit=50&page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"contact"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Number of results per page (max 100)",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number",
+									"disabled": true
+								},
+								{
+									"key": "startAfter",
+									"value": "",
+									"description": "Start after document ID for pagination",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all contact form submissions. Admin only - requires authentication and admin role."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/contact",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"contact"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 10,\n  \"page\": 1,\n  \"limit\": 50,\n  \"data\": [\n    {\n      \"id\": \"contact-id-1\",\n      \"name\": \"John Doe\",\n      \"phoneNumber\": \"+919876543210\",\n      \"query\": \"I am interested in learning more about your properties.\",\n      \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n      \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "Error - Unauthorized",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/contact",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"contact"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Not authorized to access this route. Please provide a token.\"\n}"
+						},
+						{
+							"name": "Error - Forbidden (Not Admin)",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/contact",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"contact"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Access denied. Admin privileges required.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Contact by ID (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/contact/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"contact",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CONTACT_ID_HERE",
+									"description": "Contact submission ID"
+								}
+							]
+						},
+						"description": "Get a specific contact form submission by ID. Admin only - requires authentication and admin role."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/contact/contact-id-123",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"contact",
+										"contact-id-123"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"contact-id-123\",\n    \"name\": \"John Doe\",\n    \"phoneNumber\": \"+919876543210\",\n    \"query\": \"I am interested in learning more about your properties.\",\n    \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n    \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n  }\n}"
+						}
+					]
+				}
+			],
+			"description": "Contact form endpoints. POST is public (no authentication required). GET endpoints are admin only."
+		},
+		{
+			"name": "Schedule Visit v1",
+			"item": [
+				{
+					"name": "Schedule Property Visit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"propertyId\": \"PROPERTY_ID_HERE\",\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\",\n  \"email\": \"john.doe@example.com\",\n  \"date\": \"2024-12-25\",\n  \"time\": \"14:30\",\n  \"requireCab\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/schedule-visit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"schedule-visit"
+							]
+						},
+						"description": "Schedule a property visit. Public endpoint - no authentication required. Requires a valid property ID."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"propertyId\": \"property-id-123\",\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\",\n  \"email\": \"john.doe@example.com\",\n  \"date\": \"2024-12-25\",\n  \"time\": \"14:30\",\n  \"requireCab\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Visit scheduled successfully\",\n  \"data\": {\n    \"id\": \"visit-id-123\",\n    \"propertyId\": \"property-id-123\",\n    \"propertyTitle\": \"Luxury 3 BHK Apartment\",\n    \"name\": \"John Doe\",\n    \"phoneNumber\": \"+919876543210\",\n    \"date\": \"2024-12-25T00:00:00.000Z\",\n    \"time\": \"14:30\",\n    \"requireCab\": true,\n    \"status\": \"pending\",\n    \"createdAt\": \"2026-01-12T10:30:00.000Z\"\n  }\n}"
+						},
+						{
+							"name": "Error - Property Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"propertyId\": \"invalid-property-id\",\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\",\n  \"date\": \"2024-12-25\",\n  \"time\": \"14:30\",\n  \"requireCab\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Property not found\"\n}"
+						},
+						{
+							"name": "Error - Validation Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"propertyId\": \"\",\n  \"name\": \"J\",\n  \"phoneNumber\": \"123\",\n  \"date\": \"2020-01-01\",\n  \"time\": \"25:99\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"errors\": [\n    {\n      \"msg\": \"Property ID is required\",\n      \"param\": \"propertyId\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Name must be between 2 and 100 characters\",\n      \"param\": \"name\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Please provide a valid phone number\",\n      \"param\": \"phoneNumber\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Date cannot be in the past\",\n      \"param\": \"date\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Time must be in HH:MM format (24-hour format)\",\n      \"param\": \"time\",\n      \"location\": \"body\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Visits (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/schedule-visit?limit=50",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"schedule-visit"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Number of results (max 100)",
+									"disabled": true
+								},
+								{
+									"key": "startAfter",
+									"value": "",
+									"description": "Start after document ID for pagination",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all scheduled visits. Admin only - requires authentication and admin role."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 5,\n  \"limit\": 50,\n  \"data\": [\n    {\n      \"id\": \"visit-id-1\",\n      \"propertyId\": \"property-id-123\",\n      \"name\": \"John Doe\",\n      \"phoneNumber\": \"+919876543210\",\n      \"email\": \"john.doe@example.com\",\n      \"date\": \"2024-12-25T00:00:00.000Z\",\n      \"time\": \"14:30\",\n      \"requireCab\": true,\n      \"status\": \"pending\",\n      \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n      \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Visits by Property (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/schedule-visit/property/:propertyId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"schedule-visit",
+								"property",
+								":propertyId"
+							],
+							"variable": [
+								{
+									"key": "propertyId",
+									"value": "PROPERTY_ID_HERE",
+									"description": "Property ID to get visits for"
+								}
+							]
+						},
+						"description": "Get all scheduled visits for a specific property. Admin only - requires authentication and admin role."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit/property/property-id-123",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit",
+										"property",
+										"property-id-123"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"id\": \"visit-id-1\",\n      \"propertyId\": \"property-id-123\",\n      \"name\": \"John Doe\",\n      \"phoneNumber\": \"+919876543210\",\n      \"email\": \"john.doe@example.com\",\n      \"date\": \"2024-12-25T00:00:00.000Z\",\n      \"time\": \"14:30\",\n      \"requireCab\": true,\n      \"status\": \"pending\",\n      \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n      \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n    },\n    {\n      \"id\": \"visit-id-2\",\n      \"propertyId\": \"property-id-123\",\n      \"name\": \"Jane Smith\",\n      \"phoneNumber\": \"+919876543211\",\n      \"email\": \"jane.smith@example.com\",\n      \"date\": \"2024-12-26T00:00:00.000Z\",\n      \"time\": \"10:00\",\n      \"requireCab\": false,\n      \"status\": \"confirmed\",\n      \"createdAt\": \"2026-01-11T10:30:00.000Z\",\n      \"updatedAt\": \"2026-01-11T11:00:00.000Z\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "Error - Property Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit/property/invalid-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit",
+										"property",
+										"invalid-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Property not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Visit by ID (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/schedule-visit/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"schedule-visit",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "VISIT_ID_HERE",
+									"description": "Visit schedule ID"
+								}
+							]
+						},
+						"description": "Get a specific visit schedule by ID. Admin only - requires authentication and admin role."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit/visit-id-123",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit",
+										"visit-id-123"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"visit-id-123\",\n    \"propertyId\": \"property-id-123\",\n    \"name\": \"John Doe\",\n    \"phoneNumber\": \"+919876543210\",\n    \"email\": \"john.doe@example.com\",\n    \"date\": \"2024-12-25T00:00:00.000Z\",\n    \"time\": \"14:30\",\n    \"requireCab\": true,\n    \"status\": \"pending\",\n    \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n    \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n  }\n}"
+						},
+						{
+							"name": "Error - Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/schedule-visit/invalid-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"schedule-visit",
+										"invalid-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Visit schedule not found\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Property visit scheduling endpoints. POST is public (no authentication required). GET endpoints are admin only."
+		},
+		{
+			"name": "Interested v1",
+			"item": [
+				{
+					"name": "Submit I Am Interested Form",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/interested",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"interested"
+							]
+						},
+						"description": "Submit \"I am interested\" form with name and mobile number. Public endpoint - no authentication required."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+919876543210\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/interested",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"interested"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Interest submitted successfully\",\n  \"data\": {\n    \"id\": \"interested-id-123\",\n    \"name\": \"John Doe\",\n    \"phoneNumber\": \"+919876543210\",\n    \"createdAt\": \"2026-01-12T10:30:00.000Z\"\n  }\n}"
+						},
+						{
+							"name": "Error - Validation Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"J\",\n  \"phoneNumber\": \"123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/v1/interested",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"interested"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"errors\": [\n    {\n      \"msg\": \"Name must be between 2 and 100 characters\",\n      \"param\": \"name\",\n      \"location\": \"body\"\n    },\n    {\n      \"msg\": \"Please provide a valid phone number\",\n      \"param\": \"phoneNumber\",\n      \"location\": \"body\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Interested (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/interested?limit=50",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"interested"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Number of results (max 100)",
+									"disabled": true
+								},
+								{
+									"key": "startAfter",
+									"value": "",
+									"description": "Start after document ID for pagination",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all \"I am interested\" form submissions. Admin only - requires authentication and admin role."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/interested",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"interested"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"count\": 10,\n  \"limit\": 50,\n  \"data\": [\n    {\n      \"id\": \"interested-id-1\",\n      \"name\": \"John Doe\",\n      \"phoneNumber\": \"+919876543210\",\n      \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n      \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "Error - Forbidden (Not Admin)",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/interested",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"interested"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": false,\n  \"error\": \"Access denied. Admin privileges required.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Interested by ID (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/interested/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"interested",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "INTERESTED_ID_HERE",
+									"description": "Interested submission ID"
+								}
+							]
+						},
+						"description": "Get a specific \"I am interested\" submission by ID. Admin only - requires authentication and admin role."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/v1/interested/interested-id-123",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"interested",
+										"interested-id-123"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"interested-id-123\",\n    \"name\": \"John Doe\",\n    \"phoneNumber\": \"+919876543210\",\n    \"createdAt\": \"2026-01-12T10:30:00.000Z\",\n    \"updatedAt\": \"2026-01-12T10:30:00.000Z\"\n  }\n}"
+						}
+					]
+				}
+			],
+			"description": "\"I am interested\" form endpoints. POST is public (no authentication required). GET endpoints are admin only."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "JWT token for authenticated requests. Auto-set after login/register."
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "Current user ID. Auto-set after login/register."
+		},
+		{
+			"key": "propertyId",
+			"value": "",
+			"type": "string",
+			"description": "Property ID for testing schedule visit endpoints. Get from properties list."
+		}
+	]
+}
