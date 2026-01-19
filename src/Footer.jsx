@@ -19,12 +19,6 @@ import { FaFacebookSquare } from "react-icons/fa";
 export default function Footer() {
   return (
     <footer className="relative bg-[var(--color-brickred)] text-[var(--color-lightcream)] pt-12 pb-4 overflow-hidden">
-      {/* Background Image Overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-20"
-        style={{ backgroundImage: "url('/footer-bg.jpg')" }}
-      ></div>
-
       <div className="relative z-10 container mx-auto px-6 md:px-12 w-[90%]">
         {/* Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 text-sm md:text-base">

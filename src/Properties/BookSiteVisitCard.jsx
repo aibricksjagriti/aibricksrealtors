@@ -1,39 +1,201 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Calendar as CalendarIcon, Search } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import { format } from "date-fns";
-import "react-day-picker/dist/style.css";
 import { useRouter } from "next/navigation";
+import "react-day-picker/dist/style.css";
+
+const TIME_SLOTS = [
+  "09:00 AM",
+  "09:30 AM",
+  "10:00 AM",
+  "10:30 AM",
+  "11:00 AM",
+  "11:30 AM",
+  "12:00 PM",
+  "12:30 PM",
+  "01:00 PM",
+  "01:30 PM",
+  "02:00 PM",
+  "02:30 PM",
+  "03:00 PM",
+  "03:30 PM",
+  "04:00 PM",
+  "04:30 PM",
+  "05:00 PM",
+  "05:30 PM",
+  "06:00 PM",
+  "06:30 PM",
+];
 
 export default function BookSiteVisitCard() {
   const router = useRouter();
+  const inputRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState("site");
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [openUpward, setOpenUpward] = useState(false);
-
-  //  Search state (SAME AS ABOUT US HERO)
   const [searchText, setSearchText] = useState("");
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const inputRef = useRef(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
+  const [step, setStep] = useState("calendar");
+
+  const [error, setError] = useState("");
+
+  const [showModal, setShowModal] = useState(false);
+
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+  });
+
+  const [submitError, setSubmitError] = useState("");
+
+  /* ---------------- SEARCH API ---------------- */
+
+  async function getProperties() {
+    try {
+      let url;
+
+      // ✅ Prefer public API URL if available
+      if (process.env.NEXT_PUBLIC_API_URL) {
+        url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/properties`;
+      } else {
+        // ✅ Client-safe fallback (relative URL)
+        url = `/api/v1/properties`;
+      }
+
+      const res = await fetch(url, {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        throw new Error(`API failed with status ${res.status}`);
+      }
+
+      const text = await res.text();
+
+      // 🚨 Prevent JSON crash
+      if (!text || text.startsWith("<")) {
+        throw new Error("Invalid JSON response");
+      }
+
+      return JSON.parse(text);
+    } catch (error) {
+      console.error("Error fetching properties:", error);
+      return null; // ✅ client should not throw
+    }
+  }
+
+  useEffect(() => {
+    if (!searchText.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const delay = setTimeout(async () => {
+      const data = await getProperties();
+
+      if (!data?.success || !Array.isArray(data.data)) return;
+
+      const filtered = data.data.filter((item) =>
+        item.propertyTitle?.toLowerCase().includes(searchText.toLowerCase()),
+      );
+
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [searchText]);
+
+  /* ---------------- HANDLERS ---------------- */
+
+  const handleSelect = (item) => {
+    setSearchText(item.propertyTitle);
+    setSelectedProperty(item);
+    setShowSuggestions(false);
+    setError("");
+  };
 
   const toggleCalendar = () => {
     if (inputRef.current) {
       const rect = inputRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      const calendarHeight = 360;
-      setOpenUpward(spaceBelow < calendarHeight);
+      setOpenUpward(window.innerHeight - rect.bottom < 350);
     }
-    setShowCalendar((prev) => !prev);
+    setStep("calendar");
+    setShowCalendar(true);
   };
 
-  //  Handle Search (IDENTICAL BEHAVIOR)
-  const handleSearch = () => {
-    if (!searchText.trim()) return;
-    router.push(`/search?search=${encodeURIComponent(searchText)}`);
+  const handleSubmit = () => {
+    if (!selectedProperty) {
+      setError("Please select a property first.");
+      return;
+    }
+
+    if (!selectedSlot) {
+      setError("Please select date & time.");
+      return;
+    }
+
+    setShowCalendar(false);
+    setError("");
+    setShowModal(true); // 🔥 open modal
+
+    console.log({
+      property: selectedProperty,
+      date: selectedDate,
+      time: selectedSlot,
+    });
+
+    // router.push("/thank-you");
+  };
+
+  const submitSiteVisit = async () => {
+    if (!form.name || !form.phone || !form.email) {
+      setSubmitError("All fields are required");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/v1/schedule-visit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone, // ✅ FIXED
+          email: form.email,
+          propertyId: selectedProperty?.id || null,
+          date: format(selectedDate, "yyyy-MM-dd"),
+          time: selectedSlot,
+          message: "Booked via website", // ✅ OPTIONAL
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.success) {
+        setSubmitError(data?.error || "Booking failed");
+        return;
+      }
+
+      alert("Site Visit Booked Successfully!");
+      setShowModal(false);
+    } catch (error) {
+      console.error(error);
+      setSubmitError("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -51,25 +213,40 @@ export default function BookSiteVisitCard() {
           Book Free Site Visit
         </button>
       </div>
-
-      {/* 🔍 Search */}
+      {/* Search */}
       <div className="relative mb-4">
         <Search
           size={18}
-          onClick={handleSearch}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
         />
+
         <input
           type="text"
           placeholder="Search projects"
           value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-100 text-sm focus:outline-none"
+          onChange={(e) => {
+            setSearchText(e.target.value);
+            setSelectedProperty(null);
+          }}
+          className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-100 text-sm"
         />
+
+        {showSuggestions && suggestions.length > 0 && (
+          <ul className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            {suggestions.map((item) => (
+              <li
+                key={item.id}
+                onClick={() => handleSelect(item)}
+                className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
+              >
+                {item.propertyTitle}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {/* Date Picker Input */}
+      {/* Date & Time */}
       <div className="relative mb-4" ref={inputRef}>
         <CalendarIcon
           size={18}
@@ -79,44 +256,87 @@ export default function BookSiteVisitCard() {
 
         <input
           readOnly
+          value={
+            selectedSlot
+              ? `${format(selectedDate, "dd-MM-yyyy")} | ${selectedSlot}`
+              : format(selectedDate, "dd-MM-yyyy")
+          }
           onClick={toggleCalendar}
-          value={format(selectedDate, "MM-dd-yyyy")}
-          className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-100 text-sm text-gray-700 cursor-pointer focus:outline-none"
+          className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-100 cursor-pointer"
         />
 
-        {/* Calendar Popover */}
         {showCalendar && (
           <div
-            className={`absolute left-0 bg-white rounded-xl shadow-2xl p-4 ${
+            className={`absolute bg-white rounded-xl shadow-2xl p-4 ${
               openUpward ? "bottom-full mb-3" : "top-full mt-3"
             }`}
             style={{ zIndex: 9999 }}
           >
-            <DayPicker
-              mode="single"
-              disabled={{ before: new Date() }}
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-lg"
-              classNames={{
-                caption: "flex justify-between items-center mb-4",
-                day_selected: "bg-blue-900 text-white rounded-full",
-                day_today: "text-blue-900 font-semibold",
-                nav_button: "text-gray-500 hover:text-black",
-              }}
-            />
+            {step === "calendar" && (
+              <>
+                <DayPicker
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={{ before: new Date() }}
+                />
 
-            <div className="flex justify-end gap-3 mt-4">
-              <button
-                onClick={() => setShowCalendar(false)}
-                className="px-4 py-2 rounded-lg border text-xs hover:bg-ochre font-semibold hover:text-lightcream"
-              >
-                Done
-              </button>
-            </div>
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    onClick={() => setShowCalendar(false)}
+                    className="px-4 py-2 border rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setStep("slots")}
+                    className="px-4 py-2 bg-brickred text-white rounded"
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step === "slots" && (
+              <>
+                <div className="grid grid-cols-4 gap-3">
+                  {TIME_SLOTS.map((slot) => (
+                    <button
+                      key={slot}
+                      onClick={() => setSelectedSlot(slot)}
+                      className={`py-2 rounded text-xs border ${
+                        selectedSlot === slot
+                          ? "bg-brickred text-white"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    onClick={() => setStep("calendar")}
+                    className="px-4 py-2 border rounded"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => setShowCalendar(false)}
+                    className="px-4 py-2 bg-brickred text-white rounded"
+                  >
+                    Done
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
+
+      {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
       {/* Transport */}
       <div className="flex items-center gap-6 mb-4">
@@ -127,12 +347,11 @@ export default function BookSiteVisitCard() {
             defaultChecked
             className="accent-brickred"
           />
-          <span className="font-semibold">Cab</span>
+          Cab
         </label>
-
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="radio" name="transport" className="accent-brickred" />
-          <span>Not Required</span>
+          Not Required
         </label>
       </div>
 
@@ -144,17 +363,66 @@ export default function BookSiteVisitCard() {
       </ul>
 
       {/* CTA */}
-      <button className="w-full bg-ochre hover:bg-brickred transition text-white py-3 rounded-full text-md font-semibold mb-3">
+      <button
+        onClick={handleSubmit}
+        className="w-full bg-ochre hover:bg-brickred transition text-white py-3 rounded-full font-semibold"
+      >
         Book Site Visit
       </button>
 
-      {/* Terms */}
-      <p className="text-xs text-center text-gray-400">
+      <p className="text-xs text-center text-gray-400 mt-3">
         By continuing, you agree to our{" "}
         <span className="text-brickred underline cursor-pointer">
           Terms & Conditions
         </span>
       </p>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[99999]">
+          <div className="bg-white rounded-xl p-6 w-[90%] max-w-md relative">
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-3 right-3"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-lg font-semibold mb-4">Book Free Site Visit</h3>
+
+            <input
+              type="text"
+              placeholder="Enter name"
+              className="w-full mb-3 p-3 bg-gray-100 rounded"
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+
+            <input
+              type="tel"
+              placeholder="Phone number"
+              className="w-full mb-3 p-3 bg-gray-100 rounded"
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+
+            <input
+              type="email"
+              placeholder="Email address"
+              className="w-full mb-4 p-3 bg-gray-100 rounded"
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+
+            {submitError && (
+              <p className="text-red-500 text-sm mb-2">{submitError}</p>
+            )}
+
+            <button
+              onClick={submitSiteVisit}
+              className="w-full bg-brickred text-white py-3 rounded"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
