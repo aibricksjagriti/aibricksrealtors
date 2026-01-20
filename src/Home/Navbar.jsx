@@ -68,7 +68,11 @@ export default function Navbar({ onLoginClick }) {
 
             {/* LOGIN / USER */}
             {user ? (
-              <div className="relative">
+              <div
+                className="relative"
+                // onMouseEnter={() => setShowDropdown(true)}
+                // onMouseLeave={() => setShowDropdown(false)}
+              >
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center gap-2 text-white bg-ochre p-2 rounded-full"
