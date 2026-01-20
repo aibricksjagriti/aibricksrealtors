@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import {
   MapPin,
@@ -7,8 +8,12 @@ import {
   MessageCircleMore,
 } from "lucide-react";
 import Link from "next/link";
+import BookSiteVisitModal from "./BookSiteVisitModal";
+import { useState } from "react";
 
 export default function PropertyCard({ property }) {
+  const [openTour, setOpenTour] = useState(false);
+
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden border-gray-500">
       <div className="flex flex-col sm:flex-row gap-4 p-4">
@@ -70,9 +75,18 @@ export default function PropertyCard({ property }) {
 
             {/* ACTIONS */}
             <div className="flex gap-3">
-              <button className="flex items-center gap-1 border bg-ochre border-gray-300 px-4 py-2 rounded-lg text-lg hover:bg-brickred text-lightcream transition">
+              <button
+                onClick={() => setOpenTour(true)}
+                className="flex items-center gap-1 border bg-ochre border-gray-300 px-4 py-2 rounded-lg text-lg hover:bg-brickred text-lightcream transition"
+              >
                 <CarFront /> Tour
               </button>
+
+              <BookSiteVisitModal
+                isOpen={openTour}
+                onClose={() => setOpenTour(false)}
+                property={property}
+              />
 
               <Link
                 href={`/properties/${property.id}`}
