@@ -29,7 +29,7 @@ export default function HeroSearch() {
 
   return (
     <div className="mx-auto max-w-6xl bg-white/10 backdrop-blur-md border border-brickred rounded-2xl p-6 shadow-xl">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <select
           onChange={(e) => handleChange("propertyType", e.target.value)}
           className="p-3 rounded-lg bg-white text-black"
