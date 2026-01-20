@@ -7,7 +7,6 @@ import UpcomingProjects from "@/src/Home/UpcomingProjects";
 import Cta from "@/src/Home/Cta";
 import EasyForYou from "@/src/Home/EasyForYou";
 import StatsSection from "@/src/Home/StatsSection";
-// import TrendingProjects from "@/src/Home/TrendingProjects";
 import TrendingProjectsClient from "@/src/Home/TrendingProjectsClient";
 
 export default function Home() {
@@ -15,7 +14,6 @@ export default function Home() {
     <main className=" bg-background">
       <HeroSection />
       <UpcomingProjects />
-      {/* <TrendingProjects /> */}
       <TrendingProjectsClient />
       <PropertyTypeSlider />
       <LogoSlider />

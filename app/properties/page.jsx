@@ -25,15 +25,15 @@ async function getProperties() {
     // For server-side, construct absolute URL
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     let url;
-    
+
     if (apiUrl) {
       url = `${apiUrl}/api/v1/properties`;
     } else {
       // Fallback: use localhost for development or construct from request
       // In Next.js server components, we can use relative URLs for internal routes
-      url = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/v1/properties`;
+      url = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/v1/properties`;
     }
-    
+
     const res = await fetch(url, { cache: "no-store" });
 
     if (!res.ok) {
@@ -107,7 +107,7 @@ export default async function PageProperties({ searchParams }) {
                   .map((_, i) => i + 1)
                   .filter(
                     (p) =>
-                      p === 1 || p === totalPages || Math.abs(p - page) <= 1
+                      p === 1 || p === totalPages || Math.abs(p - page) <= 1,
                   )
                   .map((p, index, arr) => (
                     <Link
