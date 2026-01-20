@@ -40,21 +40,25 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
 
       const data = await res.json();
 
-      if (res.ok) {
-        toast.success("Logged in successfully 🎉");
-
-        formRef.current.reset();
-        onClose();
-
-        // slight delay so toast is visible before redirect
-        setTimeout(() => {
-          router.push("/");
-        }, 800);
-      } else {
-        toast.error(data.message || "Login failed");
+      if (!res.ok) {
+        throw new Error(data?.error || "Login failed");
       }
+
+      //  SAVE LOGIN DATA
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      toast.success("Login successful 🎉");
+
+      formRef.current.reset();
+      onClose();
+
+      // Refresh navbar state
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -74,16 +78,14 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 h-[520px]">
             {/* LEFT */}
-            <div className="hidden md:flex  p-8 text-white items-center justify-center">
+            <div className="hidden md:flex p-8 items-center justify-center">
               <div className="relative">
-                {/* Bubble */}
-                <div className="absolute -top-4 -left-6 bg-ochre text-darkgray px-5 py-3 rounded-full text-lg font-semibold shadow">
+                <div className="absolute -top-4 -left-6 bg-ochre px-5 py-3 rounded-full text-lg font-semibold">
                   Live the <span className="text-brickred">Future</span>
                 </div>
 
-                {/* Person Image */}
                 <Image
-                  src="/login-1.png" // add image in public folder
+                  src="/login-1.png"
                   alt="Login"
                   width={440}
                   height={600}
@@ -105,6 +107,7 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
               <div className="mt-4 bg-amber-50 text-amber-700 px-4 py-2 rounded-md text-sm font-medium mb-2">
                 ⚡ Trusted by <strong>1 Lac+</strong> Home Buyers
               </div>
+
               <form
                 ref={formRef}
                 onSubmit={handleSubmit}
@@ -138,17 +141,17 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#C9A24D] text-xl text-lightcream py-3 rounded-lg font-semibold flex justify-center cursor-pointer"
+                  className="w-full bg-[#C9A24D] text-white py-3 rounded-lg font-semibold flex justify-center"
                 >
                   {loading ? <Loader2 className="animate-spin" /> : "Login"}
                 </button>
               </form>
 
               <p className="text-center text-md mt-6">
-                Don't have an account?{" "}
+                Don’t have an account?{" "}
                 <button
                   onClick={onRegisterClick}
-                  className="text-[#C9A24D] font-semibold cursor-pointer hover:text-brickred"
+                  className="text-[#C9A24D] font-semibold hover:text-brickred"
                 >
                   Register
                 </button>
@@ -158,7 +161,6 @@ export default function LoginModal({ open, onClose, onRegisterClick }) {
         </div>
       </div>
 
-      {/* REGISTER MODAL */}
       <RegisterModal
         open={showRegister}
         onClose={() => setShowRegister(false)}
