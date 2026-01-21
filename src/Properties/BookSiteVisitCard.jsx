@@ -6,6 +6,7 @@ import { DayPicker } from "react-day-picker";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import "react-day-picker/dist/style.css";
+import toast, { Toaster } from "react-hot-toast";
 
 const TIME_SLOTS = [
   "09:00 AM",
@@ -190,11 +191,12 @@ export default function BookSiteVisitCard() {
         return;
       }
 
-      alert("Site Visit Booked Successfully!");
+      toast.success("Site visit booked successfully!");
       setShowModal(false);
     } catch (error) {
       console.error(error);
       setSubmitError("Something went wrong. Please try again.");
+      toast.error(error.message || "Something went wrong");
     }
   };
 
