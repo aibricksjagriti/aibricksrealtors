@@ -45,6 +45,7 @@ export default function BookSiteVisitCard() {
   const [selectedSlot, setSelectedSlot] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("calendar");
 
   const [error, setError] = useState("");
@@ -152,11 +153,11 @@ export default function BookSiteVisitCard() {
     setError("");
     setShowModal(true); // 🔥 open modal
 
-    console.log({
-      property: selectedProperty,
-      date: selectedDate,
-      time: selectedSlot,
-    });
+    // console.log({
+    //   property: selectedProperty,
+    //   date: selectedDate,
+    //   time: selectedSlot,
+    // });
 
     // router.push("/thank-you");
   };
@@ -166,6 +167,7 @@ export default function BookSiteVisitCard() {
       setSubmitError("All fields are required");
       return;
     }
+    setLoading(true);
 
     try {
       const res = await fetch("/api/v1/schedule-visit", {
@@ -197,6 +199,8 @@ export default function BookSiteVisitCard() {
       console.error(error);
       setSubmitError("Something went wrong. Please try again.");
       toast.error(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -267,7 +271,7 @@ export default function BookSiteVisitCard() {
           className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-100 cursor-pointer"
         />
 
-        {showCalendar && (
+        {/* {showCalendar && (
           <div
             className={`absolute bg-white rounded-xl shadow-2xl p-4 ${
               openUpward ? "bottom-full mb-3" : "top-full mt-3"
@@ -334,6 +338,78 @@ export default function BookSiteVisitCard() {
                 </div>
               </>
             )}
+          </div>
+        )} */}
+        {showCalendar && (
+          <div
+            className="fixed inset-0 z-[99999] flex items-start justify-center bg-black/30"
+            onClick={() => setShowCalendar(false)}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="mt-24 bg-white rounded-xl shadow-2xl p-4 w-[95%] max-w-md"
+            >
+              {step === "calendar" && (
+                <>
+                  <DayPicker
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={{ before: new Date() }}
+                  />
+
+                  <div className="flex justify-end gap-3 mt-4">
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="px-4 py-2 border rounded"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => setStep("slots")}
+                      className="px-4 py-2 bg-brickred text-white rounded"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {step === "slots" && (
+                <>
+                  <div className="grid grid-cols-4 gap-3">
+                    {TIME_SLOTS.map((slot) => (
+                      <button
+                        key={slot}
+                        onClick={() => setSelectedSlot(slot)}
+                        className={`py-2 rounded text-xs border ${
+                          selectedSlot === slot
+                            ? "bg-brickred text-white"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-4">
+                    <button
+                      onClick={() => setStep("calendar")}
+                      className="px-4 py-2 border rounded"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="px-4 py-2 bg-brickred text-white rounded"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -418,9 +494,10 @@ export default function BookSiteVisitCard() {
 
             <button
               onClick={submitSiteVisit}
+              disabled={loading}
               className="w-full bg-brickred text-white py-3 rounded"
             >
-              Submit
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 import { Building2, Hammer, Globe, Landmark } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function OurExpertise() {
   const cards = [
@@ -101,15 +102,17 @@ export default function OurExpertise() {
                 >
                   {card.desc}
                 </p>
-                <button
-                  className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 ${
-                    card.active
-                      ? "bg-white text-[var(--color-brickred)] hover:bg-gray-100"
-                      : "bg-[var(--color-brickred)] text-white hover:bg-[var(--color-ochre)]"
-                  }`}
-                >
-                  Learn More
-                </button>
+                <a href="/contact">
+                  <button
+                    className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 ${
+                      card.active
+                        ? "bg-white text-[var(--color-brickred)] hover:bg-gray-100"
+                        : "bg-[var(--color-brickred)] text-white hover:bg-[var(--color-ochre)]"
+                    }`}
+                  >
+                    Learn More
+                  </button>
+                </a>
               </div>
             </motion.div>
           ))}
