@@ -269,7 +269,7 @@ export default function ScheduleVisitsPage() {
                 </div>
                 <div className="col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Property</p>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 font-semibold">
                     {selectedVisit.propertyTitle || selectedVisit.propertyId || "N/A"}
                   </p>
                 </div>

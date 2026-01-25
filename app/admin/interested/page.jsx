@@ -56,7 +56,9 @@ export default function InterestedPage() {
       item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.phone?.includes(searchTerm) ||
-      item.propertyTitle?.toLowerCase().includes(searchTerm.toLowerCase())
+      item.propertyTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.propertyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.propertyLocation?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (date) => {
@@ -184,7 +186,7 @@ export default function InterestedPage() {
                       <div className="flex items-center text-gray-600">
                         <Building2 className="w-4 h-4 mr-2 text-gray-400" />
                         <span className="truncate max-w-xs">
-                          {item.propertyTitle || item.propertyId || "N/A"}
+                          {item.propertyTitle || item.propertyName || item.propertyId || "N/A"}
                         </span>
                       </div>
                     </td>
@@ -242,8 +244,13 @@ export default function InterestedPage() {
                 <div className="col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Property</p>
                   <p className="text-gray-700">
-                    {selectedItem.propertyTitle || selectedItem.propertyId || "N/A"}
+                    {selectedItem.propertyTitle || selectedItem.propertyName || selectedItem.propertyId || "N/A"}
                   </p>
+                  {selectedItem.propertyLocation && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Location: {selectedItem.propertyLocation}
+                    </p>
+                  )}
                 </div>
                 {selectedItem.message && (
                   <div className="col-span-2">

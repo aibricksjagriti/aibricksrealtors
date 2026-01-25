@@ -9,7 +9,7 @@ import { convertTimestamps } from '@/lib/utils/timestampConverter';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { name, phone, email, propertyId, propertyTitle, message } = body;
+    const { name, phone, email, propertyId, propertyTitle, propertyName, propertyLocation, location, message } = body;
 
     // All fields are optional - no validation required
 
@@ -19,6 +19,8 @@ export async function POST(req) {
       email: email || null,
       propertyId: propertyId || null,
       propertyTitle: propertyTitle || null,
+      propertyName: propertyName || null,
+      propertyLocation: propertyLocation || location || null,
       message: message || null
     });
 

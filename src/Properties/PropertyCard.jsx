@@ -6,6 +6,7 @@ import {
   CarTaxiFront,
   CarFront,
   MessageCircleMore,
+  Phone,
 } from "lucide-react";
 import Link from "next/link";
 import BookSiteVisitModal from "./BookSiteVisitModal";
@@ -75,6 +76,13 @@ export default function PropertyCard({ property }) {
 
             {/* ACTIONS */}
             <div className="flex gap-3">
+              <a
+                href={`tel:${property.seller?.phoneNumber || ""}`}
+                className="flex items-center gap-1 border bg-ochre border-gray-300 px-4 py-2 rounded-lg text-lg hover:bg-brickred text-lightcream transition"
+              >
+                <Phone /> Call
+              </a>
+
               <button
                 onClick={() => setOpenTour(true)}
                 className="flex items-center gap-1 border bg-ochre border-gray-300 px-4 py-2 rounded-lg text-lg hover:bg-brickred text-lightcream transition"
