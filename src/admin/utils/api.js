@@ -206,6 +206,21 @@ export const interestedAPI = {
   },
 };
 
+// Call Requests APIs
+export const callRequestsAPI = {
+  getAll: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return await apiRequest(`/v1/call-request?${queryString}`);
+  },
+
+  updateStatus: async (id, status) => {
+    return await apiRequest(`/v1/call-request/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+};
+
 // Health check
 export const healthAPI = {
   check: async () => {

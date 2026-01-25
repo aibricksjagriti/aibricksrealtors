@@ -12,6 +12,7 @@ import {
   X,
   LogOut,
   Sparkles,
+  Phone,
 } from "lucide-react";
 import { authAPI } from "../utils/api";
 import "../styles/admin.css";
@@ -41,6 +42,11 @@ const menuItems = [
     name: "Interested",
     href: "/admin/interested",
     icon: Heart,
+  },
+  {
+    name: "Call Requests",
+    href: "/admin/call-requests",
+    icon: Phone,
   },
 ];
 

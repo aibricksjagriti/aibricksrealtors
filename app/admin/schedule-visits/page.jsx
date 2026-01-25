@@ -9,6 +9,7 @@ import {
   Building2,
   Mail,
   Clock,
+  Car,
   X,
 } from "lucide-react";
 import { scheduleVisitAPI } from "@/src/admin/utils/api";
@@ -57,7 +58,9 @@ export default function ScheduleVisitsPage() {
       visit.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       visit.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       visit.phone?.includes(searchTerm) ||
-      visit.propertyTitle?.toLowerCase().includes(searchTerm.toLowerCase())
+      visit.phone?.includes(searchTerm) ||
+      visit.propertyTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (visit.cabRequired === 'yes' && 'cab'.includes(searchTerm.toLowerCase()))
   );
 
   const formatDate = (date) => {
@@ -161,6 +164,7 @@ export default function ScheduleVisitsPage() {
                   <th>Visitor</th>
                   <th>Property</th>
                   <th>Visit Date</th>
+                  <th>Cab</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -196,6 +200,20 @@ export default function ScheduleVisitsPage() {
                       <div className="flex items-center text-gray-500 text-sm">
                         <Clock className="w-4 h-4 mr-2 text-gray-400" />
                         {formatDate(visit.preferredDate)}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center">
+                        <span 
+                          className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                            visit.cabRequired === 'yes' 
+                              ? 'bg-amber-100 text-amber-700' 
+                              : 'bg-gray-100 text-gray-500'
+                          }`}
+                        >
+                          <Car size={12} />
+                          {visit.cabRequired === 'yes' ? 'Required' : 'No'}
+                        </span>
                       </div>
                     </td>
                     <td>
@@ -266,6 +284,17 @@ export default function ScheduleVisitsPage() {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Preferred Time</p>
                   <p className="text-gray-700">{selectedVisit.preferredTime || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Cab Required</p>
+                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                    selectedVisit.cabRequired === 'yes' 
+                      ? 'bg-amber-100 text-amber-700' 
+                      : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    <Car size={16} />
+                    <span>{selectedVisit.cabRequired === 'yes' ? 'Yes, Required' : 'Not Required'}</span>
+                  </div>
                 </div>
                 <div className="col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Property</p>

@@ -39,6 +39,7 @@ export default function BookSiteVisitModal({ isOpen, onClose, property }) {
         propertyId: property?.id || null,
         date: visitDate.split("T")[0], // YYYY-MM-DD
         time: visitDate.split("T")[1] || "", // HH:MM
+        cabRequired,
         message: "Booked from website",
       };
 

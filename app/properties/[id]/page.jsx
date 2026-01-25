@@ -495,7 +495,7 @@ export default function PropertyDetailPage() {
                 ✔ Free Site Visit <br />
                 ✔ Verified Property <br />✔ Best Price Guaranteed
               </div> */}
-              <ContactSidebar />
+              <ContactSidebar property={property} />
               <BookSiteVisitCard />
             </div>
           </div>

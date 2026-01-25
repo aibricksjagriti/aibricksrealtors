@@ -1,60 +1,52 @@
 import { NextResponse } from 'next/server';
-import scheduleVisitModel from '@/lib/models/ScheduleVisit';
+import callRequestModel from '@/lib/models/CallRequest';
 import { protect } from '@/lib/middleware/auth';
 import { authorizeAdmin } from '@/lib/middleware/authorize';
 import logger from '@/lib/logger';
 import { convertTimestamps } from '@/lib/utils/timestampConverter';
 
-// POST - Schedule a visit (public)
+// POST - Create a call request
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { name, phone, email, propertyId, date, time, cabRequired, message } = body;
+    const { phoneNumber, propertyId, propertyTitle } = body;
 
-    if (!name || !phone || !date) {
+    if (!phoneNumber) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Name, phone, and date are required'
+          error: 'Phone number is required'
         },
         { status: 400 }
       );
     }
 
-    const visit = await scheduleVisitModel.create({
-      name,
-      phone,
-      email,
+    const request = await callRequestModel.create({
+      phoneNumber,
       propertyId,
-      preferredDate: date,
-      preferredTime: time,
-      cabRequired,
-      message
+      propertyTitle
     });
 
-    logger.info(`New visit scheduled: ${visit.id}`);
-
-    // Convert Firestore timestamps to ISO strings
-    const visitWithConvertedDates = convertTimestamps(visit);
+    logger.info(`New call request created: ${request.id}`);
 
     return NextResponse.json({
       success: true,
-      message: 'Visit scheduled successfully',
-      data: visitWithConvertedDates
+      message: 'Request submitted successfully',
+      data: convertTimestamps(request)
     }, { status: 201 });
   } catch (error) {
-    logger.error('Error scheduling visit:', error);
+    logger.error('Error creating call request:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to schedule visit. Please try again later.'
+        error: 'Failed to submit request'
       },
       { status: 500 }
     );
   }
 }
 
-// GET - Get all visits (admin only)
+// GET - Get all call requests (Admin only)
 export async function GET(req) {
   try {
     const authResult = await protect(req);
@@ -75,29 +67,23 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit'), 10) || 50;
-    const startAfter = searchParams.get('startAfter') || null;
 
-    const validLimit = Math.min(Math.max(limit, 1), 100);
-    const visits = await scheduleVisitModel.getAll(validLimit, startAfter);
-
-    // Convert Firestore timestamps to ISO strings
-    const visitsWithConvertedDates = visits.map(visit => convertTimestamps(visit));
+    const requests = await callRequestModel.getAll(limit);
+    const convertedRequests = requests.map(req => convertTimestamps(req));
 
     return NextResponse.json({
       success: true,
-      count: visitsWithConvertedDates.length,
-      limit: validLimit,
-      data: visitsWithConvertedDates
+      count: convertedRequests.length,
+      data: convertedRequests
     });
   } catch (error) {
-    logger.error('Error getting all visits:', error);
+    logger.error('Error getting call requests:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to retrieve visits. Please try again later.'
+        error: 'Failed to retrieve requests'
       },
       { status: 500 }
     );
   }
 }
-
