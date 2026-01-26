@@ -5,19 +5,19 @@ import { Phone, Mail, MapPin } from "lucide-react";
 export default function CompanyDetails() {
   const details = [
     {
-      icon: <Phone className="w-10 h-10 text-[var(--color-ochre)] mx-auto" />,
+      icon: <Phone className="w-10 h-10 text-ochre mx-auto" />,
       title: "Call Us",
       info: "(+91) - 8130120098",
       subtext: "Monday – Friday: 10:00 am – 06:00 pm",
     },
     {
-      icon: <Mail className="w-10 h-10 text-[var(--color-ochre)] mx-auto" />,
+      icon: <Mail className="w-10 h-10 text-ochre mx-auto" />,
       title: "Send Message",
       info: "info@aibricksrealtors.com",
       subtext: "info@aibricksrealtors.com",
     },
     {
-      icon: <MapPin className="w-10 h-10 text-[var(--color-ochre)] mx-auto" />,
+      icon: <MapPin className="w-10 h-10 text-ochre mx-auto" />,
       title: "Visit Our Office",
       info: "Office no 428",
       subtext:
@@ -31,11 +31,8 @@ export default function CompanyDetails() {
         <img src="/home/dubai.webp" className="w-full h-full" />
       </div>
       {/* Heading */}
-      <h2 className="text-center text-3xl md:text-4xl text-[var(--color-darkgray)] font-bold mt-16 mb-12">
-        Our{" "}
-        <span className="text-[var(--color-darkgray)]  bg-clip-text">
-          Company Details
-        </span>
+      <h2 className="text-center text-3xl md:text-4xl text-darkgray font-bold mt-16 mb-12">
+        Our <span className="text-darkgray  bg-clip-text">Company Details</span>
       </h2>
 
       {/* Grid Section */}
