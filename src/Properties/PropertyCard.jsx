@@ -7,6 +7,7 @@ import {
   CarFront,
   MessageCircleMore,
   Phone,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import BookSiteVisitModal from "./BookSiteVisitModal";
@@ -76,16 +77,18 @@ export default function PropertyCard({ property }) {
 
             {/* ACTIONS */}
             <div className="flex gap-3">
-              <a
-                href={`tel:${property.seller?.phoneNumber || ""}`}
-                className="flex items-center gap-1 border bg-ochre border-gray-300 px-4 py-2 rounded-lg text-lg hover:bg-brickred text-lightcream transition"
-              >
-                <Phone /> Call
-              </a>
+              <p>
+                <a
+                  href={`tel:${property.seller?.phoneNumber || ""}`}
+                  className="flex items-center gap-1 border bg-ochre border-gray-300 px-2 py-2 rounded-lg text-md hover:bg-brickred text-lightcream transition"
+                >
+                  <Phone /> Call
+                </a>
+              </p>
 
               <button
                 onClick={() => setOpenTour(true)}
-                className="flex items-center gap-1 border bg-ochre border-gray-300 px-4 py-2 rounded-lg text-lg hover:bg-brickred text-lightcream transition"
+                className="flex items-center gap-1 border bg-ochre border-gray-300 px-2 py-2 rounded-lg text-md hover:bg-brickred text-lightcream transition"
               >
                 <CarFront /> Tour
               </button>
@@ -98,7 +101,7 @@ export default function PropertyCard({ property }) {
 
               <Link
                 href={`/properties/${property.id}`}
-                className="flex items-center gap-1 bg-brickred text-white px-4 py-2 rounded-lg text-md hover:bg-ochre transition"
+                className="flex items-center gap-1 bg-brickred text-white px-2 py-2 rounded-lg text-md hover:bg-ochre transition"
               >
                 View Details
               </Link>
