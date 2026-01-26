@@ -43,6 +43,7 @@ export default function BookSiteVisitCard() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState("");
+  const [cabRequired, setCabRequired] = useState(true);
   const [showCalendar, setShowCalendar] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -182,6 +183,7 @@ export default function BookSiteVisitCard() {
           propertyId: selectedProperty?.id || null,
           date: format(selectedDate, "yyyy-MM-dd"),
           time: selectedSlot,
+          cabRequired,
           message: "Booked via website", // ✅ OPTIONAL
         }),
       });
@@ -422,13 +424,22 @@ export default function BookSiteVisitCard() {
           <input
             type="radio"
             name="transport"
-            defaultChecked
+            value="yes"
+            checked={cabRequired === true}
+            onChange={() => setCabRequired(true)}
             className="accent-brickred"
           />
           Cab
         </label>
         <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input type="radio" name="transport" className="accent-brickred" />
+          <input
+            type="radio"
+            name="transport"
+            value="no"
+            checked={cabRequired === false}
+            onChange={() => setCabRequired(false)}
+            className="accent-brickred"
+          />
           Not Required
         </label>
       </div>
