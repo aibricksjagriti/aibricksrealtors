@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Navbar from "./Home/Navbar";
-import ContactModal from "./Modal/ContactModal";
+// import ContactModal from "./Modal/ContactModal";
 import Footer from "./Footer";
 import ClientLayout from "./ClientLayout";
 import AuthModalController from "./Auth/AuthModalController";
@@ -17,7 +17,7 @@ export default function ClientLayoutWrapper({ children }) {
       {/*  Modal controller */}
       <AuthModalController ref={authModalRef} />
       {children}
-      <ContactModal />
+      {/* <ContactModal /> */}
       <Footer />
     </ClientLayout>
   );
