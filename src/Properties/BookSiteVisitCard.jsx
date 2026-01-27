@@ -86,7 +86,7 @@ export default function BookSiteVisitCard() {
 
       const text = await res.text();
 
-      // 🚨 Prevent JSON crash
+      // Prevent JSON crash
       if (!text || text.startsWith("<")) {
         throw new Error("Invalid JSON response");
       }

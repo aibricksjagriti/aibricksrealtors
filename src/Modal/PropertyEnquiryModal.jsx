@@ -1,4 +1,5 @@
 "use client";
+
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -10,25 +11,30 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
     phone: "",
     message: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  if (!isOpen) return null;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError(""); // Clear error when user types
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
+
     setLoading(true);
     setError("");
     setSuccess(false);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-      const response = await fetch(`${apiUrl}/api/v1/interested`, {
+      const res = await fetch("/api/v1/interested", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,20 +43,23 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
           name: formData.name || null,
           email: formData.email || null,
           phone: formData.phone || null,
-          propertyId: property?.id || null,
-          propertyName: property?.propertyTitle || null,
-          propertyLocation: property?.locality || null,
           message: formData.message || null,
+
+          // Property info (matches backend)
+          propertyId: property?.id || null,
+          propertyTitle: property?.propertyTitle || property?.name || null,
+          propertyName: property?.propertyTitle || property?.name || null,
+          propertyLocation: property?.locality || property?.location || null,
         }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to submit enquiry");
+      if (!res.ok || !data.success) {
+        throw new Error(data?.error || "Failed to submit enquiry");
       }
 
-      // Success
+      // ✅ Success
       setSuccess(true);
       setFormData({
         name: "",
@@ -59,104 +68,90 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
         message: "",
       });
 
-      // Close modal after 2 seconds
       setTimeout(() => {
         setSuccess(false);
         onClose();
       }, 2000);
     } catch (err) {
-      setError(err.message || "An error occurred. Please try again.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleClose = () => {
-    if (!loading) {
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-      });
-      setError("");
-      setSuccess(false);
-      onClose();
-    }
+    if (loading) return;
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    });
+    setError("");
+    setSuccess(false);
+    onClose();
   };
-
-  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center px-4 backdrop-blur-md bg-black/30"
+        className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-md"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={handleClose}
       >
         <motion.div
+          onClick={(e) => e.stopPropagation()}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          onClick={(e) => e.stopPropagation()}
-          className="
-            relative w-full max-w-md 
-            rounded-2xl 
-            bg-white/30 backdrop-blur-xl 
-            border border-white/30 
-            shadow-2xl 
-            p-6
-          "
+          className="relative w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl border shadow-xl p-6"
         >
           {/* Close */}
           <button
             onClick={handleClose}
             disabled={loading}
-            className="absolute top-3 right-3 text-gray-700 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute top-3 right-3 text-gray-700 hover:text-black disabled:opacity-50"
           >
             <X />
           </button>
 
           {/* Header */}
-          <h3 className="text-2xl font-serif font-bold text-[var(--color-darkgray)] mb-1">
+          <h3 className="text-2xl font-serif font-bold mb-1">
             Property Enquiry
           </h3>
-          <p className="text-gray-700 mb-4 text-sm">
+          <p className="text-sm text-gray-600 mb-4">
             Interested in{" "}
             <span className="font-semibold">
               {property?.propertyTitle || property?.name}
             </span>
           </p>
 
-          {/* Success Message */}
+          {/* Success */}
           {success && (
-            <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
-              <p className="text-sm font-medium">
-                Thank you! Your enquiry has been submitted successfully.
-              </p>
+            <div className="mb-4 rounded-md border border-green-400 bg-green-100 p-3 text-green-700 text-sm">
+              Thank you! Your enquiry has been submitted.
             </div>
           )}
 
-          {/* Error Message */}
+          {/* Error */}
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
-              <p className="text-sm font-medium">{error}</p>
+            <div className="mb-4 rounded-md border border-red-400 bg-red-100 p-3 text-red-700 text-sm">
+              {error}
             </div>
           )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
-              type="text"
               name="name"
               placeholder="Your Name"
               value={formData.name}
               onChange={handleChange}
               required
               disabled={loading || success}
-              className="w-full rounded-md px-3 py-2 bg-white/70 border focus:ring-2 focus:ring-[var(--color-brickred)] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md border px-3 py-2 bg-white focus:ring-2 focus:ring-brickred outline-none"
             />
 
             <input
@@ -164,10 +159,10 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
               name="email"
               placeholder="Email Address"
               value={formData.email}
-              required
               onChange={handleChange}
+              required
               disabled={loading || success}
-              className="w-full rounded-md px-3 py-2 bg-white/70 border focus:ring-2 focus:ring-[var(--color-brickred)] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md border px-3 py-2 bg-white focus:ring-2 focus:ring-brickred outline-none"
             />
 
             <input
@@ -175,18 +170,17 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
               name="phone"
               placeholder="Phone Number"
               value={formData.phone}
-              required
               onChange={handleChange}
+              required
               disabled={loading || success}
-              className="w-full rounded-md px-3 py-2 bg-white/70 border focus:ring-2 focus:ring-[var(--color-brickred)] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md border px-3 py-2 bg-white focus:ring-2 focus:ring-brickred outline-none"
             />
 
-            {/* Auto-filled Property Info */}
+            {/* Property info (read-only) */}
             <input
-              type="text"
-              value={`${property?.propertyTitle || property?.name || ""} - ${property?.locality || property?.location || ""}`}
               readOnly
-              className="w-full rounded-md px-3 py-2 bg-gray-200 border text-gray-700 cursor-not-allowed"
+              value={`${property?.propertyTitle || property?.name || ""} - ${property?.locality || property?.location || ""}`}
+              className="w-full rounded-md border px-3 py-2 bg-gray-200 text-gray-700"
             />
 
             <textarea
@@ -196,15 +190,19 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
               value={formData.message}
               onChange={handleChange}
               disabled={loading || success}
-              className="w-full rounded-md px-3 py-2 bg-white/70 border focus:ring-2 focus:ring-[var(--color-brickred)] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md border px-3 py-2 bg-white focus:ring-2 focus:ring-brickred outline-none"
             />
 
             <button
               type="submit"
               disabled={loading || success}
-              className="w-full bg-[var(--color-brickred)] text-white py-2 rounded-md hover:bg-[var(--color-ochre)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md bg-brickred py-2 text-white hover:bg-ochre transition disabled:opacity-50"
             >
-              {loading ? "Submitting..." : success ? "Submitted!" : "Submit Enquiry"}
+              {loading
+                ? "Submitting..."
+                : success
+                  ? "Submitted!"
+                  : "Submit Enquiry"}
             </button>
           </form>
         </motion.div>
