@@ -18,8 +18,18 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
 
   if (!isOpen) return null;
 
+  // ✅ Handle input change with phone validation
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Phone: allow only numbers & max 10 digits
+    if (name === "phone") {
+      const numericValue = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((prev) => ({ ...prev, phone: numericValue }));
+      setError("");
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
   };
@@ -28,6 +38,12 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
     e.preventDefault();
 
     if (loading) return;
+
+    // ✅ Final phone validation (important)
+    if (!/^\d{10}$/.test(formData.phone)) {
+      setError("Phone number must be exactly 10 digits.");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -45,7 +61,6 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
           phone: formData.phone || null,
           message: formData.message || null,
 
-          // Property info (matches backend)
           propertyId: property?.id || null,
           propertyTitle: property?.propertyTitle || property?.name || null,
           propertyName: property?.propertyTitle || property?.name || null,
@@ -59,7 +74,6 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
         throw new Error(data?.error || "Failed to submit enquiry");
       }
 
-      // ✅ Success
       setSuccess(true);
       setFormData({
         name: "",
@@ -108,7 +122,6 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
           exit={{ scale: 0.9, opacity: 0 }}
           className="relative w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl border shadow-xl p-6"
         >
-          {/* Close */}
           <button
             onClick={handleClose}
             disabled={loading}
@@ -117,7 +130,6 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
             <X />
           </button>
 
-          {/* Header */}
           <h3 className="text-2xl font-serif font-bold mb-1">
             Property Enquiry
           </h3>
@@ -128,21 +140,18 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
             </span>
           </p>
 
-          {/* Success */}
           {success && (
             <div className="mb-4 rounded-md border border-green-400 bg-green-100 p-3 text-green-700 text-sm">
               Thank you! Your enquiry has been submitted.
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <div className="mb-4 rounded-md border border-red-400 bg-red-100 p-3 text-red-700 text-sm">
               {error}
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
               name="name"
@@ -165,18 +174,22 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
               className="w-full rounded-md border px-3 py-2 bg-white focus:ring-2 focus:ring-brickred outline-none"
             />
 
+            {/* ✅ Phone number validation */}
             <input
               type="tel"
               name="phone"
               placeholder="Phone Number"
               value={formData.phone}
               onChange={handleChange}
+              inputMode="numeric"
+              pattern="[0-9]{10}"
+              maxLength={10}
+              minLength={10}
               required
               disabled={loading || success}
               className="w-full rounded-md border px-3 py-2 bg-white focus:ring-2 focus:ring-brickred outline-none"
             />
 
-            {/* Property info (read-only) */}
             <input
               readOnly
               value={`${property?.propertyTitle || property?.name || ""} - ${property?.locality || property?.location || ""}`}

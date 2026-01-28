@@ -43,7 +43,7 @@ export default function BookSiteVisitCard() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [cabRequired, setCabRequired] = useState(true);
+  const [cabRequired, setCabRequired] = useState("yes");
   const [showCalendar, setShowCalendar] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -67,11 +67,11 @@ export default function BookSiteVisitCard() {
     try {
       let url;
 
-      // ✅ Prefer public API URL if available
+      //  Prefer public API URL if available
       if (process.env.NEXT_PUBLIC_API_URL) {
         url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/properties`;
       } else {
-        // ✅ Client-safe fallback (relative URL)
+        //  Client-safe fallback (relative URL)
         url = `/api/v1/properties`;
       }
 
@@ -94,7 +94,7 @@ export default function BookSiteVisitCard() {
       return JSON.parse(text);
     } catch (error) {
       console.error("Error fetching properties:", error);
-      return null; // ✅ client should not throw
+      return null; //  client should not throw
     }
   }
 
@@ -163,28 +163,48 @@ export default function BookSiteVisitCard() {
     // router.push("/thank-you");
   };
 
+  const handlePhoneChange = (e) => {
+    const numericValue = e.target.value.replace(/\D/g, "");
+    if (numericValue.length > 10) return;
+    setForm({ ...form, phone: numericValue });
+    setSubmitError("");
+  };
+
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  };
+
   const submitSiteVisit = async () => {
     if (!form.name || !form.phone || !form.email) {
       setSubmitError("All fields are required");
       return;
     }
+
+    if (!/^\d{10}$/.test(form.phone)) {
+      setSubmitError("Phone number must be exactly 10 digits");
+      return;
+    }
+
+    if (!isValidEmail(form.email)) {
+      setSubmitError("Please enter a valid email address");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch("/api/v1/schedule-visit", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
-          phone: form.phone, // ✅ FIXED
+          phone: form.phone,
           email: form.email,
           propertyId: selectedProperty?.id || null,
           date: format(selectedDate, "yyyy-MM-dd"),
           time: selectedSlot,
           cabRequired,
-          message: "Booked via website", // ✅ OPTIONAL
+          message: "Booked via website",
         }),
       });
 
@@ -197,10 +217,10 @@ export default function BookSiteVisitCard() {
 
       toast.success("Site visit booked successfully!");
       setShowModal(false);
+      setForm({ name: "", phone: "", email: "" });
     } catch (error) {
       console.error(error);
-      setSubmitError("Something went wrong. Please try again.");
-      toast.error(error.message || "Something went wrong");
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -273,75 +293,6 @@ export default function BookSiteVisitCard() {
           className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-100 cursor-pointer"
         />
 
-        {/* {showCalendar && (
-          <div
-            className={`absolute bg-white rounded-xl shadow-2xl p-4 ${
-              openUpward ? "bottom-full mb-3" : "top-full mt-3"
-            }`}
-            style={{ zIndex: 9999 }}
-          >
-            {step === "calendar" && (
-              <>
-                <DayPicker
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={{ before: new Date() }}
-                />
-
-                <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    onClick={() => setShowCalendar(false)}
-                    className="px-4 py-2 border rounded"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => setStep("slots")}
-                    className="px-4 py-2 bg-brickred text-white rounded"
-                  >
-                    Next
-                  </button>
-                </div>
-              </>
-            )}
-
-            {step === "slots" && (
-              <>
-                <div className="grid grid-cols-4 gap-3">
-                  {TIME_SLOTS.map((slot) => (
-                    <button
-                      key={slot}
-                      onClick={() => setSelectedSlot(slot)}
-                      className={`py-2 rounded text-xs border ${
-                        selectedSlot === slot
-                          ? "bg-brickred text-white"
-                          : "hover:bg-gray-100"
-                      }`}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    onClick={() => setStep("calendar")}
-                    className="px-4 py-2 border rounded"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={() => setShowCalendar(false)}
-                    className="px-4 py-2 bg-brickred text-white rounded"
-                  >
-                    Done
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )} */}
         {showCalendar && (
           <div
             className="fixed inset-0 z-[99999] flex items-start justify-center bg-black/30"
@@ -425,8 +376,8 @@ export default function BookSiteVisitCard() {
             type="radio"
             name="transport"
             value="yes"
-            checked={cabRequired === true}
-            onChange={() => setCabRequired(true)}
+            checked={cabRequired === "yes"}
+            onChange={() => setCabRequired("yes")}
             className="accent-brickred"
           />
           Cab
@@ -436,8 +387,8 @@ export default function BookSiteVisitCard() {
             type="radio"
             name="transport"
             value="no"
-            checked={cabRequired === false}
-            onChange={() => setCabRequired(false)}
+            checked={cabRequired === "no"}
+            onChange={() => setCabRequired("no")}
             className="accent-brickred"
           />
           Not Required
@@ -481,22 +432,34 @@ export default function BookSiteVisitCard() {
             <input
               type="text"
               placeholder="Enter name"
+              value={form.name}
               className="w-full mb-3 p-3 bg-gray-100 rounded"
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, name: e.target.value });
+                setSubmitError("");
+              }}
             />
 
             <input
               type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={10}
               placeholder="Phone number"
+              value={form.phone}
               className="w-full mb-3 p-3 bg-gray-100 rounded"
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              onChange={handlePhoneChange}
             />
 
             <input
               type="email"
               placeholder="Email address"
+              value={form.email}
               className="w-full mb-4 p-3 bg-gray-100 rounded"
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, email: e.target.value.trim() });
+                setSubmitError("");
+              }}
             />
 
             {submitError && (

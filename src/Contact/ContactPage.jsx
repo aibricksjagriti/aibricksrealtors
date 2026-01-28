@@ -17,7 +17,16 @@ export default function ContactPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    // 🔒 Phone number validation (numbers only + max 10 digits)
+    if (name === "phone") {
+      const numericValue = value.replace(/\D/g, ""); // remove non-numbers
+      if (numericValue.length > 10) return;
+      setForm((prev) => ({ ...prev, phone: numericValue }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
+
     if (error) setError("");
   };
 
@@ -25,6 +34,11 @@ export default function ContactPage() {
     if (!form.firstName || !form.lastName || !form.email || !form.phone) {
       return "First name, last name, email, and phone are required.";
     }
+
+    if (!/^\d{10}$/.test(form.phone)) {
+      return "Phone number must be exactly 10 digits.";
+    }
+
     return null;
   };
 
@@ -85,15 +99,6 @@ export default function ContactPage() {
           className="bg-gray-50 rounded-3xl shadow-md p-8 space-y-5"
         >
           <h3 className="text-4xl font-semibold">Let’s Get In Touch.</h3>
-          <p className="text-gray-600">
-            Or email us at{" "}
-            <a
-              href="mailto:info@aibricksrealtors.com"
-              className="text-indigo-600 font-medium"
-            >
-              info@aibricksrealtors.com
-            </a>
-          </p>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <input
@@ -124,6 +129,9 @@ export default function ContactPage() {
           <input
             name="phone"
             type="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={10}
             value={form.phone}
             onChange={handleChange}
             placeholder="Phone number"
@@ -162,7 +170,6 @@ export default function ContactPage() {
         </form>
       </div>
 
-      {/* Small utility styles */}
       <style jsx>{`
         .input {
           width: 100%;

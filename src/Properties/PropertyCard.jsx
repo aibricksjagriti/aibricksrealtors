@@ -77,14 +77,14 @@ export default function PropertyCard({ property }) {
 
             {/* ACTIONS */}
             <div className="flex gap-3">
-              <p>
+              {/* <p>
                 <a
                   href={`tel:${property.seller?.phoneNumber || ""}`}
                   className="flex items-center gap-1 border bg-ochre border-gray-300 px-2 py-2 rounded-lg text-md hover:bg-brickred text-lightcream transition"
                 >
                   <Phone /> Call
                 </a>
-              </p>
+              </p> */}
 
               <button
                 onClick={() => setOpenTour(true)}
