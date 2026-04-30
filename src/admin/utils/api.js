@@ -10,7 +10,7 @@
  */
 const getApiBaseUrl = () => {
   // Determine base URL
-  let baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  let baseUrl = null //process.env.NEXT_PUBLIC_API_URL;
 
   // If no env var, use origin (client) or localhost (server)
   if (!baseUrl) {
@@ -255,6 +255,37 @@ export const dashboardAPI = {
   getAll: async () => {
     return await apiRequest('/v1/dashboard');
   },
+};
+
+// Developers APIs
+export const developersAPI = {
+  getAll: async () => await apiRequest('/v1/developers'),
+  getById: async (id) => await apiRequest(`/v1/developers/${id}`),
+  create: async (data) => await apiRequest('/v1/developers', { method: 'POST', body: JSON.stringify(data) }),
+  update: async (id, data) => await apiRequest(`/v1/developers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: async (id) => await apiRequest(`/v1/developers/${id}`, { method: 'DELETE' }),
+};
+
+// Location Pages APIs (city-level pages with banner, description, etc.)
+export const locationPagesAPI = {
+  getAll: async () => await apiRequest('/v1/location-pages'),
+  getById: async (id) => await apiRequest(`/v1/location-pages/${id}`),
+  create: async (data) => await apiRequest('/v1/location-pages', { method: 'POST', body: JSON.stringify(data) }),
+  update: async (id, data) => await apiRequest(`/v1/location-pages/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: async (id) => await apiRequest(`/v1/location-pages/${id}`, { method: 'DELETE' }),
+};
+
+// Localities APIs
+export const localitiesAPI = {
+  getAll: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return await apiRequest(`/v1/localities${queryString ? '?' + queryString : ''}`);
+  },
+  getCities: async () => await apiRequest('/v1/localities?citiesOnly=true'),
+  getById: async (id) => await apiRequest(`/v1/localities/${id}`),
+  create: async (data) => await apiRequest('/v1/localities', { method: 'POST', body: JSON.stringify(data) }),
+  update: async (id, data) => await apiRequest(`/v1/localities/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: async (id) => await apiRequest(`/v1/localities/${id}`, { method: 'DELETE' }),
 };
 
 // Health check

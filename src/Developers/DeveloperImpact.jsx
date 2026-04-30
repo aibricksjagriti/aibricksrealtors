@@ -12,45 +12,48 @@ function formatBuilderName(slug) {
     .join(" ");
 }
 
-export default function DeveloperImpact() {
-  const params = useParams();
+export const defaultImpactPoints = [
+  {
+    title: "Economic Contribution",
+    desc: "The development of residential, commercial, and retail projects by the builder has significantly contributed to job creation and economic growth in the region. These developments not only generate direct employment in construction and real estate sectors but also create indirect opportunities in allied industries such as retail, logistics, and services.",
+  },
+  {
+    title: "Focus on Sustainability",
+    desc: "The builder emphasizes eco-friendly construction practices by incorporating green building concepts, energy-efficient technologies, rainwater harvesting systems, and sustainable materials. This commitment helps reduce environmental impact while promoting long-term sustainability in urban development.",
+  },
+  {
+    title: "Enhanced Infrastructure",
+    desc: "Through large-scale residential and commercial developments, the builder has played a crucial role in improving local infrastructure. This includes better road connectivity, upgraded public utilities, enhanced transportation access, and overall improvement in civic amenities surrounding the project areas.",
+  },
+  {
+    title: "Influence on Market Trends",
+    desc: "The builder has set new benchmarks in the real estate industry by introducing innovative architectural designs, modern amenities, and smart living solutions. Their projects influence market trends and raise the overall standard of quality and lifestyle expectations among homebuyers.",
+  },
+  {
+    title: "Customer Satisfaction",
+    desc: "Customer-centric approach, timely project delivery, and transparent dealings have helped the builder establish a strong reputation in the market. By maintaining quality standards and fulfilling commitments, they have built trust and long-term relationships with buyers and investors.",
+  },
+  {
+    title: "Integrated Township Development",
+    desc: "The builder focuses on creating integrated townships that offer a complete lifestyle experience. These developments include residential units along with schools, hospitals, retail spaces, parks, and recreational facilities, ensuring convenience and a self-sustained community environment.",
+  },
+  {
+    title: "Technological Innovation",
+    desc: "Adoption of modern construction technologies and smart home features has enabled the builder to deliver high-quality projects efficiently. Use of automation, advanced materials, and digital solutions enhances both construction quality and user experience.",
+  },
+];
 
-  const impactPoints = [
-    {
-      title: "Economic Contribution",
-      desc: "The development of residential, commercial, and retail projects by the builder has significantly contributed to job creation and economic growth in the region. These developments not only generate direct employment in construction and real estate sectors but also create indirect opportunities in allied industries such as retail, logistics, and services.",
-    },
-    {
-      title: "Focus on Sustainability",
-      desc: "The builder emphasizes eco-friendly construction practices by incorporating green building concepts, energy-efficient technologies, rainwater harvesting systems, and sustainable materials. This commitment helps reduce environmental impact while promoting long-term sustainability in urban development.",
-    },
-    {
-      title: "Enhanced Infrastructure",
-      desc: "Through large-scale residential and commercial developments, the builder has played a crucial role in improving local infrastructure. This includes better road connectivity, upgraded public utilities, enhanced transportation access, and overall improvement in civic amenities surrounding the project areas.",
-    },
-    {
-      title: "Influence on Market Trends",
-      desc: "The builder has set new benchmarks in the real estate industry by introducing innovative architectural designs, modern amenities, and smart living solutions. Their projects influence market trends and raise the overall standard of quality and lifestyle expectations among homebuyers.",
-    },
-    {
-      title: "Customer Satisfaction",
-      desc: "Customer-centric approach, timely project delivery, and transparent dealings have helped the builder establish a strong reputation in the market. By maintaining quality standards and fulfilling commitments, they have built trust and long-term relationships with buyers and investors.",
-    },
-    {
-      title: "Integrated Township Development",
-      desc: "The builder focuses on creating integrated townships that offer a complete lifestyle experience. These developments include residential units along with schools, hospitals, retail spaces, parks, and recreational facilities, ensuring convenience and a self-sustained community environment.",
-    },
-    {
-      title: "Technological Innovation",
-      desc: "Adoption of modern construction technologies and smart home features has enabled the builder to deliver high-quality projects efficiently. Use of automation, advanced materials, and digital solutions enhances both construction quality and user experience.",
-    },
-  ];
+export default function DeveloperImpact({ builderName: providedBuilderName, developer }) {
+  const params = useParams();
 
   // get slug from URL
   const slug = params?.slug;
 
   // convert to proper builder name
-  const builderName = formatBuilderName(slug);
+  const builderName = providedBuilderName || formatBuilderName(slug);
+  const impactPoints = Array.isArray(developer?.impactPoints) && developer.impactPoints.length
+    ? developer.impactPoints
+    : defaultImpactPoints;
 
   return (
     <section className="bg-[#f5f5f5] py-12 md:py-16 px-4 relative">

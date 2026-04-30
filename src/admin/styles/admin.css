@@ -171,6 +171,31 @@
   transform: translateY(0);
 }
 
+.admin-btn-secondary {
+  background: #ffffff;
+  color: var(--admin-text-secondary);
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: var(--admin-shadow-sm);
+  transition: all 0.2s ease;
+  border: 1px solid var(--admin-border);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.admin-btn-secondary:hover {
+  color: var(--admin-primary-hover);
+  border-color: rgba(124, 58, 237, 0.35);
+  background: #faf7ff;
+  box-shadow: var(--admin-shadow);
+  transform: translateY(-1px);
+}
+
+.admin-btn-secondary:active {
+  transform: translateY(0);
+}
+
 /* Premium Inputs */
 .admin-input {
   background: var(--admin-card-bg);

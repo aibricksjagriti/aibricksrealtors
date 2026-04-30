@@ -1,32 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Loader from "./Loader";
+import { Suspense } from "react";
+import RouteProgress from "./RouteProgress";
 
 export default function ClientLayout({ children }) {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const handleLoad = () => setLoading(false);
-
-    if (document.readyState === "complete") {
-      setLoading(false);
-    } else {
-      window.addEventListener("load", handleLoad);
-      return () => window.removeEventListener("load", handleLoad);
-    }
-  }, []);
-
   return (
     <>
-      {loading && <Loader />}
-      <div
-        className={`transition-opacity duration-700 ${
-          loading ? "opacity-0" : "opacity-100"
-        }`}
-      >
-        {children}
-      </div>
+      <Suspense fallback={null}>
+        <RouteProgress />
+      </Suspense>
+      {children}
     </>
   );
 }

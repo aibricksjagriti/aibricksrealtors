@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
-import { useParams } from "next/navigation";
+import { Menu, X, Home, ChevronLeft } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
 const sections = [
   { id: "overview", label: "OVERVIEW" },
@@ -16,26 +18,23 @@ const sections = [
 export default function PropertySectionNav() {
   const [active, setActive] = useState("overview");
   const [isOpen, setIsOpen] = useState(false);
-  const [propertyTitle, setPropertyTitle] = useState("");
+  const router = useRouter();
 
   const { id } = useParams(); // ✅ get property id
 
-  // ✅ FETCH PROPERTY TITLE
-  useEffect(() => {
-    async function fetchProperty() {
-      try {
-        const res = await fetch(`/api/v1/properties/${id}`);
-        const data = await res.json();
+  // ✅ FETCH PROPERTY TITLE WITH TANSTACK QUERY
+  const { data: property } = useQuery({
+    queryKey: ["property", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/v1/properties/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      return data?.data || null;
+    },
+    enabled: !!id,
+  });
 
-        setPropertyTitle(data?.data?.propertyTitle || "Property Details");
-      } catch (err) {
-        console.error("Error fetching property:", err);
-        setPropertyTitle("Property Details");
-      }
-    }
-
-    if (id) fetchProperty();
-  }, [id]);
+  const propertyTitle = property?.propertyTitle || "Property Details";
 
   // ✅ SCROLL SPY
   useEffect(() => {
@@ -76,19 +75,28 @@ export default function PropertySectionNav() {
     <>
       {/* NAVBAR */}
       <nav className="fixed top-0 left-0 w-full bg-[var(--color-brickred)] shadow-md z-50">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          {/* ✅ PROPERTY NAME FROM API */}
-          <div className="text-lg md:text-2xl font-bold text-[var(--color-ochre)] truncate max-w-[70%]">
-            {propertyTitle || "Loading..."}
+        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center gap-4">
+          {/* ✅ BACK BUTTON + PROPERTY NAME */}
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => router.back()}
+              title="Go back"
+              className="flex-shrink-0 p-2 hover:bg-[var(--color-ochre)]/20 rounded-lg transition text-[var(--color-ochre)]"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <div className="text-lg md:text-2xl font-bold text-[var(--color-ochre)] truncate">
+              {propertyTitle || "Loading..."}
+            </div>
           </div>
 
           {/* DESKTOP MENU */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6">
             {sections.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className={`font-sans transition-colors ${
+                className={`font-sans text-sm transition-colors ${
                   active === item.id
                     ? "text-[var(--color-ochre)]"
                     : "text-[var(--color-lightcream)] hover:text-[var(--color-ochre)]"
@@ -102,7 +110,7 @@ export default function PropertySectionNav() {
           {/* MOBILE MENU BUTTON */}
           <button
             onClick={() => setIsOpen(true)}
-            className="md:hidden text-white"
+            className="lg:hidden text-white"
           >
             <Menu size={26} />
           </button>
@@ -129,6 +137,13 @@ export default function PropertySectionNav() {
         </div>
 
         <div className="flex flex-col p-6 gap-4 text-md">
+          <Link
+            href="/"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2 text-brickred font-semibold pb-4 border-b"
+          >
+            <Home size={20} /> Back to Home
+          </Link>
           {sections.map((item) => (
             <button
               key={item.id}

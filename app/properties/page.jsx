@@ -4,11 +4,13 @@ import HeroSection from "@/src/Properties/HeroSection";
 import PropertyCard from "@/src/Properties/PropertyCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { headers } from "next/headers";
 import FAQSection from "@/src/FAQSection";
 import { propertyFaqs } from "@/data/faq";
+import { getCachedProperties } from "@/lib/data/properties";
 
 const ITEMS_PER_PAGE = 10;
+
+export const revalidate = 300;
 
 // async function getProperties() {
 //   try {
@@ -40,26 +42,8 @@ const ITEMS_PER_PAGE = 10;
 
 async function getProperties() {
   try {
-    const headersList = headers();
-
-    const host = headersList.get("x-forwarded-host") || headersList.get("host");
-
-    const protocol = headersList.get("x-forwarded-proto") || "https";
-
-    if (!host) {
-      throw new Error("Host header is missing");
-    }
-
-    const res = await fetch(`${protocol}://${host}/api/v1/properties`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      console.error("API error:", res.status);
-      throw new Error("API response not OK");
-    }
-
-    return res.json();
+    const properties = await getCachedProperties({ activeStatus: "Yes" });
+    return { success: true, data: properties };
   } catch (error) {
     console.error("Error fetching properties:", error);
     throw new Error("Failed to load properties");
@@ -69,29 +53,68 @@ async function getProperties() {
 export default async function PageProperties({ searchParams }) {
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams?.page) || 1;
+  const cityFilter = resolvedSearchParams?.city?.trim().toLowerCase() || "";
+  const propertyTypeFilter =
+    resolvedSearchParams?.propertyType?.trim().toLowerCase() || "";
+  const developerFilter =
+    resolvedSearchParams?.developer?.trim().toLowerCase() ||
+    resolvedSearchParams?.builder?.trim().toLowerCase() ||
+    "";
+  const minPrice = Number(resolvedSearchParams?.minPrice) || null;
+  const maxPrice = Number(resolvedSearchParams?.maxPrice) || null;
 
   const response = await getProperties();
-  const properties = response?.data || [];
+  const properties = (response?.data || []).filter((property) => {
+    const propertyCity = property.city?.trim().toLowerCase() || "";
+    const propertyType = property.propertyType?.trim().toLowerCase() || "";
+    const builderName = property.builderName?.trim().toLowerCase() || "";
+    const totalPrice = Number(property.totalPrice) || 0;
+
+    if (cityFilter && propertyCity !== cityFilter) return false;
+    if (propertyTypeFilter && propertyType !== propertyTypeFilter) return false;
+    if (developerFilter && !builderName.includes(developerFilter)) return false;
+    if (minPrice && totalPrice < minPrice) return false;
+    if (maxPrice && totalPrice > maxPrice) return false;
+
+    return true;
+  });
 
   const totalPages = Math.ceil(properties.length / ITEMS_PER_PAGE);
-
-  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const currentPage = Math.min(page, totalPages || 1);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedProperties = properties.slice(startIndex, endIndex);
 
+  const buildPageHref = (nextPage) => {
+    const params = new URLSearchParams();
+
+    Object.entries(resolvedSearchParams || {}).forEach(([key, value]) => {
+      if (key === "page" || value == null || value === "") return;
+      params.set(key, String(value));
+    });
+
+    params.set("page", String(nextPage));
+
+    return `?${params.toString()}`;
+  };
+
   return (
     <div className="bg-background">
-      <HeroSection />
+      <HeroSection searchBasePath="/search" />
 
       {/* Heading */}
       <div className="mb-8">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-3xl font-semibold text-darkGray">
-            Top Projects by AI Bricks Realtors in Pune
-          </h1>
-          <p className="text-lg text-gray-500 mt-1">
-            Buy directly from builders • No brokerage • Verified projects
-          </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+            <div>
+              <h1 className="text-3xl font-semibold text-darkGray">
+                Top Projects by AI Bricks Realtors in Pune
+              </h1>
+              <p className="text-lg text-gray-500 mt-1">
+                Buy directly from builders • No brokerage • Verified projects
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -109,7 +132,7 @@ export default async function PageProperties({ searchParams }) {
               <div className="inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 shadow-md">
                 {/* Previous */}
                 <Link
-                  href={`?page=${page - 1}`}
+                  href={buildPageHref(currentPage - 1)}
                   className={`flex items-center justify-center w-9 h-9 rounded-full transition ${
                     page === 1
                       ? "pointer-events-none text-gray-300"
@@ -130,7 +153,7 @@ export default async function PageProperties({ searchParams }) {
                   .map((p, index, arr) => (
                     <Link
                       key={p}
-                      href={`?page=${p}`}
+                      href={buildPageHref(p)}
                       className={`flex items-center justify-center w-9 h-9 rounded-full text-sm font-medium transition ${
                         page === p
                           ? "bg-brickred text-white shadow"
@@ -143,7 +166,7 @@ export default async function PageProperties({ searchParams }) {
 
                 {/* Next */}
                 <Link
-                  href={`?page=${page + 1}`}
+                  href={buildPageHref(currentPage + 1)}
                   className={`flex items-center justify-center w-9 h-9 rounded-full transition ${
                     page === totalPages
                       ? "pointer-events-none text-gray-300"

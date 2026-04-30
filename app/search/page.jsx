@@ -1,34 +1,13 @@
-import BookSiteVisitCard from "@/src/Properties/BookSiteVisitCard";
-import ContactSidebar from "@/src/Properties/ContactSidebar";
 import SearchClient from "@/src/Search/SearchClient";
+import { SearchSkeleton } from "@/src/skeletons/SearchSkeleton";
 import { Suspense } from "react";
+
+export const dynamic = "force-dynamic";
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<SearchFallback />}>
-      {/* <SearchClient /> */}
-      <div className="max-w-7xl mx-auto px-4 py-24 space-y-6">
-        {/* LEFT LISTINGS */}
-        {/* <div className="lg:col-span-8 space-y-4 mt-"> */}
-        <SearchClient />
-        {/* </div> */}
-
-        {/* RIGHT SIDEBAR */}
-        {/* <div className="hidden lg:block lg:col-span-4">
-          <div className="sticky top-28 space-y-6">
-            <ContactSidebar />
-            <BookSiteVisitCard />
-          </div>
-        </div> */}
-      </div>
+    <Suspense fallback={<SearchSkeleton />}>
+      <SearchClient />
     </Suspense>
-  );
-}
-
-function SearchFallback() {
-  return (
-    <div className="min-h-[60vh] flex items-center justify-center text-gray-400">
-      Preparing search results...
-    </div>
   );
 }

@@ -82,13 +82,11 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 
 const FALLBACK_IMAGE = "/home/indemand/4.jpg";
 
 export default function DemandSection() {
-  const [localities, setLocalities] = useState([]);
-  const router = useRouter();
+  const [areaCards, setAreaCards] = useState([]);
 
   useEffect(() => {
     const fetchLocalities = async () => {
@@ -111,19 +109,46 @@ export default function DemandSection() {
           return;
         }
 
-        // Extract unique localities
-        const map = new Map();
+        const groups = new Map();
 
         json.data.forEach((item) => {
-          if (item?.locality && !map.has(item.locality)) {
-            map.set(item.locality, {
-              name: item.locality,
-              image: item.image || FALLBACK_IMAGE,
+          const city = item?.city?.trim();
+          const locality = item?.locality?.trim();
+
+          if (!city || !locality) return;
+
+          const groupKey = `${city}::${locality}`;
+
+          if (!groups.has(groupKey)) {
+            groups.set(groupKey, {
+              city,
+              locality,
+              image: item.image || item.mainPropertyImage || FALLBACK_IMAGE,
             });
           }
         });
 
-        setLocalities([...map.values()]);
+        const cityOrder = new Map([
+          ["pune", 0],
+          ["mumbai", 1],
+          ["dubai", 2],
+        ]);
+
+        const formatted = Array.from(groups.values()).sort((a, b) => {
+          const aCity = a.city.trim().toLowerCase();
+          const bCity = b.city.trim().toLowerCase();
+          const aRank = cityOrder.has(aCity) ? cityOrder.get(aCity) : 99;
+          const bRank = cityOrder.has(bCity) ? cityOrder.get(bCity) : 99;
+
+          if (aRank !== bRank) return aRank - bRank;
+
+          const cityCompare = a.city.localeCompare(b.city);
+          if (cityCompare !== 0) return cityCompare;
+
+          return a.locality.localeCompare(b.locality);
+        });
+
+        setAreaCards(formatted);
       } catch (error) {
         console.error("Failed to fetch localities:", error);
       }
@@ -132,14 +157,7 @@ export default function DemandSection() {
     fetchLocalities();
   }, []);
 
-  const handleClick = useCallback(
-    (locality) => {
-      router.push(`/search?locality=${encodeURIComponent(locality)}`);
-    },
-    [router],
-  );
-
-  if (!localities.length) return null;
+  if (!areaCards.length) return null;
 
   return (
     <section className="py-16">
@@ -148,27 +166,33 @@ export default function DemandSection() {
           IN HIGH DEMAND
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {localities.map((loc) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+          {areaCards.map((card) => (
             <motion.div
-              key={loc.name}
-              whileHover={{ scale: 1.03 }}
+              key={`${card.city}-${card.locality}`}
+              whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              onClick={() => handleClick(loc.name)}
-              className="relative cursor-pointer overflow-hidden rounded-3xl shadow-lg group"
+              className="relative overflow-hidden rounded-3xl shadow-lg group bg-white"
             >
-              <Image
-                src={loc.image}
-                alt={loc.name}
-                width={500}
-                height={350}
-                className="object-cover w-full h-60 transition-transform duration-700 group-hover:scale-110"
-              />
+              <div className="relative">
+                <Image
+                  src={card.image}
+                  alt={`${card.locality}, ${card.city}`}
+                  width={500}
+                  height={350}
+                  className="object-cover w-full h-60 transition-transform duration-700 group-hover:scale-110"
+                />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/75 via-transparent to-transparent" />
 
-              <div className="absolute bottom-4 left-0 right-0 text-center">
-                <h3 className="text-white text-lg font-semibold">{loc.name}</h3>
+                <div className="absolute bottom-4 left-0 right-0 text-center px-4">
+                  <p className="text-white/80 text-sm uppercase tracking-[0.2em]">
+                    {card.city}
+                  </p>
+                  <h3 className="text-white text-xl font-semibold mt-1">
+                    {card.locality}
+                  </h3>
+                </div>
               </div>
             </motion.div>
           ))}

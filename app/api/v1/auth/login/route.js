@@ -16,6 +16,9 @@ export async function POST(req) {
     const body = await req.json();
     const { email, password } = body;
 
+
+    await userModel.getAll();
+
     // Validate email and password
     if (!email || !password) {
       return NextResponse.json(

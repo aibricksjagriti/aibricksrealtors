@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   MapPin,
   IndianRupee,
@@ -23,6 +24,8 @@ import SellerContactActions from "@/src/Properties/SellerContactActions";
 import LoginModal from "@/src/Auth/LoginModal";
 import LeadCaptureModal from "@/src/LeadCapture/LeadCaptureModal";
 import { downloadGalleryImages } from "@/src/utils/downloadGalleryImages";
+import { PropertyDetailSkeleton } from "@/src/skeletons/PropertyDetailSkeleton";
+import { LocationMapWithLoading } from "@/src/skeletons/LocationMapWithLoading";
 import toast from "react-hot-toast";
 
 /* ================= UTIL ================= */
@@ -45,51 +48,24 @@ const formatPrice = (price) => {
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
-  const [property, setProperty] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [developerProperties, setDeveloperProperties] = useState([]);
-  const [developerLoading, setDeveloperLoading] = useState(false);
 
-  useEffect(() => {
-    async function fetchProperty() {
+  /* ✅ FETCH MAIN PROPERTY */
+  const {
+    data: property,
+    isLoading: loading,
+    isError: propertyError,
+  } = useQuery({
+    queryKey: ["property", id],
+    queryFn: async () => {
       const res = await fetch(`/api/v1/properties/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch property");
       const data = await res.json();
-      setProperty(data?.data || null);
-      setLoading(false);
-    }
-    if (id) fetchProperty();
-  }, [id]);
+      return data?.data || null;
+    },
+    enabled: !!id,
+  });
 
-  useEffect(() => {
-    async function fetchDeveloperProperties() {
-      if (!property?.builderName) {
-        setDeveloperProperties([]);
-        return;
-      }
-      setDeveloperLoading(true);
-      try {
-        const query = new URLSearchParams({
-          developer: property.builderName,
-          limit: "12",
-        });
-        const res = await fetch(
-          `/api/v1/properties/search?${query.toString()}`,
-        );
-        const data = await res.json();
-        const list = Array.isArray(data?.data) ? data.data : [];
-        setDeveloperProperties(list.filter((item) => item.id !== property.id));
-      } catch (error) {
-        console.error("Failed to load developer properties", error);
-        setDeveloperProperties([]);
-      } finally {
-        setDeveloperLoading(false);
-      }
-    }
-
-    fetchDeveloperProperties();
-  }, [property]);
-
-  if (loading) return <CenterMsg msg="Loading property details..." />;
+  if (loading) return <PropertyDetailSkeleton />;
   if (!property) return <CenterMsg msg="Property not found" />;
 
   return (
@@ -131,7 +107,7 @@ export default function PropertyDetailPage() {
               <OverviewCard property={property} />
             </div>
             <div id="location">
-              <LocationMap property={property} />
+              <LocationMapWithLoading property={property} />
             </div>
             <VideoSection />
             {/* <ProsCons /> */}
@@ -152,12 +128,6 @@ export default function PropertyDetailPage() {
             <div id="faq">
               <FAQSection />
             </div>
-            <SameDeveloperCarousel
-              developerName={property.builderName}
-              properties={developerProperties}
-              loading={developerLoading}
-            />
-            {/* <RelatedProjects /> */}
           </div>
 
           {/* ================= SIDEBAR ================= */}
@@ -205,9 +175,8 @@ function HeroGallery({ property }) {
       <div className="grid grid-cols-2 gap-3">
         {/* LEFT BIG IMAGE */}
         <div
-          className={`row-span-2 bg-gray-200 rounded-lg flex items-center justify-center ${
-            hasImage ? "h-auto" : "h-[420px]"
-          }`}
+            className="row-span-2 bg-gray-200 rounded-lg flex items-center justify-center"
+            style={!hasImage ? { height: 420 } : undefined}
         >
           {hasImage ? (
             <img
@@ -277,27 +246,12 @@ function OverviewCard({ property }) {
 
 /* ================= LOCATION ================= */
 
-function LocationMap({ property }) {
-  const location = `${property.city}, ${property.state}`;
-
-  return (
-    <Card title="Location">
-      <iframe
-        width="100%"
-        height="320"
-        className="rounded-lg"
-        src={`https://maps.google.com/maps?q=${encodeURIComponent(location)}&z=14&output=embed`}
-      />
-    </Card>
-  );
-}
-
 /* ================= VIDEO ================= */
 
 function VideoSection() {
   return (
     <Card title="Project Video">
-      <div className="h-[320px] bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="h-80 bg-gray-100 rounded-lg flex items-center justify-center">
         Video player here
       </div>
     </Card>
@@ -350,6 +304,8 @@ function MasterPlan({ property }) {
         }))
       : [];
   const [selectedFloorPlan, setSelectedFloorPlan] = useState(null);
+  const [showPriceBreakupLead, setShowPriceBreakupLead] = useState(false);
+  const [priceBreakupPlan, setPriceBreakupPlan] = useState(null);
   const formatPlanPrice = (price) => {
     const numericPrice = Number(price);
     if (!Number.isFinite(numericPrice) || numericPrice <= 0)
@@ -358,6 +314,7 @@ function MasterPlan({ property }) {
   };
 
   return (
+    <>
     <Card title="Master & Floor Plan">
       {floorPlans.length === 0 ? (
         <div className="text-gray-500">Floor Plan Not Available</div>
@@ -402,7 +359,7 @@ function MasterPlan({ property }) {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setSelectedFloorPlan(plan)}
+                  onClick={() => { setPriceBreakupPlan(plan); setShowPriceBreakupLead(true); }}
                   className="mt-3 w-full bg-[#0f2f5f] hover:bg-[#123a73] text-white text-sm font-medium py-2 rounded-md"
                 >
                   Price Breakup
@@ -446,6 +403,20 @@ function MasterPlan({ property }) {
         </div>
       )}
     </Card>
+
+    <LeadCaptureModal
+      open={showPriceBreakupLead}
+      onClose={() => { setShowPriceBreakupLead(false); setPriceBreakupPlan(null); }}
+      title="Get Price Breakup"
+      subtitle={priceBreakupPlan ? `Request detailed price breakdown for ${priceBreakupPlan.name || "this unit"}` : "Fill in your details to receive the full price breakdown."}
+      messagePrefix={`[Price Breakup Request] Property: ${property?.propertyTitle || ""} | Unit: ${priceBreakupPlan?.name || ""}`}
+      submitLabel="Get Price Breakup"
+      propertyId={property?.id ?? null}
+      propertyTitle={property?.propertyTitle || property?.title || null}
+      propertyName={property?.propertyTitle || property?.title || null}
+      propertyLocation={[property?.locality, property?.city].filter(Boolean).join(", ") || null}
+    />
+    </>
   );
 }
 
@@ -625,7 +596,7 @@ function GallerySlider({ property }) {
                   type="button"
                   key={`${image}-${index}`}
                   onClick={() => setActiveImage(image)}
-                  className="w-[240px] h-[170px] shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                  className="w-60 h-42.5 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <img
                     src={image}
@@ -801,7 +772,7 @@ function SameDeveloperCarousel({ developerName, properties, loading }) {
                 <a
                   key={item.id}
                   href={`/properties/${item.id}`}
-                  className="w-[280px] shrink-0 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  className="w-70 shrink-0 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="h-44 bg-gray-100">
                     {item.mainPropertyImage ? (

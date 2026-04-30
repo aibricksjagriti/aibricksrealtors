@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-export default function HeroSection() {
+export default function HeroSection({ searchBasePath = "/search" } = {}) {
   const router = useRouter();
+  const actionLabel = "Find";
 
   // 🔍 Search states (MATCHES HOMEPAGE LOGIC)
   const [propertyType, setPropertyType] = useState("");
@@ -27,7 +27,7 @@ export default function HeroSection() {
     if (minPrice) params.append("minPrice", minPrice);
     if (maxPrice) params.append("maxPrice", maxPrice);
 
-    router.push(`/search?${params.toString()}`);
+    router.push(`${searchBasePath}?${params.toString()}`);
   };
 
   return (
@@ -52,14 +52,6 @@ export default function HeroSection() {
             help you find your dream home.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap gap-4 mb-10">
-            <Link href="/about">
-              <button className="bg-ochre text-white px-6 py-3 rounded-md shadow-md hover:bg-brickred transition">
-                Learn More
-              </button>
-            </Link>
-          </div>
 
           {/* ===== Search Box ===== */}
           <div className="bg-[#f8f8ff] border-2 border-ochre rounded-2xl p-4 md:p-6 shadow-sm">
@@ -143,7 +135,7 @@ export default function HeroSection() {
                   className="bg-brickred text-white rounded-xl flex items-center justify-center gap-2 px-6 py-3 hover:bg-ochre transition"
                 >
                   <Search className="w-5 h-5" />
-                  Find
+                  {actionLabel}
                 </button>
               </div>
             </div>

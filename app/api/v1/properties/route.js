@@ -13,11 +13,13 @@ export async function GET(req) {
 
     // Check if count only is requested
     const countOnly = searchParams.get('countOnly') === 'true';
+    const includeTotal = searchParams.get('includeTotal') !== 'false';
 
     // Extract filters from query params
     if (searchParams.get('propertyType')) filters.propertyType = searchParams.get('propertyType');
     if (searchParams.get('listingType')) filters.listingType = searchParams.get('listingType');
     if (searchParams.get('propertyStatus')) filters.propertyStatus = searchParams.get('propertyStatus');
+    if (searchParams.get('activeStatus')) filters.activeStatus = searchParams.get('activeStatus');
     if (searchParams.get('city')) filters.city = searchParams.get('city');
     if (searchParams.get('locality')) filters.locality = searchParams.get('locality');
     if (searchParams.get('minPrice')) filters.minPrice = searchParams.get('minPrice');
@@ -51,15 +53,24 @@ export async function GET(req) {
     // Convert Firestore timestamps to ISO strings
     const propertiesWithConvertedDates = properties.map(property => convertTimestamps(property));
 
-    // Get total count for accurate statistics
-    const totalCount = await propertyModel.getCount(filters);
+    // Get total count only when the caller needs it; this avoids a second Firestore read.
+    const totalCount = includeTotal
+      ? await propertyModel.getCount(filters)
+      : propertiesWithConvertedDates.length;
 
-    return NextResponse.json({
-      success: true,
-      count: totalCount,
-      returned: propertiesWithConvertedDates.length,
-      data: propertiesWithConvertedDates
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        count: totalCount,
+        returned: propertiesWithConvertedDates.length,
+        data: propertiesWithConvertedDates,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error) {
     logger.error('Error getting all properties:', error);
     return NextResponse.json(
@@ -125,4 +136,3 @@ export async function POST(req) {
     );
   }
 }
-

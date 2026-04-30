@@ -1,8 +1,10 @@
 import { Cinzel, Lato } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "@/src/ConditionalLayout";
+import QueryProvider from "@/src/providers/QueryProvider";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import { getNavData } from "@/lib/data/nav";
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -19,16 +21,22 @@ const lato = Lato({
 export const metadata = {
   title: "Live The Future",
   description: "Coming Soon",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const { builders: navBuilders, locations: navLocations } = await getNavData();
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -51,7 +59,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
-        <ConditionalLayout>{children}</ConditionalLayout>
+        <QueryProvider>
+          <ConditionalLayout navBuilders={navBuilders} navLocations={navLocations}>
+            {children}
+          </ConditionalLayout>
+        </QueryProvider>
         <Toaster position="top-right" reverseOrder={false} />
       </body>
     </html>

@@ -1,24 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import LoginModal from "../Auth/LoginModal";
 import { Mail, Phone } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function SellerContactActions({ phone, email, propertyTitle }) {
-  const [showLogin, setShowLogin] = useState(false);
-
-  const isLoggedIn = () => {
-    if (typeof window === "undefined") return false;
-    return !!localStorage.getItem("token");
-  };
-
   const handleCall = () => {
-    if (!isLoggedIn()) {
-      setShowLogin(true);
-      return;
-    }
-
     if (phone) {
       window.location.href = `tel:${phone}`;
     } else {
@@ -29,11 +15,6 @@ export default function SellerContactActions({ phone, email, propertyTitle }) {
   };
 
   const handleEmail = () => {
-    if (!isLoggedIn()) {
-      setShowLogin(true);
-      return;
-    }
-
     if (email) {
       window.location.href = `mailto:${email}?subject=Enquiry for ${propertyTitle}`;
     } else {
@@ -46,21 +27,18 @@ export default function SellerContactActions({ phone, email, propertyTitle }) {
       <div className="flex gap-3">
         <button
           onClick={handleCall}
-          className="px-5 py-2 bg-brickred text-white rounded-lg cursor-pointer"
+          className="px-5 py-2 bg-brickred text-white rounded-lg cursor-pointer transition hover:bg-ochre"
         >
           <Phone />
         </button>
 
         <button
           onClick={handleEmail}
-          className="px-5 py-2 border border-brickred text-brickred rounded-lg cursor-pointer"
+          className="px-5 py-2 border border-brickred text-brickred rounded-lg cursor-pointer transition hover:bg-brickred hover:text-white"
         >
           <Mail />
         </button>
       </div>
-
-      {/* LOGIN MODAL */}
-      <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
     </>
   );
 }

@@ -2,8 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, Building2, MapPin, DollarSign, Home, Briefcase, User, Image as ImageIcon, Plus } from "lucide-react";
-import { propertiesAPI } from "@/src/admin/utils/api";
+import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, User, Image as ImageIcon, Plus } from "lucide-react";
+import { propertiesAPI, developersAPI, localitiesAPI, locationPagesAPI } from "@/src/admin/utils/api";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
@@ -20,7 +20,7 @@ const YES_NO = ["Yes", "No"];
 const STEPS = [
   { id: 1, title: "Basic Info", icon: Building2 },
   { id: 2, title: "Location", icon: MapPin },
-  { id: 3, title: "Pricing", icon: DollarSign },
+  { id: 3, title: "Pricing", icon: IndianRupee },
   { id: 4, title: "Details", icon: Home },
   { id: 5, title: "Building Info", icon: Briefcase },
   { id: 6, title: "Seller Info", icon: User },
@@ -163,6 +163,10 @@ export default function EditPropertyPage() {
     activeStatus: "Yes",
   });
 
+  const [developers, setDevelopers] = useState([]);
+  const [allCities, setAllCities] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
+  const [localityMap, setLocalityMap] = useState({});
   const [amenityInput, setAmenityInput] = useState("");
   const [uploading, setUploading] = useState({});
   const [showFloorPlanModal, setShowFloorPlanModal] = useState(false);
@@ -173,6 +177,33 @@ export default function EditPropertyPage() {
     price: "",
   });
   const imageGalleryInputRef = useRef(null);
+
+  useEffect(() => {
+    developersAPI.getAll().then((res) => setDevelopers(res.data || [])).catch(() => {});
+
+    Promise.all([
+      locationPagesAPI.getAll().catch(() => ({ data: [] })),
+      localitiesAPI.getAll().catch(() => ({ data: [] })),
+    ]).then(([cityRes, locRes]) => {
+      const cities = (cityRes.data || [])
+        .filter((p) => p.city)
+        .map((p) => p.city.trim())
+        .sort();
+      setAllCities(cities);
+
+      const map = {};
+      (locRes.data || []).forEach((l) => {
+        if (!l.city || !l.name) return;
+        const city = l.city.trim();
+        if (!map[city]) map[city] = new Set();
+        map[city].add(l.name.trim());
+      });
+      const finalMap = {};
+      Object.keys(map).forEach((c) => { finalMap[c] = [...map[c]].sort(); });
+      setLocalityMap(finalMap);
+      setCitiesLoading(false);
+    });
+  }, []);
 
   const handleFileUpload = async (file, fieldName, isArray = false) => {
     if (!file) return;
@@ -843,11 +874,47 @@ export default function EditPropertyPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">City</label>
-                <input type="text" name="city" value={formData.city} onChange={handleChange} className="admin-input w-full" />
+                {citiesLoading ? (
+                  <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
+                    <option>— Loading cities… —</option>
+                  </select>
+                ) : (
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value, locality: "" }))}
+                    className="admin-input w-full"
+                  >
+                    <option value="">— Select City —</option>
+                    {allCities.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Locality</label>
-                <input type="text" name="locality" value={formData.locality} onChange={handleChange} className="admin-input w-full" />
+                {!formData.city ? (
+                  <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
+                    <option>— Select a city first —</option>
+                  </select>
+                ) : (localityMap[formData.city] || []).length > 0 ? (
+                  <select
+                    name="locality"
+                    value={formData.locality}
+                    onChange={handleChange}
+                    className="admin-input w-full"
+                  >
+                    <option value="">— Select Locality —</option>
+                    {(localityMap[formData.city] || []).map((l) => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
+                    <option>— No localities for {formData.city} — add in Localities admin —</option>
+                  </select>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Sub Locality</label>
@@ -1042,8 +1109,16 @@ export default function EditPropertyPage() {
                 <input type="text" name="projectName" value={formData.projectName} onChange={handleChange} className="admin-input w-full" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Builder Name</label>
-                <input type="text" name="builderName" value={formData.builderName} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Builder / Developer</label>
+                <select name="builderName" value={formData.builderName} onChange={handleChange} className="admin-input w-full">
+                  <option value="">Select Developer</option>
+                  {developers.map((d) => (
+                    <option key={d.id} value={d.name}>{d.name}</option>
+                  ))}
+                </select>
+                {formData.builderName && !developers.find((d) => d.name === formData.builderName) && (
+                  <p className="text-xs text-amber-600 mt-1">Current: "{formData.builderName}" — not in developers list</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">RERA Registration Number</label>
@@ -1520,17 +1595,19 @@ export default function EditPropertyPage() {
             return (
               <div key={step.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(step.id)}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                       isActive
                         ? "bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-lg scale-110"
                         : isCompleted
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-200 text-gray-500"
+                        ? "bg-green-500 text-white hover:bg-green-600"
+                        : "bg-gray-200 text-gray-500 hover:bg-gray-300"
                     }`}
                   >
                     {isCompleted ? <Check size={20} /> : <Icon size={20} />}
-                  </div>
+                  </button>
                   <span className={`text-xs mt-2 font-medium ${isActive ? "text-purple-600" : "text-gray-500"}`}>
                     {step.title}
                   </span>

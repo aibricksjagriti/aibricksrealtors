@@ -57,6 +57,21 @@ body {
   animation: fadeIn 0.8s ease-in-out;
 }
 
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"] {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
 /* ===============================
     Layout / Section Helpers
    =============================== */
@@ -135,9 +150,31 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes routeProgress {
+  0% {
+    transform: scaleX(0.1);
+    transform-origin: left;
+    opacity: 0.8;
+  }
+  60% {
+    transform: scaleX(0.7);
+    transform-origin: left;
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+    opacity: 0.9;
+  }
+}
+
 .animate-scroll {
   display: flex;
   animation: scroll 20s linear infinite;
+}
+
+.animate-route-progress {
+  animation: routeProgress 1.15s ease-in-out infinite;
 }
 
 @layer utilities {
@@ -155,6 +192,15 @@ h1, h2, h3, h4, h5, h6 {
   .animate-gradient {
     background-size: 200% 200%;
     animation: gradientShift 8s ease infinite;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 const sections = [
@@ -10,9 +11,51 @@ const sections = [
   { id: "faq", label: "FAQ" },
 ];
 
+function slugToName(slug) {
+  return slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export default function StickySectionNav() {
   const [active, setActive] = useState("about");
   const [isOpen, setIsOpen] = useState(false);
+  const [developerName, setDeveloperName] = useState("AI BRICKS");
+  const [developerLogo, setDeveloperLogo] = useState(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Try pathname first (direct /developers/slug access)
+    const pathMatch =
+      pathname?.match(/^\/developers\/([^/]+)/) ||
+      pathname?.match(/^\/sub\/([^/]+)/);
+
+    let slug = pathMatch ? pathMatch[1] : null;
+
+    // Fallback: read subdomain from hostname (middleware rewrites hide the path)
+    if (!slug) {
+      const host = window.location.hostname; // e.g. lodha.localhost or lodha.domain.com
+      const parts = host.split('.');
+      const isSubdomain =
+        (host.endsWith('.localhost') && parts.length >= 2) ||
+        (!host.endsWith('.localhost') && parts.length >= 3);
+      if (isSubdomain && parts[0] !== 'www') slug = parts[0];
+    }
+
+    if (slug) {
+      setDeveloperName(slugToName(slug));
+      fetch(`/api/v1/developers/${slug}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success && data.data) {
+            if (data.data.name) setDeveloperName(data.data.name);
+            if (data.data.logo) setDeveloperLogo(data.data.logo);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [pathname]);
 
   // SCROLL SPY
   useEffect(() => {
@@ -54,8 +97,12 @@ export default function StickySectionNav() {
       <nav className="fixed top-0 left-0 w-full bg-[var(--color-brickred)] shadow-md z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           {/* LOGO */}
-          <div className="text-2xl font-bold text-[var(--color-ochre)]">
-            <a href="/">AI BRICKS</a>
+          <div className="flex items-center gap-3 text-xl font-bold text-[var(--color-ochre)]">
+            {developerLogo ? (
+              <img src={developerLogo} alt={developerName} className="h-9 w-auto object-contain" />
+            ) : (
+              <span>{developerName}</span>
+            )}
           </div>
 
           {/* DESKTOP MENU */}

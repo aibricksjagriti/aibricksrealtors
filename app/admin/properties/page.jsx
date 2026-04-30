@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { motion } from "framer-motion";
 import {
   Building2,
@@ -11,12 +11,16 @@ import {
 } from "lucide-react";
 import { propertiesAPI } from "@/src/admin/utils/api";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import "@/src/admin/styles/admin.css";
 
-export default function PropertiesPage() {
+function PropertiesPageInner() {
+  const searchParams = useSearchParams();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("city") || searchParams.get("locality") || searchParams.get("developer") || ""
+  );
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -63,9 +67,14 @@ export default function PropertiesPage() {
   const filteredProperties = properties.filter((property) => {
     const title = property.title || property.propertyTitle || '';
     const city = property.location?.city || property.city || '';
+    const locality = property.locality || '';
+    const developer = property.builderName || '';
+    const term = searchTerm.toLowerCase();
     return (
-      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      city.toLowerCase().includes(searchTerm.toLowerCase())
+      title.toLowerCase().includes(term) ||
+      city.toLowerCase().includes(term) ||
+      locality.toLowerCase().includes(term) ||
+      developer.toLowerCase().includes(term)
     );
   });
 
@@ -185,5 +194,13 @@ export default function PropertiesPage() {
       )}
 
     </div>
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading...</div>}>
+      <PropertiesPageInner />
+    </Suspense>
   );
 }

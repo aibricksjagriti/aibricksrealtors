@@ -17,7 +17,7 @@ export default function Cta() {
           src="/home/cta-banner-3.jpg"
           alt="AI Bricks Background"
           fill
-          priority
+          sizes="100vw"
           className="object-cover brightness-[0.55]"
         />
 

@@ -9,18 +9,18 @@ import { useRef, useState } from "react";
 
 const team = [
   {
-    name: "Arjun Mehta",
-    role: "Founder & Managing Director",
+    name: "Abhishek Saigal",
+    role: "Co-Founder, AiBricks Realtors",
     tags: ["VISIONARY", "LEADER", "REAL ESTATE"],
-    image: "/about/team/arjun.jpg",
-    desc: "With over a decade of experience in premium real estate, Arjun leads AIBricks Realtors with innovation, integrity, and a commitment to creating landmark properties that redefine luxury living.",
+    image: "/about/about-1.jpg",
+    desc: "Abhishek is the driving force behind AiBricks Realtors, combining architectural precision, cutting-edge technology, and a deep commitment to transparent dealings to redefine how Pune experiences real estate.",
   },
   {
-    name: "Priya Nair",
-    role: "Head of Sales & Client Relations",
-    tags: ["STRATEGY", "CLIENT CARE", "GROWTH"],
-    image: "/about/team/priya.jpg",
-    desc: "Priya’s deep understanding of client needs and market dynamics ensures every buyer and investor finds the perfect property match with a seamless, transparent experience.",
+    name: "Anshika Rana",
+    role: "Co-Founder, AiBricks Realtors",
+    tags: ["INNOVATION", "SUSTAINABILITY", "CLIENT CARE"],
+    image: "/about/about-2.jpg",
+    desc: "Anshika brings a passion for intelligent design and sustainable living to every project. Her forward-thinking leadership ensures AiBricks Realtors delivers homes that inspire trust and elevate lifestyles.",
   },
   {
     name: "Rohit Sharma",
@@ -34,14 +34,14 @@ const team = [
     role: "Marketing & Brand Strategist",
     tags: ["CREATIVE", "INNOVATION", "DIGITAL"],
     image: "/about/team/sneha.jpg",
-    desc: "Sneha drives the brand presence of AIBricks Realtors across digital and print platforms, blending creativity with strategic innovation to showcase every project’s unique story.",
+    desc: "Sneha drives the brand presence of AiBricks Realtors across digital and print platforms, blending creativity with strategic innovation to showcase every project’s unique story.",
   },
   {
     name: "Amit Deshmukh",
     role: "Operations & Project Head",
     tags: ["EFFICIENCY", "QUALITY", "DELIVERY"],
     image: "/about/team/amit.jpg",
-    desc: "Amit ensures every AIBricks project consistently runs smoothly and efficiently — from planning to handover — maintaining the highest standards of quality, safety, and timely execution.",
+    desc: "Amit ensures every AiBricks project runs smoothly and efficiently — from planning to handover — maintaining the highest standards of quality, safety, and timely execution.",
   },
 ];
 

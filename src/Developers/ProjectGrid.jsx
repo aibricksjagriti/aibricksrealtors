@@ -92,7 +92,7 @@ const PropertyCard = memo(function PropertyCard({ property, onEnquire }) {
 });
 
 /* ---------------- MAIN ---------------- */
-export default function ProjectGrid({ projects }) {
+export default function ProjectGrid({ projects, builderName }) {
   const [activeTab, setActiveTab] = useState("Residential");
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -139,7 +139,9 @@ export default function ProjectGrid({ projects }) {
       <div className="max-w-7xl mx-auto px-4">
         {/* HEADING */}
         <h2 className="text-2xl md:text-4xl font-semibold mb-6">
-          List of Projects in {projects[0]?.city}
+          {projects.length > 0
+            ? `Projects by ${builderName || projects[0]?.builderName || "Developer"}`
+            : `No Projects Listed Yet`}
         </h2>
 
         {/* TABS */}

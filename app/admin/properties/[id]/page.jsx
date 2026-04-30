@@ -8,7 +8,7 @@ import {
   Trash2,
   MapPin,
   Building2,
-  DollarSign,
+  IndianRupee,
   Home,
   Briefcase,
   User,
@@ -301,7 +301,7 @@ export default function PropertyViewPage() {
           {/* Pricing */}
           <div className="admin-card p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-              <DollarSign className="mr-2 text-purple-600" size={24} />
+              <IndianRupee className="mr-2 text-purple-600" size={24} />
               Pricing & Financial Information
             </h2>
             <div className="grid grid-cols-2 gap-4">

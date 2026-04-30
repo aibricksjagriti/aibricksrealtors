@@ -13,6 +13,8 @@ import {
   LogOut,
   Sparkles,
   Phone,
+  HardHat,
+  MapPin,
 } from "lucide-react";
 import { authAPI } from "../utils/api";
 import "../styles/admin.css";
@@ -27,6 +29,16 @@ const menuItems = [
     name: "Properties",
     href: "/admin/properties",
     icon: Building2,
+  },
+  {
+    name: "Developers",
+    href: "/admin/developers",
+    icon: HardHat,
+  },
+  {
+    name: "Localities",
+    href: "/admin/localities",
+    icon: MapPin,
   },
   {
     name: "Contact",

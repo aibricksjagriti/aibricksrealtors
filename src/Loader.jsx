@@ -3,55 +3,41 @@ import { motion } from "framer-motion";
 
 export default function Loader() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[var(--color-lightcream)] z-[9999]">
-      <motion.div
-        className="relative flex flex-col items-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Circle spinner */}
+    <div className="fixed inset-0 z-[9999] bg-[var(--color-lightcream)]/95 backdrop-blur-sm">
+      <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
         <motion.div
-          className="w-20 h-20 border-4 border-t-[#d5b258] border-[#555] rounded-full animate-spin"
-          animate={{
-            rotate: 360,
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 1.2,
-            ease: "linear",
-          }}
-        />
-
-        {/* Brand name */}
-        <motion.h1
-          className="mt-6 text-[#d5b258] font-semibold tracking-[6px] text-lg uppercase"
-          initial={{ opacity: 0, y: 10 }}
+          className="w-full max-w-3xl rounded-[2rem] border border-white/70 bg-white/70 p-6 shadow-2xl"
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ duration: 0.35 }}
         >
-          AIBRICKS REALTORS
-        </motion.h1>
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-gray-200 animate-pulse" />
+            <div className="space-y-2 flex-1">
+              <div className="h-4 w-40 rounded-full bg-gray-200 animate-pulse" />
+              <div className="h-3 w-64 rounded-full bg-gray-200 animate-pulse" />
+            </div>
+          </div>
 
-        {/* Tagline shimmer effect */}
-        <motion.div
-          className="mt-2 text-sm text-gray-400 overflow-hidden relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-        >
-          <motion.span
-            className="absolute left-0 w-full h-full bg-gradient-to-r from-transparent via-[#d5b258]/40 to-transparent"
-            animate={{ x: ["-100%", "100%"] }}
-            transition={{
-              repeat: Infinity,
-              duration: 2,
-              ease: "linear",
-            }}
-          />
-          <span className="relative z-10">Live The Future</span>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="space-y-3 rounded-2xl bg-white p-4 shadow-sm">
+                <div className="h-44 rounded-2xl bg-gray-200 animate-pulse" />
+                <div className="h-4 w-4/5 rounded-full bg-gray-200 animate-pulse" />
+                <div className="h-3 w-2/3 rounded-full bg-gray-200 animate-pulse" />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 h-3 overflow-hidden rounded-full bg-gray-200">
+            <motion.div
+              className="h-full w-1/3 rounded-full bg-[var(--color-ochre)]"
+              animate={{ x: ["-120%", "320%"] }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
+            />
+          </div>
         </motion.div>
-      </motion.div>
+      </div>
     </div>
   );
 }

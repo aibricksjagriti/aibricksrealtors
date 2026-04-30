@@ -196,7 +196,7 @@ import { MapPin, Bed, Ruler, Calendar, Building2, Flame } from "lucide-react";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
 
 /* ---------------- CONSTANTS ---------------- */
-const API_URL = "/api/v1/properties?activeStatus=Yes&limit=9";
+const API_URL = "/api/v1/properties?activeStatus=Yes&limit=9&includeTotal=false";
 const FALLBACK_IMAGE = "/home/ajman.webp";
 
 /* ---------------- PRICE FORMATTER ---------------- */

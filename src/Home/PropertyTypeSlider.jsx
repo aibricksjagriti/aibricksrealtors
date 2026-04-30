@@ -146,16 +146,6 @@ const propertyTypes = [
     image: "/home/abu-dhabi.webp",
   },
   {
-    title: "Villa",
-    subtitle: "Luxury Private Homes",
-    image: "/home/ajman.webp",
-  },
-  {
-    title: "Penthouse",
-    subtitle: "Elite Sky-High Living",
-    image: "/home/dubai.webp",
-  },
-  {
     title: "Commercial",
     subtitle: "Prime Business Spaces",
     image: "/home/sarjah.webp",
@@ -218,7 +208,7 @@ export default function PropertyTypeSlider() {
         <button
           onClick={prevSlide}
           disabled={index === 0}
-          className={`absolute left-2 sm:left-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 ${
+          className={`absolute left-2 sm:left-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 cursor-pointer ${
             index === 0 ? "opacity-40" : "hover:scale-110"
           }`}
         >
@@ -243,6 +233,8 @@ export default function PropertyTypeSlider() {
                 <img
                   src={type.image}
                   alt={type.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-[320px] sm:h-[360px] md:h-[400px] object-cover group-hover:scale-110 transition-transform duration-700"
                 />
 
@@ -265,7 +257,7 @@ export default function PropertyTypeSlider() {
         <button
           onClick={nextSlide}
           disabled={index >= propertyTypes.length - visibleCards}
-          className={`absolute right-2 sm:right-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 ${
+          className={`absolute right-2 sm:right-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 cursor-pointer ${
             index >= propertyTypes.length - visibleCards
               ? "opacity-40"
               : "hover:scale-110"

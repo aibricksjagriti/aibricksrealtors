@@ -1,123 +1,206 @@
 "use client";
-import { Building2, Hammer, Globe, Landmark } from "lucide-react";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { Home, TrendingUp, MapPin, ShieldCheck, HandshakeIcon, BarChart2, UserCheck } from "lucide-react";
+
+const specialisms = [
+  {
+    icon: <Home className="w-8 h-8" />,
+    title: "Residential Properties",
+    desc: "Curated 2BHK, 3BHK, and luxury homes across Pune's prime corridors — ready-to-move and under-construction.",
+  },
+  {
+    icon: <TrendingUp className="w-8 h-8" />,
+    title: "Investment Advisory",
+    desc: "Strategic guidance on capital appreciation, rental yield, and long-term wealth creation through Pune real estate.",
+  },
+  {
+    icon: <MapPin className="w-8 h-8" />,
+    title: "Location Expertise",
+    desc: "Deep knowledge of Hinjewadi, Wakad, Punawale, Baner, and emerging micro-markets with high growth potential.",
+  },
+];
+
+const usps = [
+  {
+    title: "Trusted Developer Network Only",
+    desc: "We exclusively collaborate with authority-grade, RERA-compliant developers. No fly-by-night projects, no unverified listings — ever.",
+  },
+  {
+    title: "End-to-End Assistance",
+    desc: "From initial site visits and due diligence to loan facilitation and final booking — we are with you at every step.",
+  },
+  {
+    title: "Strong Market Insights",
+    desc: "Data-driven intelligence on pricing trends, upcoming developments, and micro-market dynamics to inform smarter decisions.",
+  },
+  {
+    title: "Personalised Consultation",
+    desc: "No generic advice. Every client receives a tailored recommendation aligned with their budget, lifestyle, and investment goals.",
+  },
+];
+
+const advantages = [
+  {
+    icon: <ShieldCheck className="w-8 h-8 text-[var(--color-ochre)]" />,
+    title: "No Fake Commitments",
+    desc: "We present only what we can deliver — honest timelines, accurate pricing, and real project status.",
+  },
+  {
+    icon: <BarChart2 className="w-8 h-8 text-[var(--color-ochre)]" />,
+    title: "Data-Driven Recommendations",
+    desc: "Every suggestion is backed by current market data, price history, and location intelligence.",
+  },
+  {
+    icon: <HandshakeIcon className="w-8 h-8 text-[var(--color-ochre)]" />,
+    title: "Exclusive Deals & Offers",
+    desc: "Access to pre-launch pricing, developer-exclusive inventory, and special incentive packages.",
+  },
+  {
+    icon: <UserCheck className="w-8 h-8 text-[var(--color-ochre)]" />,
+    title: "Dedicated Relationship Manager",
+    desc: "A single point of contact who understands your needs and ensures a seamless experience throughout.",
+  },
+];
 
 export default function OurExpertise() {
-  const cards = [
-    {
-      icon: <Building2 className="w-8 h-8 mb-3" />,
-      title: "Premium Real Estate Development",
-      desc: "Crafting architectural landmarks that redefine modern living — from residential spaces to commercial hubs built with excellence.",
-      active: true,
-    },
-    {
-      icon: <Hammer className="w-8 h-8 mb-3" />,
-      title: "Construction & Engineering",
-      desc: "Delivering precision-engineered structures with the highest standards of safety, design, and durability.",
-    },
-    {
-      icon: <Landmark className="w-8 h-8 mb-3" />,
-      title: "Property Management System",
-      desc: "Ensuring lasting value through expert property care, maintenance, and end-to-end real estate management solutions.",
-    },
-    {
-      icon: <Globe className="w-8 h-8 mb-3" />,
-      title: "Smart & Sustainable Spaces",
-      desc: "Integrating innovation and sustainability to create energy-efficient, future-ready environments for tomorrow’s lifestyle.",
-    },
-  ];
-
-  // Animation variants for cards
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.2, // delay between each card animation
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.7, ease: "easeOut" },
-    },
-  };
-
   return (
-    <section className="w-[90%] mx-auto py-16 px-6 md:px-12 overflow-hidden">
-      <div className="max-w-7xl mx-auto flex flex-col gap-10">
-        {/* Header section with motion */}
-        <motion.div
-          className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-          initial={{ opacity: 0, y: 30 }}
+    <>
+      {/* What We Specialise In */}
+      <section className="w-[90%] mx-auto py-16 overflow-hidden">
+        <motion.span
+          className="inline-block bg-[var(--color-darkgray)] text-white text-xs font-semibold px-4 py-1.5 rounded mb-4 tracking-widest uppercase"
+          initial={{ opacity: 0, y: -10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
         >
-          <div>
-            <h2 className="text-4xl font-semibold text-[var(--color-darkgray)]">
-              OUR <span className="text-[var(--color-ochre)]">EXPERTISE</span>
-            </h2>
-            <p className="text-gray-800 mt-2 text-lg">
-              At AiBricks Realtors, we blend innovation, craftsmanship, and
-              trust to deliver real estate solutions that inspire confidence and
-              elevate modern living.
-            </p>
-          </div>
-        </motion.div>
+          Our Expertise
+        </motion.span>
 
-        {/* Cards section with staggered animation */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
+        <motion.h2
+          className="text-4xl md:text-5xl font-bold text-[var(--color-darkgray)] mb-3"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
         >
-          {cards.map((card, index) => (
+          What We Specialise In
+        </motion.h2>
+        <motion.p
+          className="text-gray-600 text-lg mb-10 max-w-3xl"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          From first-time homebuyers exploring 2BHK options to seasoned
+          investors seeking high-yield assets, AiBricks Realtors offers
+          end-to-end expertise across Pune&apos;s most sought-after micro-markets.
+        </motion.p>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {specialisms.map((s, i) => (
             <motion.div
-              key={index}
-              variants={cardVariants}
-              className={`rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-lg ${
-                card.active
-                  ? "bg-[linear-gradient(135deg,_#f1df9e_0%,_#d5b258_100%)] text-white"
-                  : "bg-[#edece8] hover:bg-[#f1e5b4] text-gray-900"
-              }`}
+              key={i}
+              className="bg-[#edece8] rounded-2xl p-7 hover:shadow-lg transition-all duration-300 hover:bg-[#f1e5b4]"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.15 }}
             >
-              <div
-                className={`${
-                  card.active ? "text-white" : "text-[var(--color-brickred)]"
-                } flex flex-col items-start`}
-              >
-                {card.icon}
-                <h3 className="text-lg font-semibold mb-2">{card.title}</h3>
-                <p
-                  className={`text-md ${
-                    card.active ? "text-gray-100" : "text-gray-800"
-                  } mb-4`}
-                >
-                  {card.desc}
-                </p>
-                <a href="/contact">
-                  <button
-                    className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 ${
-                      card.active
-                        ? "bg-white text-[var(--color-brickred)] hover:bg-gray-100"
-                        : "bg-[var(--color-brickred)] text-white hover:bg-[var(--color-ochre)]"
-                    }`}
-                  >
-                    Learn More
-                  </button>
-                </a>
-              </div>
+              <div className="text-[var(--color-brickred)] mb-4">{s.icon}</div>
+              <h3 className="text-lg font-bold text-[var(--color-darkgray)] mb-2">
+                {s.title}
+              </h3>
+              <p className="text-gray-700 text-sm leading-relaxed">{s.desc}</p>
             </motion.div>
           ))}
-        </motion.div>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      {/* Why AiBricks Stands Apart */}
+      <section className="w-full bg-[var(--color-darkgray)] py-16 overflow-hidden">
+        <div className="w-[90%] mx-auto">
+          <motion.span
+            className="inline-block bg-[var(--color-ochre)] text-[var(--color-darkgray)] text-xs font-semibold px-4 py-1.5 rounded mb-4 tracking-widest uppercase"
+            initial={{ opacity: 0, y: -10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            Our USP
+          </motion.span>
+
+          <motion.h2
+            className="text-4xl md:text-5xl font-bold text-white mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Why AiBricks Stands Apart
+          </motion.h2>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {usps.map((u, i) => (
+              <motion.div
+                key={i}
+                className="border border-[var(--color-ochre)]/40 rounded-xl p-6 hover:border-[var(--color-ochre)] transition-colors duration-300"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+              >
+                <h3 className="text-lg font-bold text-[var(--color-ochre)] mb-2">
+                  {u.title}
+                </h3>
+                <p className="text-gray-300 text-sm leading-relaxed">{u.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* The AiBricks Advantage */}
+      <section className="w-[90%] mx-auto py-16 overflow-hidden">
+        <motion.span
+          className="inline-block bg-[var(--color-darkgray)] text-white text-xs font-semibold px-4 py-1.5 rounded mb-4 tracking-widest uppercase"
+          initial={{ opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          Why Choose Us
+        </motion.span>
+
+        <motion.h2
+          className="text-4xl md:text-5xl font-bold text-[var(--color-darkgray)] mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          The AiBricks Advantage
+        </motion.h2>
+
+        <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
+          {advantages.map((a, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+            >
+              <div className="mb-3">{a.icon}</div>
+              <h3 className="text-lg font-bold text-[var(--color-darkgray)] mb-2">
+                {a.title}
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed">{a.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

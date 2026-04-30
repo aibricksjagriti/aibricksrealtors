@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { CarFront } from "lucide-react";
+import Link from "next/link";
 import BookSiteVisitModal from "../Properties/BookSiteVisitModal";
 import ContactSidebar from "../Properties/ContactSidebar";
 import BookSiteVisitCard from "../Properties/BookSiteVisitCard";
@@ -13,13 +15,19 @@ export default function SearchClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  /* ✅ UI STATE */
   const [readMore, setReadMore] = useState(false);
   const [openTour, setOpenTour] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showDeveloperLead, setShowDeveloperLead] = useState(false);
+  const [filters, setFilters] = useState(() => ({
+    city: searchParams.get("city") || "",
+    propertyType: searchParams.get("propertyType") || "",
+    developer:
+      searchParams.get("developer") || searchParams.get("builder") || "",
+    minPrice: searchParams.get("minPrice") || "",
+    maxPrice: searchParams.get("maxPrice") || "",
+  }));
 
   /* -------------------- SEARCH PARAMS -------------------- */
   const city = searchParams.get("city");
@@ -54,6 +62,17 @@ export default function SearchClient() {
     [developerName, city],
   );
 
+  useEffect(() => {
+    setFilters({
+      city: searchParams.get("city") || "",
+      propertyType: searchParams.get("propertyType") || "",
+      developer:
+        searchParams.get("developer") || searchParams.get("builder") || "",
+      minPrice: searchParams.get("minPrice") || "",
+      maxPrice: searchParams.get("maxPrice") || "",
+    });
+  }, [searchParams]);
+
   /* -------------------- DYNAMIC TITLE & DESCRIPTION -------------------- */
   const { title, description } = useMemo(() => {
     let titleText = "Properties Available";
@@ -79,40 +98,149 @@ export default function SearchClient() {
     return { title: titleText, description: descText };
   }, [city, propertyType, developerName, listingType]);
 
-  /* -------------------- API CALL -------------------- */
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(false);
-
-        const res = await fetch(
-          `/api/v1/properties/search?${searchParams.toString()}`,
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch");
-
-        const data = await res.json();
-        setProperties(data?.data || []);
-      } catch (err) {
-        console.error("Search API error:", err);
-        setError(true);
-        setProperties([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [searchParams.toString()]);
+  /* -------------------- TANSTACK QUERY -------------------- */
+  const { data: properties = [], isLoading: loading, isError: error } = useQuery({
+    queryKey: ["properties", searchParams.toString()],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/v1/properties/search?${searchParams.toString()}`,
+      );
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      return data?.data || [];
+    },
+  });
 
   const openDeveloperLead = useCallback(() => setShowDeveloperLead(true), []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({
+      city: "",
+      propertyType: "",
+      developer: "",
+      minPrice: "",
+      maxPrice: "",
+    });
+    router.replace("/search");
+  }, [router]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (filters.city) params.set("city", filters.city);
+    if (filters.propertyType) params.set("propertyType", filters.propertyType);
+    if (filters.developer) params.set("developer", filters.developer);
+    if (filters.minPrice) params.set("minPrice", filters.minPrice);
+    if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
+
+    const nextQueryString = params.toString();
+    const currentQueryString = searchParams.toString();
+
+    if (nextQueryString === currentQueryString) return;
+
+    router.replace(nextQueryString ? `/search?${nextQueryString}` : "/search");
+  }, [filters, router, searchParams]);
+
+  const filterPanel = (
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-darkgray">Refine results</p>
+            <p className="text-xs text-gray-500">Filters apply as soon as you change them.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <select
+          value={filters.city}
+          onChange={(e) => setFilters((current) => ({ ...current, city: e.target.value }))}
+          className="input"
+        >
+          <option value="">All Cities</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Pune">Pune</option>
+          <option value="Dubai">Dubai</option>
+        </select>
+
+        <select
+          value={filters.propertyType}
+          onChange={(e) => setFilters((current) => ({ ...current, propertyType: e.target.value }))}
+          className="input"
+        >
+          <option value="">All Types</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Villa">Villa</option>
+          <option value="Penthouse">Penthouse</option>
+          <option value="Commercial">Commercial</option>
+          <option value="Plot">Plot</option>
+        </select>
+
+        <select
+          value={filters.developer}
+          onChange={(e) => setFilters((current) => ({ ...current, developer: e.target.value }))}
+          className="input"
+        >
+          <option value="">All Developers</option>
+          <option value="Shapoorji">Shapoorji</option>
+          <option value="Krisala Developers">Krisala Developers</option>
+          <option value="Hiranandani Developers">Hiranandani Developers</option>
+          <option value="Gera Developers">Gera Developers</option>
+          <option value="Kolte Patil Developers">Kolte Patil Developers</option>
+          <option value="Lodha Developers">Lodha Developers</option>
+          <option value="Godrej Developers">Godrej Developers</option>
+          <option value="Kohinoor Developers">Kohinoor Developers</option>
+          <option value="VTP Developers">VTP Developers</option>
+        </select>
+
+        <select
+          value={filters.minPrice}
+          onChange={(e) => {
+            const [min, max] = e.target.value.split("-");
+            setFilters((current) => ({
+              ...current,
+              minPrice: min || "",
+              maxPrice: max || "",
+            }));
+          }}
+          className="input"
+        >
+          <option value="">Any Price</option>
+          <option value="0-5000000">Under ₹50 Lakhs</option>
+          <option value="5000000-10000000">₹50 Lakhs - ₹1 Crore</option>
+          <option value="10000000-15000000">₹1 - 1.5 Crores</option>
+          <option value="15000000-25000000">₹1.5 - 2.5 Crores</option>
+          <option value="25000000-40000000">₹2.5 - 4 Crores</option>
+          <option value="40000000-">Above ₹4 Crores</option>
+        </select>
+
+        <button
+          type="button"
+          onClick={clearFilters}
+          className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-darkgray transition hover:bg-gray-50"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+  );
+  const backLink = (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <Link
+        href="/properties"
+        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-darkgray hover:bg-gray-50"
+      >
+        Back to Properties
+      </Link>
+    </div>
+  );
 
   /* -------------------- STATES -------------------- */
 
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {backLink}
+        {filterPanel}
         {developerName ? (
           <DeveloperCategoryHero
             developerName={developerName}
@@ -120,8 +248,40 @@ export default function SearchClient() {
             onGetDetails={openDeveloperLead}
           />
         ) : null}
-        <div className="min-h-[40vh] flex items-center justify-center text-gray-500">
-          Loading properties...
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-4">
+            <div className="bg-white border rounded-xl shadow-sm p-5 space-y-4">
+              <div className="h-6 w-2/3 rounded-full bg-gray-200 animate-pulse" />
+              <div className="h-4 w-full rounded-full bg-gray-200 animate-pulse" />
+              <div className="h-4 w-5/6 rounded-full bg-gray-200 animate-pulse" />
+            </div>
+
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-4 shadow-sm"
+              >
+                <div
+                  className="relative w-full rounded-lg overflow-hidden bg-gray-200 animate-pulse"
+                  style={{ width: 260, height: 180 }}
+                />
+                <div className="flex-1 space-y-4">
+                  <div className="h-6 w-3/4 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="h-4 w-1/3 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="h-4 w-full rounded-full bg-gray-200 animate-pulse" />
+                  <div className="h-4 w-5/6 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="h-10 w-36 rounded-lg bg-gray-200 animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden lg:block lg:col-span-4">
+            <div className="sticky top-28 space-y-6">
+              <div className="h-64 rounded-2xl bg-gray-200 animate-pulse" />
+              <div className="h-80 rounded-2xl bg-gray-200 animate-pulse" />
+            </div>
+          </div>
         </div>
         <LeadCaptureModal
           {...developerInterestedContext}
@@ -139,6 +299,8 @@ export default function SearchClient() {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {backLink}
+        {filterPanel}
         {developerName ? (
           <DeveloperCategoryHero
             developerName={developerName}
@@ -165,6 +327,8 @@ export default function SearchClient() {
   if (!properties.length) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {backLink}
+        {filterPanel}
         {developerName ? (
           <DeveloperCategoryHero
             developerName={developerName}
@@ -203,6 +367,8 @@ export default function SearchClient() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="lg:col-span-12">{backLink}</div>
+      <div className="lg:col-span-12">{filterPanel}</div>
       {/*  SEARCH LANDING MESSAGE */}
       <div className="lg:col-span-8 space-y-4 mt-">
         {developerName ? (
@@ -242,13 +408,16 @@ export default function SearchClient() {
         {properties.map((item) => (
           <div
             key={item.id}
-            className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-4 hover:shadow-lg transition"
+            className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-4 hover:shadow-lg transition cursor-pointer"
           >
             {/* IMAGE */}
             {/* <div className="w-full md:w-56 h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
               Image Coming Soon
             </div> */}
-            <div className="relative w-full sm:w-[260px] h-[180px] rounded-lg overflow-hidden bg-gray-200">
+            <div
+              className="relative w-full rounded-lg overflow-hidden bg-gray-200"
+              style={{ width: 260, height: 180 }}
+            >
               <Image
                 src={
                   item.mainPropertyImage ||
@@ -375,7 +544,10 @@ export default function SearchClient() {
 
 function DeveloperCategoryHero({ developerName, city, onGetDetails }) {
   return (
-    <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-gradient-to-r from-[#1a2b4a] via-[#243a5c] to-brickred text-white">
+    <div
+      className="rounded-2xl overflow-hidden border border-gray-200 shadow-md text-white"
+      style={{ background: "linear-gradient(to right, #1a2b4a, #243a5c, #8D0B41)" }}
+    >
       <div className="px-6 py-8 md:px-10 md:py-10 md:flex md:items-center md:justify-between gap-6">
         <div className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-wider text-white/75 mb-2">

@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 const VIDEOS = [
-  "/home/hero-bg.mp4",
   "/home/hero-bg-2.mp4",
   "/home/hero-bg-3.mp4",
+  "/home/hero-bg.mp4",
 ];
 
 export default function HeroVideo() {
@@ -16,6 +16,14 @@ export default function HeroVideo() {
   // Delay for LCP
   useEffect(() => {
     const t = setTimeout(() => {
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const isSmallScreen = window.matchMedia("(max-width: 767px)").matches;
+      const saveData = navigator.connection?.saveData;
+
+      if (prefersReducedMotion || isSmallScreen || saveData) return;
+
       setShowVideo(true);
     }, 1500);
 
@@ -28,7 +36,6 @@ export default function HeroVideo() {
 
     const video = videoRef.current;
 
-    video.load(); // REQUIRED
     video.play().catch(() => {});
   }, [index]);
 
