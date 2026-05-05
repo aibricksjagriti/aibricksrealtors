@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, User, Image as ImageIcon, Plus } from "lucide-react";
-import { propertiesAPI, developersAPI, localitiesAPI, locationPagesAPI } from "@/src/admin/utils/api";
+import { propertiesAPI, developersAPI, localitiesAPI } from "@/src/admin/utils/api";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
@@ -35,79 +35,6 @@ export default function NewPropertyPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    developersAPI.getAll().then((res) => setDevelopers(res.data || [])).catch(() => {});
-
-    Promise.all([
-      locationPagesAPI.getAll().catch(() => ({ data: [] })),
-      localitiesAPI.getAll().catch(() => ({ data: [] })),
-    ]).then(([cityRes, locRes]) => {
-      const cities = (cityRes.data || [])
-        .filter((p) => p.city)
-        .map((p) => p.city.trim())
-        .sort();
-      setAllCities(cities);
-
-      const map = {};
-      (locRes.data || []).forEach((l) => {
-        if (!l.city || !l.name) return;
-        const city = l.city.trim();
-        if (!map[city]) map[city] = new Set();
-        map[city].add(l.name.trim());
-      });
-      const finalMap = {};
-      Object.keys(map).forEach((c) => { finalMap[c] = [...map[c]].sort(); });
-      setLocalityMap(finalMap);
-      setCitiesLoading(false);
-    });
-  }, []);
-
-  // Pre-fill from URL params
-  useEffect(() => {
-    const devParam = searchParams.get("developer");
-    const cityParam = searchParams.get("city");
-    const localityParam = searchParams.get("locality");
-    if (devParam || cityParam || localityParam) {
-      setFormData((prev) => ({
-        ...prev,
-        ...(devParam ? { builderName: devParam } : {}),
-        ...(cityParam ? { city: cityParam } : {}),
-        ...(localityParam ? { locality: localityParam } : {}),
-      }));
-      // Always start from step 1 — pre-filled values are visible as user progresses
-    }
-  }, [searchParams]);
-
-  // Suppress browser extension errors (common with React DevTools, etc.)
-  useEffect(() => {
-    const handleError = (event) => {
-      // Suppress known browser extension errors
-      if (event.message && event.message.includes("message channel closed")) {
-        event.preventDefault();
-        return false;
-      }
-      if (event.error && event.error.message && event.error.message.includes("message channel closed")) {
-        event.preventDefault();
-        return false;
-      }
-    };
-
-    const handleUnhandledRejection = (event) => {
-      // Suppress known browser extension promise rejection errors
-      if (event.reason && event.reason.message && event.reason.message.includes("message channel closed")) {
-        event.preventDefault();
-        return false;
-      }
-    };
-
-    window.addEventListener("error", handleError);
-    window.addEventListener("unhandledrejection", handleUnhandledRejection);
-
-    return () => {
-      window.removeEventListener("error", handleError);
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
-    };
-  }, []);
   const [formData, setFormData] = useState({
     // Step 1: Basic Info
     propertyTitle: "",
@@ -218,6 +145,97 @@ export default function NewPropertyPage() {
     price: "",
   });
   const imageGalleryInputRef = useRef(null);
+
+  useEffect(() => {
+    developersAPI.getAll().then((res) => setDevelopers(res.data || [])).catch(() => {});
+
+    Promise.all([
+      localitiesAPI.getAll(),
+      propertiesAPI.getAll({ limit: 500 }),
+    ])
+      .then(([locRes, propRes]) => {
+        const registered = locRes.data || [];
+        const registeredNames = new Set(registered.map((l) => l.name?.toLowerCase().trim()).filter(Boolean));
+
+        // pull city+locality from actual property docs (same as localities page)
+        const seen = new Set();
+        const fromProps = [];
+        (propRes.data || []).forEach((p) => {
+          const name = p.locality?.trim();
+          const city = p.city?.trim();
+          if (name && city) {
+            const key = `${name.toLowerCase()}|${city.toLowerCase()}`;
+            if (!seen.has(key) && !registeredNames.has(name.toLowerCase())) {
+              seen.add(key);
+              fromProps.push({ name, city });
+            }
+          }
+        });
+
+        const all = [
+          ...registered,
+          ...fromProps,
+        ];
+
+        const cities = [...new Set(all.map((l) => l.city).filter(Boolean))].sort();
+        setAllCities(cities);
+
+        const map = {};
+        all.forEach((l) => {
+          if (!l.city || !l.name) return;
+          if (!map[l.city]) map[l.city] = [];
+          if (!map[l.city].includes(l.name.trim())) map[l.city].push(l.name.trim());
+        });
+        Object.keys(map).forEach((c) => map[c].sort());
+        setLocalityMap(map);
+        setCitiesLoading(false);
+      })
+      .catch(() => setCitiesLoading(false));
+  }, []);
+
+  // Pre-fill from URL params
+  useEffect(() => {
+    const devParam = searchParams.get("developer");
+    const cityParam = searchParams.get("city");
+    const localityParam = searchParams.get("locality");
+    if (devParam || cityParam || localityParam) {
+      setFormData((prev) => ({
+        ...prev,
+        ...(devParam ? { builderName: devParam } : {}),
+        ...(cityParam ? { city: cityParam } : {}),
+        ...(localityParam ? { locality: localityParam } : {}),
+      }));
+    }
+  }, [searchParams]);
+
+  // Suppress browser extension errors (common with React DevTools, etc.)
+  useEffect(() => {
+    const handleError = (event) => {
+      if (event.message && event.message.includes("message channel closed")) {
+        event.preventDefault();
+        return false;
+      }
+      if (event.error && event.error.message && event.error.message.includes("message channel closed")) {
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    const handleUnhandledRejection = (event) => {
+      if (event.reason && event.reason.message && event.reason.message.includes("message channel closed")) {
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    window.addEventListener("error", handleError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener("error", handleError);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    };
+  }, []);
 
   const handleFileUpload = async (file, fieldName, isArray = false) => {
     if (!file) return;

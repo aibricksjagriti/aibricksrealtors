@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, User, Image as ImageIcon, Plus } from "lucide-react";
-import { propertiesAPI, developersAPI, localitiesAPI, locationPagesAPI } from "@/src/admin/utils/api";
+import { propertiesAPI, developersAPI, localitiesAPI } from "@/src/admin/utils/api";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
@@ -182,27 +182,42 @@ export default function EditPropertyPage() {
     developersAPI.getAll().then((res) => setDevelopers(res.data || [])).catch(() => {});
 
     Promise.all([
-      locationPagesAPI.getAll().catch(() => ({ data: [] })),
-      localitiesAPI.getAll().catch(() => ({ data: [] })),
-    ]).then(([cityRes, locRes]) => {
-      const cities = (cityRes.data || [])
-        .filter((p) => p.city)
-        .map((p) => p.city.trim())
-        .sort();
-      setAllCities(cities);
+      localitiesAPI.getAll(),
+      propertiesAPI.getAll({ limit: 500 }),
+    ])
+      .then(([locRes, propRes]) => {
+        const registered = locRes.data || [];
+        const registeredNames = new Set(registered.map((l) => l.name?.toLowerCase().trim()).filter(Boolean));
 
-      const map = {};
-      (locRes.data || []).forEach((l) => {
-        if (!l.city || !l.name) return;
-        const city = l.city.trim();
-        if (!map[city]) map[city] = new Set();
-        map[city].add(l.name.trim());
-      });
-      const finalMap = {};
-      Object.keys(map).forEach((c) => { finalMap[c] = [...map[c]].sort(); });
-      setLocalityMap(finalMap);
-      setCitiesLoading(false);
-    });
+        const seen = new Set();
+        const fromProps = [];
+        (propRes.data || []).forEach((p) => {
+          const name = p.locality?.trim();
+          const city = p.city?.trim();
+          if (name && city) {
+            const key = `${name.toLowerCase()}|${city.toLowerCase()}`;
+            if (!seen.has(key) && !registeredNames.has(name.toLowerCase())) {
+              seen.add(key);
+              fromProps.push({ name, city });
+            }
+          }
+        });
+
+        const all = [...registered, ...fromProps];
+        const cities = [...new Set(all.map((l) => l.city).filter(Boolean))].sort();
+        setAllCities(cities);
+
+        const map = {};
+        all.forEach((l) => {
+          if (!l.city || !l.name) return;
+          if (!map[l.city]) map[l.city] = [];
+          if (!map[l.city].includes(l.name.trim())) map[l.city].push(l.name.trim());
+        });
+        Object.keys(map).forEach((c) => map[c].sort());
+        setLocalityMap(map);
+        setCitiesLoading(false);
+      })
+      .catch(() => setCitiesLoading(false));
   }, []);
 
   const handleFileUpload = async (file, fieldName, isArray = false) => {
@@ -886,7 +901,7 @@ export default function EditPropertyPage() {
                     className="admin-input w-full"
                   >
                     <option value="">— Select City —</option>
-                    {allCities.map((c) => (
+                    {[...new Set([...(formData.city ? [formData.city] : []), ...allCities])].map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
@@ -898,23 +913,29 @@ export default function EditPropertyPage() {
                   <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
                     <option>— Select a city first —</option>
                   </select>
-                ) : (localityMap[formData.city] || []).length > 0 ? (
-                  <select
-                    name="locality"
-                    value={formData.locality}
-                    onChange={handleChange}
-                    className="admin-input w-full"
-                  >
-                    <option value="">— Select Locality —</option>
-                    {(localityMap[formData.city] || []).map((l) => (
-                      <option key={l} value={l}>{l}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
-                    <option>— No localities for {formData.city} — add in Localities admin —</option>
-                  </select>
-                )}
+                ) : (() => {
+                  const options = [...new Set([
+                    ...(formData.locality ? [formData.locality] : []),
+                    ...(localityMap[formData.city] || []),
+                  ])];
+                  return options.length > 0 ? (
+                    <select
+                      name="locality"
+                      value={formData.locality}
+                      onChange={handleChange}
+                      className="admin-input w-full"
+                    >
+                      <option value="">— Select Locality —</option>
+                      {options.map((l) => (
+                        <option key={l} value={l}>{l}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
+                      <option>— No localities for {formData.city} —</option>
+                    </select>
+                  );
+                })()}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Sub Locality</label>
