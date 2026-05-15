@@ -106,7 +106,9 @@ export default function ProjectGrid({ projects, builderName }) {
     developer: p.builderName,
     type: p.propertyType,
     location: `${p.city}, ${p.state}`,
-    bedrooms: p.subType,
+    bedrooms: Array.isArray(p.subTypes) && p.subTypes.length > 0
+      ? p.subTypes.join(", ")
+      : p.subType || "",
     area: `${p.builtUpArea} sq.ft`,
     completion: p.propertyStatus,
     price: formatPrice(p.totalPrice),

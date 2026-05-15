@@ -17,7 +17,11 @@ export default function ProjectCard({ project }) {
         ₹ {project.totalPrice.toLocaleString()}
       </p>
 
-      <p className="text-sm text-gray-600">{project.subType}</p>
+      <p className="text-sm text-gray-600">
+        {Array.isArray(project.subTypes) && project.subTypes.length > 0
+          ? project.subTypes.join(", ")
+          : project.subType || ""}
+      </p>
 
       <button className="mt-3 w-full bg-primary text-white py-2 rounded">
         View Details

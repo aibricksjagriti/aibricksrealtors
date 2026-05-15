@@ -423,6 +423,11 @@ function MasterPlan({ property }) {
 /* ================= PRICING ================= */
 
 function PricingCard({ property }) {
+  const subTypeDisplay =
+    Array.isArray(property.subTypes) && property.subTypes.length > 0
+      ? property.subTypes.join(", ")
+      : property.subType || null;
+
   return (
     <Card title="Pricing">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -431,7 +436,7 @@ function PricingCard({ property }) {
           label="Price / Sq.ft"
           value={`₹ ${property.pricePerSquareFoot}`}
         />
-        <Detail label="Type" value={property.subType} />
+        <Detail label="Type" value={subTypeDisplay} />
         <Detail label="Listing Type" value={property.listingType} />
       </div>
     </Card>
@@ -446,7 +451,13 @@ function LegalDetails({ property }) {
     ["Property Status", property.propertyStatus],
     ["Furnishing", property.furnishing],
     ["Facing", property.facingDirection],
-  ];
+    property.propertyStatus === "Under Construction" && property.possessionDate
+      ? ["Possession Date", property.possessionDate]
+      : null,
+    property.propertyStatus === "Ready to Move" && property.ageOfProperty
+      ? ["Age of Property", property.ageOfProperty]
+      : null,
+  ].filter(Boolean);
 
   return (
     <Card title="Legal Details">

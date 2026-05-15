@@ -199,7 +199,11 @@ export default function PropertyViewPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Sub Type</p>
-                <p className="font-semibold text-gray-800">{property.subType || "N/A"}</p>
+                <p className="font-semibold text-gray-800">
+                  {Array.isArray(property.subTypes) && property.subTypes.length > 0
+                    ? property.subTypes.join(", ")
+                    : property.subType || "N/A"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Listing Type</p>
@@ -237,10 +241,18 @@ export default function PropertyViewPage() {
                 <p className="text-sm text-gray-500 mb-1">Facing Direction</p>
                 <p className="font-semibold text-gray-800">{property.facingDirection || "N/A"}</p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Age of Property</p>
-                <p className="font-semibold text-gray-800">{property.ageOfProperty ? `${property.ageOfProperty} years` : "N/A"}</p>
-              </div>
+              {property.propertyStatus === "Under Construction" && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Possession Date</p>
+                  <p className="font-semibold text-gray-800">{property.possessionDate || "N/A"}</p>
+                </div>
+              )}
+              {property.propertyStatus === "Ready to Move" && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Age of Property</p>
+                  <p className="font-semibold text-gray-800">{property.ageOfProperty || "N/A"}</p>
+                </div>
+              )}
             </div>
           </div>
 

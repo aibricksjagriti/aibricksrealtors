@@ -2,19 +2,24 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, User, Image as ImageIcon, Plus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, Image as ImageIcon, Plus } from "lucide-react";
 import { propertiesAPI, developersAPI, localitiesAPI } from "@/src/admin/utils/api";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
-const PROPERTY_TYPES = ["Apartment", "Villa", "Townhouse", "Penthouse", "Mansion", "Plot", "Commercial", "Office", "Shop", "Warehouse", "Industrial"];
-const SUB_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK", "Studio", "Duplex", "Penthouse", "Independent House"];
+const PROPERTY_TYPES = ["Apartment", "Villa", "Townhouse", "Penthouse", "Mansion", "Plot", "Commercial", "Office", "Office Space", "Duplex", "Shop", "Warehouse", "Industrial"];
+const SUB_TYPES_MAP = {
+  Apartment: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Penthouse"],
+  "Office Space": ["Small Office", "Medium Office", "Large Office", "Co-working", "Commercial Office"],
+  Duplex: ["2 BHK Duplex", "3 BHK Duplex", "4 BHK Duplex", "Luxury Duplex"],
+  Shop: ["Retail Shop", "Corner Shop", "Food Shop", "Commercial Shop", "Showroom"],
+};
+const AGE_OF_PROPERTY_OPTIONS = ["New Property", "0–1 Year", "1–3 Years", "3–5 Years", "5–10 Years", "10+ Years"];
 const LISTING_TYPES = ["Sale", "Rent", "PG", "Lease"];
 const PROPERTY_STATUSES = ["Ready to Move", "Under Construction", "Resale"];
 const FURNISHING_TYPES = ["Furnished", "Semi-Furnished", "Unfurnished"];
 const FACING_DIRECTIONS = ["East", "West", "North", "South", "North-East", "North-West", "South-East", "South-West"];
 const OWNERSHIP_TYPES = ["Freehold", "Leasehold"];
-const SELLER_TYPES = ["Owner", "Agent", "Builder"];
 const YES_NO = ["Yes", "No"];
 
 const STEPS = [
@@ -23,8 +28,7 @@ const STEPS = [
   { id: 3, title: "Pricing", icon: IndianRupee },
   { id: 4, title: "Details", icon: Home },
   { id: 5, title: "Building Info", icon: Briefcase },
-  { id: 6, title: "Seller Info", icon: User },
-  { id: 7, title: "Media", icon: ImageIcon },
+  { id: 6, title: "Media", icon: ImageIcon },
 ];
 
 export default function NewPropertyPage() {
@@ -39,11 +43,12 @@ export default function NewPropertyPage() {
     // Step 1: Basic Info
     propertyTitle: "",
     propertyType: "Apartment",
-    subType: "",
+    subTypes: [],
     listingType: "Sale",
     propertyStatus: "Ready to Move",
-    furnishing: "",
+    possessionDate: "",
     ageOfProperty: "",
+    furnishing: "",
     builtUpArea: "",
     carpetArea: "",
     floorNumber: "",
@@ -103,18 +108,7 @@ export default function NewPropertyPage() {
     cctv: "",
     security24x7: "",
     
-    // Step 6: Seller Info
-    sellerType: "Agent",
-    sellerName: "",
-    phoneNumber: "",
-    email: "",
-    companyName: "",
-    verifiedBadge: "No",
-    responseRate: "",
-    totalListings: "",
-    rating: "",
-    
-    // Step 7: Media
+    // Step 6: Media
     mainPropertyImage: "",
     imageGallery: [],
     floorPlans: [],
@@ -307,9 +301,18 @@ export default function NewPropertyPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name.includes("Area") || name.includes("numberOf") || name.includes("Price") || name.includes("Charges") || name.includes("Deposit") || name.includes("Amount") || name.includes("Duty") || name.includes("Rate") || name.includes("rating") || name.includes("ageOf") || name.includes("floor") || name.includes("Floors") || name.includes("Units") || name.includes("Towers") || name.includes("Lifts") || name.includes("latitude") || name.includes("longitude") || name.includes("pricePerSquareFoot")
+      [name]: name.includes("Area") || name.includes("numberOf") || name.includes("Price") || name.includes("Charges") || name.includes("Deposit") || name.includes("Amount") || name.includes("Duty") || name.includes("Rate") || name.includes("rating") || name.includes("floor") || name.includes("Floors") || name.includes("Units") || name.includes("Towers") || name.includes("Lifts") || name.includes("latitude") || name.includes("longitude") || name.includes("pricePerSquareFoot")
         ? value === "" ? "" : (isNaN(value) ? prev[name] : Number(value))
         : value,
+    }));
+  };
+
+  const handleSubTypeToggle = (type) => {
+    setFormData((prev) => ({
+      ...prev,
+      subTypes: prev.subTypes.includes(type)
+        ? prev.subTypes.filter((t) => t !== type)
+        : [...prev.subTypes, type],
     }));
   };
 
@@ -521,13 +524,9 @@ export default function NewPropertyPage() {
         }
         break;
       case 3:
-        // Pricing is optional
-        break;
       case 4:
       case 5:
       case 6:
-      case 7:
-        // All other steps including media are optional
         break;
       default:
         break;
@@ -649,17 +648,14 @@ export default function NewPropertyPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Property Type <span className="text-red-500">*</span>
                 </label>
-                <select name="propertyType" value={formData.propertyType} onChange={handleChange} className="admin-input w-full" required>
+                <select
+                  name="propertyType"
+                  value={formData.propertyType}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, propertyType: e.target.value, subTypes: [] }))}
+                  className="admin-input w-full"
+                  required
+                >
                   {PROPERTY_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Sub Type</label>
-                <select name="subType" value={formData.subType} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select Sub Type</option>
-                  {SUB_TYPES.map((type) => (
                     <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
@@ -689,44 +685,53 @@ export default function NewPropertyPage() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Age of Property (years)</label>
-                <input type="number" name="ageOfProperty" value={formData.ageOfProperty} onChange={handleChange} className="admin-input w-full" min="0" max="100" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Built-up Area (sq ft)</label>
-                <input type="number" name="builtUpArea" value={formData.builtUpArea} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Carpet Area (sq ft)</label>
-                <input type="number" name="carpetArea" value={formData.carpetArea} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Floor Number</label>
-                <input type="number" name="floorNumber" value={formData.floorNumber} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Floors</label>
-                <input type="number" name="totalFloors" value={formData.totalFloors} onChange={handleChange} className="admin-input w-full" min="1" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Facing Direction</label>
-                <select name="facingDirection" value={formData.facingDirection} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select Direction</option>
-                  {FACING_DIRECTIONS.map((dir) => (
-                    <option key={dir} value={dir}>{dir}</option>
+              {formData.propertyStatus === "Under Construction" && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Possession Date</label>
+                  <input
+                    type="date"
+                    name="possessionDate"
+                    value={formData.possessionDate}
+                    onChange={handleChange}
+                    onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
+                    className="admin-input w-full"
+                  />
+                </div>
+              )}
+              {formData.propertyStatus === "Ready to Move" && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Age of Property</label>
+                  <select name="ageOfProperty" value={formData.ageOfProperty} onChange={handleChange} className="admin-input w-full">
+                    <option value="">Select Age</option>
+                    {AGE_OF_PROPERTY_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Sub Type</label>
+              {(SUB_TYPES_MAP[formData.propertyType] || []).length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {(SUB_TYPES_MAP[formData.propertyType] || []).map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => handleSubTypeToggle(type)}
+                      className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                        formData.subTypes.includes(type)
+                          ? "bg-purple-100 border-purple-400 text-purple-700"
+                          : "bg-white border-gray-200 text-gray-600 hover:border-purple-200 hover:bg-purple-50"
+                      }`}
+                    >
+                      {type}
+                    </button>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Ownership Type</label>
-                <select name="ownershipType" value={formData.ownershipType} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select Ownership</option>
-                  {OWNERSHIP_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400 italic">No sub-types available for this property type</p>
+              )}
             </div>
           </div>
         );
@@ -888,6 +893,40 @@ export default function NewPropertyPage() {
         return (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Built-up Area (sq ft)</label>
+                <input type="number" name="builtUpArea" value={formData.builtUpArea} onChange={handleChange} className="admin-input w-full" min="0" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Carpet Area (sq ft)</label>
+                <input type="number" name="carpetArea" value={formData.carpetArea} onChange={handleChange} className="admin-input w-full" min="0" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Floor Number</label>
+                <input type="number" name="floorNumber" value={formData.floorNumber} onChange={handleChange} className="admin-input w-full" min="0" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Floors</label>
+                <input type="number" name="totalFloors" value={formData.totalFloors} onChange={handleChange} className="admin-input w-full" min="1" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Facing Direction</label>
+                <select name="facingDirection" value={formData.facingDirection} onChange={handleChange} className="admin-input w-full">
+                  <option value="">Select Direction</option>
+                  {FACING_DIRECTIONS.map((dir) => (
+                    <option key={dir} value={dir}>{dir}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Ownership Type</label>
+                <select name="ownershipType" value={formData.ownershipType} onChange={handleChange} className="admin-input w-full">
+                  <option value="">Select Ownership</option>
+                  {OWNERSHIP_TYPES.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Bedrooms</label>
                 <input type="number" name="numberOfBedrooms" value={formData.numberOfBedrooms} onChange={handleChange} className="admin-input w-full" min="0" />
@@ -1061,57 +1100,6 @@ export default function NewPropertyPage() {
           </div>
         );
       case 6:
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Seller Type</label>
-                <select name="sellerType" value={formData.sellerType} onChange={handleChange} className="admin-input w-full">
-                  {SELLER_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Seller Name</label>
-                <input type="text" name="sellerName" value={formData.sellerName} onChange={handleChange} className="admin-input w-full" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="admin-input w-full" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} className="admin-input w-full" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Company Name</label>
-                <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="admin-input w-full" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Verified Badge</label>
-                <select name="verifiedBadge" value={formData.verifiedBadge} onChange={handleChange} className="admin-input w-full">
-                  {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Response Rate (%)</label>
-                <input type="number" name="responseRate" value={formData.responseRate} onChange={handleChange} className="admin-input w-full" min="0" max="100" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Listings</label>
-                <input type="number" name="totalListings" value={formData.totalListings} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Rating (0-5)</label>
-                <input type="number" name="rating" value={formData.rating} onChange={handleChange} className="admin-input w-full" min="0" max="5" step="0.1" />
-              </div>
-            </div>
-          </div>
-        );
-      case 7:
         return (
           <div className="space-y-4">
             <div>

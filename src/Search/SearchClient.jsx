@@ -455,7 +455,11 @@ export default function SearchClient() {
 
               <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-2">
                 <span>{item.propertyType}</span>
-                <span>{item.subType}</span>
+                <span>
+                  {Array.isArray(item.subTypes) && item.subTypes.length > 0
+                    ? item.subTypes.join(", ")
+                    : item.subType || ""}
+                </span>
                 <span>{item.listingType}</span>
               </div>
 

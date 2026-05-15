@@ -56,7 +56,11 @@ export default function PropertyCard({ property }) {
             {/* CONFIG ROW (Single – as per API) */}
             <div className="mt-3 border rounded-md overflow-hidden">
               <div className="grid grid-cols-3 text-sm bg-gray-50 px-3 py-2">
-                <span className="font-medium">{property.subType}</span>
+                <span className="font-medium">
+                  {Array.isArray(property.subTypes) && property.subTypes.length > 0
+                    ? property.subTypes.join(", ")
+                    : property.subType || "—"}
+                </span>
                 <span className="text-center">{property.builtUpArea} sqft</span>
                 <span className="text-right font-medium">
                   ₹ {Number(property.totalPrice).toLocaleString("en-IN")}
