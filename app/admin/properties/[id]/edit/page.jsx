@@ -81,8 +81,8 @@ export default function EditPropertyPage() {
     possessionDate: "",
     ageOfProperty: "",
     furnishing: "",
-    builtUpArea: "",
-    carpetArea: "",
+    builtUpArea: [],
+    carpetArea: [],
     floorNumber: "",
     totalFloors: "",
     facingDirection: "",
@@ -116,14 +116,6 @@ export default function EditPropertyPage() {
     registrationCharges: "",
     
     // Step 4: Details
-    numberOfBedrooms: "",
-    numberOfBathrooms: "",
-    numberOfBalconies: "",
-    hall: "",
-    kitchen: "",
-    storeRoom: "",
-    studyRoom: "",
-    poojaRoom: "",
     amenities: [],
     
     // Step 5: Building Info
@@ -341,8 +333,32 @@ export default function EditPropertyPage() {
           possessionDate: formatDateForInput(property.possessionDate),
           ageOfProperty: getValue(property.ageOfProperty),
           furnishing: getValue(property.furnishing),
-          builtUpArea: getValue(property.builtUpArea),
-          carpetArea: getValue(property.carpetArea),
+          builtUpArea: (() => {
+            if (Array.isArray(property.builtUpArea)) return property.builtUpArea;
+            const loadedSubTypes = Array.isArray(property.subTypes)
+              ? property.subTypes
+              : property.subType ? [property.subType] : [];
+            if (property.builtUpArea == null || property.builtUpArea === "") {
+              return loadedSubTypes.map(st => ({ subType: st, area: "" }));
+            }
+            const v = Number(property.builtUpArea);
+            const area = isNaN(v) ? property.builtUpArea : v;
+            if (loadedSubTypes.length > 0) return loadedSubTypes.map(st => ({ subType: st, area }));
+            return [{ subType: "", area }];
+          })(),
+          carpetArea: (() => {
+            if (Array.isArray(property.carpetArea)) return property.carpetArea;
+            const loadedSubTypes = Array.isArray(property.subTypes)
+              ? property.subTypes
+              : property.subType ? [property.subType] : [];
+            if (property.carpetArea == null || property.carpetArea === "") {
+              return loadedSubTypes.map(st => ({ subType: st, area: "" }));
+            }
+            const v = Number(property.carpetArea);
+            const area = isNaN(v) ? property.carpetArea : v;
+            if (loadedSubTypes.length > 0) return loadedSubTypes.map(st => ({ subType: st, area }));
+            return [{ subType: "", area }];
+          })(),
           floorNumber: getValue(property.floorNumber),
           totalFloors: getValue(property.totalFloors),
           facingDirection: getValue(property.facingDirection),
@@ -376,14 +392,6 @@ export default function EditPropertyPage() {
           registrationCharges: getValue(property.registrationCharges),
           
           // Step 4: Details
-          numberOfBedrooms: getValue(property.numberOfBedrooms || property.bedrooms),
-          numberOfBathrooms: getValue(property.numberOfBathrooms || property.bathrooms),
-          numberOfBalconies: getValue(property.numberOfBalconies),
-          hall: getValue(property.hall),
-          kitchen: getValue(property.kitchen),
-          storeRoom: getValue(property.storeRoom),
-          studyRoom: getValue(property.studyRoom),
-          poojaRoom: getValue(property.poojaRoom),
           amenities: getArray(property.amenities),
           
           // Step 5: Building Info
@@ -442,18 +450,36 @@ export default function EditPropertyPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name.includes("Area") || name.includes("numberOf") || name.includes("Price") || name.includes("Charges") || name.includes("Deposit") || name.includes("Amount") || name.includes("Duty") || name.includes("Rate") || name.includes("rating") || name.includes("floor") || name.includes("Floors") || name.includes("Units") || name.includes("Towers") || name.includes("Lifts") || name.includes("latitude") || name.includes("longitude") || name.includes("pricePerSquareFoot")
+      [name]: name.includes("numberOf") || name.includes("Price") || name.includes("Charges") || name.includes("Deposit") || name.includes("Amount") || name.includes("Duty") || name.includes("Rate") || name.includes("rating") || name.includes("floor") || name.includes("Floors") || name.includes("Units") || name.includes("Towers") || name.includes("Lifts") || name.includes("latitude") || name.includes("longitude") || name.includes("pricePerSquareFoot")
         ? value === "" ? "" : (isNaN(value) ? prev[name] : Number(value))
         : value,
     }));
   };
 
   const handleSubTypeToggle = (type) => {
-    setFormData((prev) => ({
-      ...prev,
-      subTypes: prev.subTypes.includes(type)
+    setFormData((prev) => {
+      const newSubTypes = prev.subTypes.includes(type)
         ? prev.subTypes.filter((t) => t !== type)
-        : [...prev.subTypes, type],
+        : [...prev.subTypes, type];
+      const prevBuilt = Array.isArray(prev.builtUpArea) ? prev.builtUpArea : [];
+      const prevCarpet = Array.isArray(prev.carpetArea) ? prev.carpetArea : [];
+      return {
+        ...prev,
+        subTypes: newSubTypes,
+        builtUpArea: newSubTypes.map(st => prevBuilt.find(e => e.subType === st) || { subType: st, area: "" }),
+        carpetArea: newSubTypes.map(st => prevCarpet.find(e => e.subType === st) || { subType: st, area: "" }),
+      };
+    });
+  };
+
+  const handleAreaChange = (field, subType, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: (Array.isArray(prev[field]) ? prev[field] : []).map(e =>
+        e.subType === subType
+          ? { ...e, area: value === "" ? "" : (isNaN(value) ? e.area : Number(value)) }
+          : e
+      ),
     }));
   };
 
@@ -788,7 +814,7 @@ export default function EditPropertyPage() {
                 <select
                   name="propertyType"
                   value={formData.propertyType}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, propertyType: e.target.value, subTypes: [] }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, propertyType: e.target.value, subTypes: [], builtUpArea: [], carpetArea: [] }))}
                   className="admin-input w-full"
                   required
                 >
@@ -1035,14 +1061,6 @@ export default function EditPropertyPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Built-up Area (sq ft)</label>
-                <input type="number" name="builtUpArea" value={formData.builtUpArea} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Carpet Area (sq ft)</label>
-                <input type="number" name="carpetArea" value={formData.carpetArea} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Floor Number</label>
                 <input type="number" name="floorNumber" value={formData.floorNumber} onChange={handleChange} className="admin-input w-full" min="0" />
               </div>
@@ -1068,63 +1086,77 @@ export default function EditPropertyPage() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Bedrooms</label>
-                <input type="number" name="numberOfBedrooms" value={formData.numberOfBedrooms} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Bathrooms</label>
-                <input type="number" name="numberOfBathrooms" value={formData.numberOfBathrooms} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Balconies</label>
-                <input type="number" name="numberOfBalconies" value={formData.numberOfBalconies} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Hall</label>
-                <select name="hall" value={formData.hall} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select</option>
-                  {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Kitchen</label>
-                <select name="kitchen" value={formData.kitchen} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select</option>
-                  {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Store Room</label>
-                <select name="storeRoom" value={formData.storeRoom} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select</option>
-                  {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Study Room</label>
-                <select name="studyRoom" value={formData.studyRoom} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select</option>
-                  {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Pooja Room</label>
-                <select name="poojaRoom" value={formData.poojaRoom} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select</option>
-                  {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Built-up &amp; Carpet Area
+                {formData.subTypes.length > 0 && <span className="text-gray-400 font-normal ml-1">(per configuration)</span>}
+              </label>
+              {formData.subTypes.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-3 text-xs font-semibold text-gray-500 px-3">
+                    <span>Configuration</span>
+                    <span>Built-up Area (sq ft)</span>
+                    <span>Carpet Area (sq ft)</span>
+                  </div>
+                  {formData.subTypes.map((subType) => {
+                    const builtEntry = (Array.isArray(formData.builtUpArea) ? formData.builtUpArea : []).find(e => e.subType === subType) || { area: "" };
+                    const carpetEntry = (Array.isArray(formData.carpetArea) ? formData.carpetArea : []).find(e => e.subType === subType) || { area: "" };
+                    return (
+                      <div key={subType} className="grid grid-cols-3 gap-3 items-center bg-gray-50 rounded-lg p-3">
+                        <span className="text-sm font-medium text-gray-700">{subType}</span>
+                        <input
+                          type="number"
+                          placeholder="sq ft"
+                          value={builtEntry.area}
+                          onChange={(e) => handleAreaChange("builtUpArea", subType, e.target.value)}
+                          className="admin-input"
+                          min="0"
+                        />
+                        <input
+                          type="number"
+                          placeholder="sq ft"
+                          value={carpetEntry.area}
+                          onChange={(e) => handleAreaChange("carpetArea", subType, e.target.value)}
+                          className="admin-input"
+                          min="0"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Built-up Area (sq ft)</label>
+                    <input
+                      type="number"
+                      placeholder="sq ft"
+                      value={Array.isArray(formData.builtUpArea) ? (formData.builtUpArea[0]?.area ?? "") : formData.builtUpArea}
+                      onChange={(e) => {
+                        const v = e.target.value === "" ? "" : Number(e.target.value);
+                        setFormData(prev => ({ ...prev, builtUpArea: [{ subType: "", area: v }] }));
+                      }}
+                      className="admin-input w-full"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Carpet Area (sq ft)</label>
+                    <input
+                      type="number"
+                      placeholder="sq ft"
+                      value={Array.isArray(formData.carpetArea) ? (formData.carpetArea[0]?.area ?? "") : formData.carpetArea}
+                      onChange={(e) => {
+                        const v = e.target.value === "" ? "" : Number(e.target.value);
+                        setFormData(prev => ({ ...prev, carpetArea: [{ subType: "", area: v }] }));
+                      }}
+                      className="admin-input w-full"
+                      min="0"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Amenities</label>

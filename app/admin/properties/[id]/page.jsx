@@ -223,11 +223,19 @@ export default function PropertyViewPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Built-up Area</p>
-                <p className="font-semibold text-gray-800">{property.builtUpArea ? `${property.builtUpArea} sq ft` : "N/A"}</p>
+                <p className="font-semibold text-gray-800">
+                  {Array.isArray(property.builtUpArea) && property.builtUpArea.length > 0
+                    ? property.builtUpArea.map(e => e.subType ? `${e.subType}: ${e.area} sq ft` : `${e.area} sq ft`).join(" | ")
+                    : property.builtUpArea ? `${property.builtUpArea} sq ft` : "N/A"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Carpet Area</p>
-                <p className="font-semibold text-gray-800">{property.carpetArea ? `${property.carpetArea} sq ft` : "N/A"}</p>
+                <p className="font-semibold text-gray-800">
+                  {Array.isArray(property.carpetArea) && property.carpetArea.length > 0
+                    ? property.carpetArea.map(e => e.subType ? `${e.subType}: ${e.area} sq ft` : `${e.area} sq ft`).join(" | ")
+                    : property.carpetArea ? `${property.carpetArea} sq ft` : "N/A"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Floor Number</p>
@@ -368,56 +376,37 @@ export default function PropertyViewPage() {
             </div>
           </div>
 
-          {/* Room Configuration */}
+          {/* Configurations & Amenities */}
           <div className="admin-card p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
               <Home className="mr-2 text-purple-600" size={24} />
-              Room Configuration
+              Configurations
             </h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Bedrooms</p>
-                <p className="font-semibold text-gray-800">{property.numberOfBedrooms || "N/A"}</p>
+            {Array.isArray(property.builtUpArea) && property.builtUpArea.length > 0 ? (
+              <div className="overflow-x-auto mb-4">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-gray-500">
+                      <th className="text-left py-2 pr-4 font-medium">Type</th>
+                      <th className="text-left py-2 pr-4 font-medium">Built-up Area</th>
+                      <th className="text-left py-2 font-medium">Carpet Area</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {property.builtUpArea.map((entry, i) => {
+                      const carpetEntry = Array.isArray(property.carpetArea) ? property.carpetArea.find(e => e.subType === entry.subType) : null;
+                      return (
+                        <tr key={i} className="border-b last:border-0">
+                          <td className="py-2 pr-4 font-semibold text-gray-800">{entry.subType || "General"}</td>
+                          <td className="py-2 pr-4 text-gray-700">{entry.area ? `${entry.area} sq ft` : "—"}</td>
+                          <td className="py-2 text-gray-700">{carpetEntry?.area ? `${carpetEntry.area} sq ft` : "—"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Bathrooms</p>
-                <p className="font-semibold text-gray-800">{property.numberOfBathrooms || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Balconies</p>
-                <p className="font-semibold text-gray-800">{property.numberOfBalconies || "N/A"}</p>
-              </div>
-              {property.hall && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Hall</p>
-                  <p className="font-semibold text-gray-800">{property.hall}</p>
-                </div>
-              )}
-              {property.kitchen && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Kitchen</p>
-                  <p className="font-semibold text-gray-800">{property.kitchen}</p>
-                </div>
-              )}
-              {property.storeRoom && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Store Room</p>
-                  <p className="font-semibold text-gray-800">{property.storeRoom}</p>
-                </div>
-              )}
-              {property.studyRoom && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Study Room</p>
-                  <p className="font-semibold text-gray-800">{property.studyRoom}</p>
-                </div>
-              )}
-              {property.poojaRoom && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Pooja Room</p>
-                  <p className="font-semibold text-gray-800">{property.poojaRoom}</p>
-                </div>
-              )}
-            </div>
+            ) : null}
             {property.amenities && property.amenities.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="text-sm font-semibold text-gray-700 mb-2">Amenities</h3>

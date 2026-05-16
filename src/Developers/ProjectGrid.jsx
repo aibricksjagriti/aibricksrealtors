@@ -109,7 +109,14 @@ export default function ProjectGrid({ projects, builderName }) {
     bedrooms: Array.isArray(p.subTypes) && p.subTypes.length > 0
       ? p.subTypes.join(", ")
       : p.subType || "",
-    area: `${p.builtUpArea} sq.ft`,
+    area: Array.isArray(p.builtUpArea) && p.builtUpArea.length > 0
+      ? (() => {
+          const vals = p.builtUpArea.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+          if (vals.length === 0) return "—";
+          const min = Math.min(...vals); const max = Math.max(...vals);
+          return min === max ? `${min} sq.ft` : `${min}–${max} sq.ft`;
+        })()
+      : p.builtUpArea ? `${p.builtUpArea} sq.ft` : "—",
     completion: p.propertyStatus,
     price: formatPrice(p.totalPrice),
     image: p.imageGallery?.[0] || FALLBACK_IMAGE,

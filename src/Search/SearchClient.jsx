@@ -464,8 +464,26 @@ export default function SearchClient() {
               </div>
 
               <div className="flex flex-wrap gap-6 text-sm text-gray-600 mb-2">
-                <span>{item.builtUpArea} sq.ft</span>
-                <span>{item.carpetArea} sq.ft</span>
+                <span>
+                  {Array.isArray(item.builtUpArea) && item.builtUpArea.length > 0
+                    ? (() => {
+                        const vals = item.builtUpArea.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+                        if (vals.length === 0) return null;
+                        const min = Math.min(...vals); const max = Math.max(...vals);
+                        return min === max ? `${min} sq.ft` : `${min}–${max} sq.ft`;
+                      })()
+                    : item.builtUpArea ? `${item.builtUpArea} sq.ft` : null}
+                </span>
+                <span>
+                  {Array.isArray(item.carpetArea) && item.carpetArea.length > 0
+                    ? (() => {
+                        const vals = item.carpetArea.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+                        if (vals.length === 0) return null;
+                        const min = Math.min(...vals); const max = Math.max(...vals);
+                        return min === max ? `${min} sq.ft` : `${min}–${max} sq.ft`;
+                      })()
+                    : item.carpetArea ? `${item.carpetArea} sq.ft` : null}
+                </span>
                 <span>{item.propertyStatus}</span>
               </div>
 

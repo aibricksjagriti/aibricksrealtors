@@ -115,6 +115,7 @@ export default function PropertyDetailPage() {
               <AmenitiesGrid amenities={property.amenities} />
             </div>
             <MasterPlan property={property} />
+            <ConfigurationsCard property={property} />
             <div id="pricing">
               <PricingCard property={property} />
             </div>
@@ -198,13 +199,28 @@ function HeroGallery({ property }) {
 
 /* ================= INFO STRIP ================= */
 
+function formatAreaDisplay(area) {
+  if (Array.isArray(area) && area.length > 0) {
+    const values = area.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+    if (values.length === 0) return "—";
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    return min === max ? `${min} sq.ft` : `${min} – ${max} sq.ft`;
+  }
+  if (area != null && area !== "" && area !== 0) return `${area} sq.ft`;
+  return "—";
+}
+
 function HighlightStrip({ property }) {
+  const isUnderConstruction = property.propertyStatus === "Under Construction";
   const items = [
-    ["Built-up", `${property.builtUpArea} sq.ft`],
-    ["Carpet", `${property.carpetArea} sq.ft`],
+    ["Built-up", formatAreaDisplay(property.builtUpArea)],
+    ["Carpet", formatAreaDisplay(property.carpetArea)],
     ["Facing", property.facingDirection],
     ["Furnishing", property.furnishing],
-    ["Ownership", property.ownershipType],
+    isUnderConstruction
+      ? ["Possession", property.possessionDate || "—"]
+      : ["Ownership", property.ownershipType],
   ];
 
   return (
@@ -212,7 +228,7 @@ function HighlightStrip({ property }) {
       {items.map(([label, value], i) => (
         <div key={i}>
           <p className="text-gray-500 text-sm">{label}</p>
-          <p className="font-semibold">{value}</p>
+          <p className="font-semibold">{value || "—"}</p>
         </div>
       ))}
     </div>
@@ -327,7 +343,7 @@ function MasterPlan({ property }) {
             >
               <div className="px-3 py-2 border-b border-gray-200">
                 <p className="text-sm font-semibold text-gray-800 truncate">
-                  {plan.name || `${idx + 1} BHK`}
+                  {plan.name || `Floor Plan ${idx + 1}`}
                 </p>
               </div>
               <button
@@ -417,6 +433,43 @@ function MasterPlan({ property }) {
       propertyLocation={[property?.locality, property?.city].filter(Boolean).join(", ") || null}
     />
     </>
+  );
+}
+
+/* ================= CONFIGURATIONS ================= */
+
+function ConfigurationsCard({ property }) {
+  const builtUp = property.builtUpArea;
+  const carpet = property.carpetArea;
+  const isArray = Array.isArray(builtUp) && builtUp.length > 0;
+  if (!isArray) return null;
+
+  return (
+    <Card title="Configurations">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b text-gray-500">
+              <th className="text-left py-2 pr-4 font-medium">Type</th>
+              <th className="text-left py-2 pr-4 font-medium">Built-up Area</th>
+              <th className="text-left py-2 font-medium">Carpet Area</th>
+            </tr>
+          </thead>
+          <tbody>
+            {builtUp.map((entry, i) => {
+              const carpetEntry = Array.isArray(carpet) ? carpet.find(e => e.subType === entry.subType) : null;
+              return (
+                <tr key={i} className="border-b last:border-0">
+                  <td className="py-3 pr-4 font-semibold text-gray-800">{entry.subType || "General"}</td>
+                  <td className="py-3 pr-4 text-gray-700">{entry.area ? `${entry.area} sq.ft` : "—"}</td>
+                  <td className="py-3 text-gray-700">{carpetEntry?.area ? `${carpetEntry.area} sq.ft` : "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   );
 }
 

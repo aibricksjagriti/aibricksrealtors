@@ -59,9 +59,19 @@ export default function PropertyCard({ property }) {
                 <span className="font-medium">
                   {Array.isArray(property.subTypes) && property.subTypes.length > 0
                     ? property.subTypes.join(", ")
-                    : property.subType || "—"}
+                    : property.propertyType || "—"}
                 </span>
-                <span className="text-center">{property.builtUpArea} sqft</span>
+                <span className="text-center">
+                  {Array.isArray(property.builtUpArea) && property.builtUpArea.length > 0
+                    ? (() => {
+                        const vals = property.builtUpArea.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+                        if (vals.length === 0) return "—";
+                        const min = Math.min(...vals);
+                        const max = Math.max(...vals);
+                        return min === max ? `${min} sqft` : `${min}–${max} sqft`;
+                      })()
+                    : property.builtUpArea ? `${property.builtUpArea} sqft` : "—"}
+                </span>
                 <span className="text-right font-medium">
                   ₹ {Number(property.totalPrice).toLocaleString("en-IN")}
                 </span>
