@@ -89,11 +89,15 @@ export default function PropertyDetailPage() {
           </div>
 
           <div className="bg-white border rounded-xl px-6 py-4 shadow-sm text-right">
-            <p className="text-gray-500 text-sm">Starting Price</p>
-            <p className="text-3xl font-bold text-brickred flex items-center gap-1 justify-end">
-              <IndianRupee size={24} />
-              {formatPrice(property.totalPrice)}
-            </p>
+            <p className="text-gray-500 text-sm">Price</p>
+            {(property.priceRangeMin || property.priceRangeMax) ? (
+              <p className="text-2xl font-bold text-brickred">{formatPriceRange(property.priceRangeMin, property.priceRangeMax)}</p>
+            ) : (
+              <p className="text-3xl font-bold text-brickred flex items-center gap-1 justify-end">
+                <IndianRupee size={24} />
+                {formatPrice(property.totalPrice)}
+              </p>
+            )}
           </div>
         </div>
 
@@ -106,6 +110,7 @@ export default function PropertyDetailPage() {
             <div id="overview">
               <OverviewCard property={property} />
             </div>
+            <DescriptionCard property={property} />
             <div id="location">
               <LocationMapWithLoading property={property} />
             </div>
@@ -216,7 +221,6 @@ function HighlightStrip({ property }) {
   const items = [
     ["Built-up", formatAreaDisplay(property.builtUpArea)],
     ["Carpet", formatAreaDisplay(property.carpetArea)],
-    ["Facing", property.facingDirection],
     ["Furnishing", property.furnishing],
     isUnderConstruction
       ? ["Possession", property.possessionDate || "—"]
@@ -224,7 +228,7 @@ function HighlightStrip({ property }) {
   ];
 
   return (
-    <div className="bg-white border rounded-xl p-5 grid grid-cols-2 md:grid-cols-5 text-center">
+    <div className="bg-white border rounded-xl p-5 grid grid-cols-2 md:grid-cols-4 text-center">
       {items.map(([label, value], i) => (
         <div key={i}>
           <p className="text-gray-500 text-sm">{label}</p>
@@ -238,6 +242,10 @@ function HighlightStrip({ property }) {
 /* ================= OVERVIEW ================= */
 
 function OverviewCard({ property }) {
+  const overviewTitle = property.builderName
+    ? `${property.builderName} Overview`
+    : "Overview";
+
   const items = [
     ["Builder", property.builderName],
     ["Project", property.projectName],
@@ -246,16 +254,32 @@ function OverviewCard({ property }) {
     ["Country", property.country],
     ["Landmark", property.landmark],
     ["Total Floors", property.totalFloors],
-    ["Floor Number", property.floorNumber],
+    ["Ownership", property.ownershipType],
   ];
 
   return (
-    <Card title="Overview">
+    <Card title={overviewTitle}>
+      {property.builderName && (
+        <p className="text-sm text-gray-500 mb-4">
+          {property.builderName}
+          {property.city ? ` · ${property.city}` : ""}
+          {property.state ? `, ${property.state}` : ""}
+        </p>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(([label, value], i) => (
           <Detail key={i} label={label} value={value} />
         ))}
       </div>
+    </Card>
+  );
+}
+
+function DescriptionCard({ property }) {
+  if (!property.description) return null;
+  return (
+    <Card title="About the Project">
+      <p className="text-gray-700 leading-relaxed whitespace-pre-line">{property.description}</p>
     </Card>
   );
 }
@@ -436,12 +460,15 @@ function MasterPlan({ property }) {
   );
 }
 
+const TYPES_WITH_SUBTYPES = ["Apartment", "Office Space", "Duplex", "Shop"];
+
 /* ================= CONFIGURATIONS ================= */
 
 function ConfigurationsCard({ property }) {
   const builtUp = property.builtUpArea;
   const carpet = property.carpetArea;
-  const isArray = Array.isArray(builtUp) && builtUp.length > 0;
+  const canHaveSubTypes = TYPES_WITH_SUBTYPES.includes(property.propertyType);
+  const isArray = Array.isArray(builtUp) && builtUp.length > 0 && canHaveSubTypes;
   if (!isArray) return null;
 
   return (
@@ -475,23 +502,57 @@ function ConfigurationsCard({ property }) {
 
 /* ================= PRICING ================= */
 
+function formatPriceRange(min, max) {
+  if (!min && !max) return null;
+  const fmt = (v) => {
+    const n = Number(v);
+    if (!n || isNaN(n)) return null;
+    if (n >= 10000000) return `${(n / 10000000).toFixed(2)} Cr`;
+    return `${(n / 100000).toFixed(0)} Lac`;
+  };
+  const lo = fmt(min);
+  const hi = fmt(max);
+  if (lo && hi) return `₹ ${lo} – ₹ ${hi}`;
+  if (lo) return `From ₹ ${lo}`;
+  if (hi) return `Up to ₹ ${hi}`;
+  return null;
+}
+
 function PricingCard({ property }) {
-  const subTypeDisplay =
-    Array.isArray(property.subTypes) && property.subTypes.length > 0
-      ? property.subTypes.join(", ")
-      : property.subType || null;
+  const canHaveSubTypes = TYPES_WITH_SUBTYPES.includes(property.propertyType);
+  const typeDisplay = canHaveSubTypes
+    ? (Array.isArray(property.subTypes) && property.subTypes.length > 0 ? property.subTypes.join(", ") : null)
+    : property.propertyType;
+
+  const priceRange = formatPriceRange(property.priceRangeMin, property.priceRangeMax);
+  const tokenTypes = Array.isArray(property.tokenTypes)
+    ? property.tokenTypes.filter(t => typeof t === 'string' ? t.trim() : t.name)
+    : [];
 
   return (
     <Card title="Pricing">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <Detail label="Total Price" value={formatPrice(property.totalPrice)} />
-        <Detail
-          label="Price / Sq.ft"
-          value={`₹ ${property.pricePerSquareFoot}`}
-        />
-        <Detail label="Type" value={subTypeDisplay} />
-        <Detail label="Listing Type" value={property.listingType} />
+      {priceRange && (
+        <p className="text-2xl font-bold text-gray-900 mb-6">{priceRange}</p>
+      )}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+        {typeDisplay && <Detail label="Type" value={typeDisplay} />}
+        {property.bookingAmount ? <Detail label="Booking Amount" value={`${property.bookingAmount}%`} /> : null}
+        {property.maintenanceCharges ? <Detail label="Maintenance" value={`₹ ${property.maintenanceCharges}`} /> : null}
       </div>
+      {tokenTypes.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-gray-700 mb-3">Token Types</p>
+          <div className="flex flex-wrap gap-3">
+            {tokenTypes.map((t, i) => (
+              <div key={i} className="border border-purple-200 bg-purple-50 rounded-lg px-4 py-2">
+                <p className="font-semibold text-purple-700">
+                  {typeof t === 'string' ? t : `${t.name}${t.amount ? ` – ₹${t.amount}` : ''}`}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
@@ -503,7 +564,6 @@ function LegalDetails({ property }) {
     ["Ownership", property.ownershipType],
     ["Property Status", property.propertyStatus],
     ["Furnishing", property.furnishing],
-    ["Facing", property.facingDirection],
     property.propertyStatus === "Under Construction" && property.possessionDate
       ? ["Possession Date", property.possessionDate]
       : null,

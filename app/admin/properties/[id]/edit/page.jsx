@@ -382,14 +382,17 @@ export default function EditPropertyPage() {
           // Step 3: Pricing
           totalPrice: getValue(property.totalPrice || property.price),
           pricePerSquareFoot: getValue(property.pricePerSquareFoot),
-          monthlyRent: getValue(property.monthlyRent),
+          priceRangeMin: getValue(property.priceRangeMin),
+          priceRangeMax: getValue(property.priceRangeMax),
           maintenanceCharges: getValue(property.maintenanceCharges),
-          securityDeposit: getValue(property.securityDeposit),
+          tokenTypes: Array.isArray(property.tokenTypes) && property.tokenTypes.length > 0
+            ? property.tokenTypes.map(t => typeof t === 'string' ? t : (t.name && t.amount ? `${t.name} - ₹${t.amount}` : t.name || ""))
+            : [""],
           bookingAmount: getValue(property.bookingAmount),
           negotiable: getValue(property.negotiable),
           emiAvailable: getValue(property.emiAvailable),
           stampDuty: getValue(property.stampDuty),
-          registrationCharges: getValue(property.registrationCharges),
+          description: getValue(property.description),
           
           // Step 4: Details
           amenities: getArray(property.amenities),
@@ -450,7 +453,7 @@ export default function EditPropertyPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name.includes("numberOf") || name.includes("Price") || name.includes("Charges") || name.includes("Deposit") || name.includes("Amount") || name.includes("Duty") || name.includes("Rate") || name.includes("rating") || name.includes("floor") || name.includes("Floors") || name.includes("Units") || name.includes("Towers") || name.includes("Lifts") || name.includes("latitude") || name.includes("longitude") || name.includes("pricePerSquareFoot")
+      [name]: name.includes("numberOf") || name.includes("Price") || name.includes("priceRange") || name.includes("Charges") || name.includes("Deposit") || name.includes("Amount") || name.includes("Duty") || name.includes("Rate") || name.includes("rating") || name.includes("floor") || name.includes("Floors") || name.includes("Units") || name.includes("Towers") || name.includes("Lifts") || name.includes("latitude") || name.includes("longitude") || name.includes("pricePerSquareFoot")
         ? value === "" ? "" : (isNaN(value) ? prev[name] : Number(value))
         : value,
     }));
@@ -499,6 +502,10 @@ export default function EditPropertyPage() {
       amenities: prev.amenities.filter((a) => a !== amenity),
     }));
   };
+
+  const addTokenType = () => setFormData(prev => ({ ...prev, tokenTypes: [...(prev.tokenTypes || []), ""] }));
+  const removeTokenType = (idx) => setFormData(prev => ({ ...prev, tokenTypes: (prev.tokenTypes || []).filter((_, i) => i !== idx) }));
+  const updateTokenType = (idx, value) => setFormData(prev => ({ ...prev, tokenTypes: (prev.tokenTypes || []).map((t, i) => i === idx ? value : t) }));
 
   const removeImageUrl = (url) => {
     setFormData((prev) => ({
@@ -758,9 +765,11 @@ export default function EditPropertyPage() {
         if (value !== "" && value !== null && value !== undefined) {
           if (Array.isArray(value)) {
             if (key === 'brochures') {
-              // Filter out empty brochures (those without both name and url)
               const validBrochures = value.filter(b => b.name || b.url);
               if (validBrochures.length > 0) submitData[key] = validBrochures;
+            } else if (key === 'tokenTypes') {
+              const validTokens = value.filter(t => typeof t === 'string' ? t.trim() : t.name);
+              if (validTokens.length > 0) submitData[key] = validTokens;
             } else if (value.length > 0) {
               submitData[key] = value;
             }
@@ -819,14 +828,6 @@ export default function EditPropertyPage() {
                   required
                 >
                   {PROPERTY_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Listing Type</label>
-                <select name="listingType" value={formData.listingType} onChange={handleChange} className="admin-input w-full">
-                  {LISTING_TYPES.map((type) => (
                     <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
@@ -1004,28 +1005,20 @@ export default function EditPropertyPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Price (₹)</label>
-                <input type="number" name="totalPrice" value={formData.totalPrice} onChange={handleChange} className="admin-input w-full" min="0" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Price Range Min (₹)</label>
+                <input type="number" name="priceRangeMin" value={formData.priceRangeMin} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 7500000 (75 Lac)" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Price Per Square Foot (₹)</label>
-                <input type="number" name="pricePerSquareFoot" value={formData.pricePerSquareFoot} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Monthly Rent (₹)</label>
-                <input type="number" name="monthlyRent" value={formData.monthlyRent} onChange={handleChange} className="admin-input w-full" min="0" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Price Range Max (₹)</label>
+                <input type="number" name="priceRangeMax" value={formData.priceRangeMax} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 30000000 (3 Cr)" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Maintenance Charges (₹)</label>
                 <input type="number" name="maintenanceCharges" value={formData.maintenanceCharges} onChange={handleChange} className="admin-input w-full" min="0" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Security Deposit (₹)</label>
-                <input type="number" name="securityDeposit" value={formData.securityDeposit} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Booking Amount (₹)</label>
-                <input type="number" name="bookingAmount" value={formData.bookingAmount} onChange={handleChange} className="admin-input w-full" min="0" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Booking Amount (%)</label>
+                <input type="number" name="bookingAmount" value={formData.bookingAmount} onChange={handleChange} className="admin-input w-full" min="0" max="100" placeholder="e.g. 10" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Negotiable</label>
@@ -1049,10 +1042,41 @@ export default function EditPropertyPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Stamp Duty (₹)</label>
                 <input type="number" name="stampDuty" value={formData.stampDuty} onChange={handleChange} className="admin-input w-full" min="0" />
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Registration Charges (₹)</label>
-                <input type="number" name="registrationCharges" value={formData.registrationCharges} onChange={handleChange} className="admin-input w-full" min="0" />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-semibold text-gray-700">Token Types</label>
+                <button type="button" onClick={addTokenType} className="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1">
+                  <Plus size={14} /> Add Token
+                </button>
               </div>
+              <div className="space-y-2">
+                {(formData.tokenTypes || []).map((token, idx) => (
+                  <div key={idx} className="flex gap-3 items-center">
+                    <input
+                      type="text"
+                      placeholder="e.g. Gold Token - ₹25000"
+                      value={token}
+                      onChange={(e) => updateTokenType(idx, e.target.value)}
+                      className="admin-input flex-1"
+                    />
+                    {(formData.tokenTypes || []).length > 1 && (
+                      <button type="button" onClick={() => removeTokenType(idx)} className="text-red-500 hover:text-red-700 text-xl leading-none">×</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Property Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className="admin-input w-full"
+                placeholder="Describe the property — highlights, developer background, location advantages..."
+              />
             </div>
           </div>
         );
@@ -1061,21 +1085,8 @@ export default function EditPropertyPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Floor Number</label>
-                <input type="number" name="floorNumber" value={formData.floorNumber} onChange={handleChange} className="admin-input w-full" min="0" />
-              </div>
-              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Total Floors</label>
                 <input type="number" name="totalFloors" value={formData.totalFloors} onChange={handleChange} className="admin-input w-full" min="1" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Facing Direction</label>
-                <select name="facingDirection" value={formData.facingDirection} onChange={handleChange} className="admin-input w-full">
-                  <option value="">Select Direction</option>
-                  {FACING_DIRECTIONS.map((dir) => (
-                    <option key={dir} value={dir}>{dir}</option>
-                  ))}
-                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Ownership Type</label>
