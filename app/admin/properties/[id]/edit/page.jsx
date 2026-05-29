@@ -31,6 +31,14 @@ const STEPS = [
   { id: 6, title: "Media", icon: ImageIcon },
 ];
 
+const formatLacCr = (val) => {
+  const n = Number(val);
+  if (!val || isNaN(n) || n <= 0) return "";
+  if (n >= 10000000) return `${(n / 10000000).toFixed(2)} Cr`;
+  if (n >= 100000) return `${(n / 100000).toFixed(0)} Lac`;
+  return `₹${n.toLocaleString("en-IN")}`;
+};
+
 export default function EditPropertyPage() {
   const router = useRouter();
   const params = useParams();
@@ -83,9 +91,7 @@ export default function EditPropertyPage() {
     furnishing: "",
     builtUpArea: [],
     carpetArea: [],
-    floorNumber: "",
     totalFloors: "",
-    facingDirection: "",
     ownershipType: "",
     
     // Step 2: Location
@@ -104,16 +110,15 @@ export default function EditPropertyPage() {
     nearestBusStop: "",
     
     // Step 3: Pricing
-    totalPrice: "",
-    pricePerSquareFoot: "",
-    monthlyRent: "",
+    priceRangeMin: "",
+    priceRangeMax: "",
     maintenanceCharges: "",
-    securityDeposit: "",
+    tokenTypes: [""],
     bookingAmount: "",
     negotiable: "",
     emiAvailable: "",
     stampDuty: "",
-    registrationCharges: "",
+    description: "",
     
     // Step 4: Details
     amenities: [],
@@ -208,24 +213,25 @@ export default function EditPropertyPage() {
 
   const handleFileUpload = async (file, fieldName, isArray = false) => {
     if (!file) return;
-    
+
     setUploading(prev => ({ ...prev, [fieldName]: true }));
     const formData = new FormData();
     formData.append("file", file);
     formData.append("path", "properties");
 
     try {
-      // Use absolute URL to prevent any navigation issues
-      const uploadUrl = typeof window !== 'undefined' 
+      const uploadUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/api/upload`
         : '/api/upload';
-      
-      const res = await fetch(uploadUrl, { 
-        method: "POST", 
+
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+
+      const res = await fetch(uploadUrl, {
+        method: "POST",
         body: formData,
-        // Prevent any redirects or navigation
         redirect: 'manual',
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       
       // Handle redirects manually
@@ -334,10 +340,17 @@ export default function EditPropertyPage() {
           ageOfProperty: getValue(property.ageOfProperty),
           furnishing: getValue(property.furnishing),
           builtUpArea: (() => {
-            if (Array.isArray(property.builtUpArea)) return property.builtUpArea;
             const loadedSubTypes = Array.isArray(property.subTypes)
               ? property.subTypes
               : property.subType ? [property.subType] : [];
+            if (Array.isArray(property.builtUpArea)) {
+              if (loadedSubTypes.length > 0) {
+                return loadedSubTypes.map(st =>
+                  property.builtUpArea.find(e => e.subType === st) || { subType: st, area: "" }
+                );
+              }
+              return property.builtUpArea;
+            }
             if (property.builtUpArea == null || property.builtUpArea === "") {
               return loadedSubTypes.map(st => ({ subType: st, area: "" }));
             }
@@ -347,10 +360,17 @@ export default function EditPropertyPage() {
             return [{ subType: "", area }];
           })(),
           carpetArea: (() => {
-            if (Array.isArray(property.carpetArea)) return property.carpetArea;
             const loadedSubTypes = Array.isArray(property.subTypes)
               ? property.subTypes
               : property.subType ? [property.subType] : [];
+            if (Array.isArray(property.carpetArea)) {
+              if (loadedSubTypes.length > 0) {
+                return loadedSubTypes.map(st =>
+                  property.carpetArea.find(e => e.subType === st) || { subType: st, area: "" }
+                );
+              }
+              return property.carpetArea;
+            }
             if (property.carpetArea == null || property.carpetArea === "") {
               return loadedSubTypes.map(st => ({ subType: st, area: "" }));
             }
@@ -359,9 +379,7 @@ export default function EditPropertyPage() {
             if (loadedSubTypes.length > 0) return loadedSubTypes.map(st => ({ subType: st, area }));
             return [{ subType: "", area }];
           })(),
-          floorNumber: getValue(property.floorNumber),
           totalFloors: getValue(property.totalFloors),
-          facingDirection: getValue(property.facingDirection),
           ownershipType: getValue(property.ownershipType),
           
           // Step 2: Location
@@ -380,8 +398,6 @@ export default function EditPropertyPage() {
           nearestBusStop: getValue(property.nearestBusStop),
           
           // Step 3: Pricing
-          totalPrice: getValue(property.totalPrice || property.price),
-          pricePerSquareFoot: getValue(property.pricePerSquareFoot),
           priceRangeMin: getValue(property.priceRangeMin),
           priceRangeMax: getValue(property.priceRangeMax),
           maintenanceCharges: getValue(property.maintenanceCharges),
@@ -476,14 +492,20 @@ export default function EditPropertyPage() {
   };
 
   const handleAreaChange = (field, subType, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: (Array.isArray(prev[field]) ? prev[field] : []).map(e =>
-        e.subType === subType
-          ? { ...e, area: value === "" ? "" : (isNaN(value) ? e.area : Number(value)) }
-          : e
-      ),
-    }));
+    const numVal = value === "" ? "" : (isNaN(value) ? null : Number(value));
+    setFormData(prev => {
+      const arr = Array.isArray(prev[field]) ? prev[field] : [];
+      const exists = arr.some(e => e.subType === subType);
+      if (exists) {
+        return {
+          ...prev,
+          [field]: arr.map(e =>
+            e.subType === subType ? { ...e, area: numVal ?? e.area } : e
+          ),
+        };
+      }
+      return { ...prev, [field]: [...arr, { subType, area: numVal ?? "" }] };
+    });
   };
 
   const addAmenity = () => {
@@ -540,11 +562,13 @@ export default function EditPropertyPage() {
     fileFormData.append("path", "properties/floor-plans");
     try {
       const uploadUrl = typeof window !== "undefined" ? `${window.location.origin}/api/upload` : "/api/upload";
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
       const res = await fetch(uploadUrl, {
         method: "POST",
         body: fileFormData,
         redirect: "manual",
         credentials: "same-origin",
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       if (!res.ok) {
         throw new Error(`Upload failed with status: ${res.status}`);
@@ -597,28 +621,31 @@ export default function EditPropertyPage() {
 
   const handleBrochureUpload = async (file, index) => {
     if (!file) return;
-    
+
     // Validate PDF file
     if (file.type !== 'application/pdf') {
       alert('Please upload a PDF file');
       return;
     }
-    
+
     setUploading(prev => ({ ...prev, [`brochure-${index}`]: true }));
     const formData = new FormData();
     formData.append("file", file);
     formData.append("path", "properties/brochures");
 
     try {
-      const uploadUrl = typeof window !== 'undefined' 
+      const uploadUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/api/upload`
         : '/api/upload';
-      
-      const res = await fetch(uploadUrl, { 
-        method: "POST", 
+
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+
+      const res = await fetch(uploadUrl, {
+        method: "POST",
         body: formData,
         redirect: 'manual',
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       
       if (res.type === 'opaqueredirect' || res.status === 0) {
@@ -841,6 +868,14 @@ export default function EditPropertyPage() {
                 </select>
               </div>
               <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Listing Type</label>
+                <select name="listingType" value={formData.listingType} onChange={handleChange} className="admin-input w-full">
+                  {LISTING_TYPES.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Furnishing</label>
                 <select name="furnishing" value={formData.furnishing} onChange={handleChange} className="admin-input w-full">
                   <option value="">Select Furnishing</option>
@@ -1006,11 +1041,13 @@ export default function EditPropertyPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Price Range Min (₹)</label>
-                <input type="number" name="priceRangeMin" value={formData.priceRangeMin} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 7500000 (75 Lac)" />
+                <input type="number" name="priceRangeMin" value={formData.priceRangeMin} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 7500000" />
+                {formData.priceRangeMin ? <p className="text-xs text-purple-600 mt-1 font-medium">= ₹{formatLacCr(formData.priceRangeMin)}</p> : null}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Price Range Max (₹)</label>
-                <input type="number" name="priceRangeMax" value={formData.priceRangeMax} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 30000000 (3 Cr)" />
+                <input type="number" name="priceRangeMax" value={formData.priceRangeMax} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 30000000" />
+                {formData.priceRangeMax ? <p className="text-xs text-purple-600 mt-1 font-medium">= ₹{formatLacCr(formData.priceRangeMax)}</p> : null}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Maintenance Charges (₹)</label>

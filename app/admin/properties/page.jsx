@@ -161,7 +161,23 @@ function PropertiesPageInner() {
                   {property.location?.city || property.city || ""}, {property.location?.state || property.state || ""}
                 </p>
                 <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-                  ₹{(property.price || property.totalPrice || property.monthlyRent || 0).toLocaleString("en-IN")}
+                  {(() => {
+                    const fmt = (v) => {
+                      const n = Number(v);
+                      if (!n || isNaN(n)) return null;
+                      return n >= 10000000 ? `${(n / 10000000).toFixed(2)} Cr` : `${(n / 100000).toFixed(0)} Lac`;
+                    };
+                    if (property.priceRangeMin || property.priceRangeMax) {
+                      const lo = fmt(property.priceRangeMin);
+                      const hi = fmt(property.priceRangeMax);
+                      if (lo && hi) return `₹${lo} – ₹${hi}`;
+                      if (lo) return `From ₹${lo}`;
+                      if (hi) return `Up to ₹${hi}`;
+                    }
+                    const p = property.price || property.totalPrice || property.monthlyRent;
+                    if (p) return `₹${fmt(p) || Number(p).toLocaleString("en-IN")}`;
+                    return "Price on request";
+                  })()}
                 </p>
 
                 {/* Actions */}

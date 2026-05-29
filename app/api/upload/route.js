@@ -20,7 +20,8 @@ export async function POST(req) {
     const uniqueFilename = `${Date.now()}-${filename}`;
     const destination = `${path}/${uniqueFilename}`;
 
-    const bucket = getStorage().bucket();
+    const bucketName = process.env.GCP_STORAGE_BUCKET || `${process.env.GCP_PROJECT_ID}.appspot.com`;
+    const bucket = getStorage().bucket(bucketName);
     const fileRef = bucket.file(destination);
 
     await fileRef.save(buffer, {

@@ -32,7 +32,7 @@ const { initAdmin } = require('../lib/utils/initAdmin');
       console.error('❌ GCP_PROJECT_ID is not set in environment variables');
       console.error('   Please create a .env.local file with:');
       console.error('   GCP_PROJECT_ID=your-project-id');
-      console.error('   GCP_KEY_FILE=./ai-bricks-484018-faf4b394daad.json');
+      console.error('   GOOGLE_SERVICE_ACCOUNT_JSON=\'{ ...service account JSON... }\'');
       console.error('   JWT_SECRET=your-secret-key');
       process.exit(1);
     }

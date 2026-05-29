@@ -7,12 +7,6 @@ import {
   MapPin,
   IndianRupee,
   Home,
-  Waves,
-  Trees,
-  Dumbbell,
-  ShieldCheck,
-  Building2,
-  Users,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -114,7 +108,7 @@ export default function PropertyDetailPage() {
             <div id="location">
               <LocationMapWithLoading property={property} />
             </div>
-            <VideoSection />
+            <VideoSection property={property} />
             {/* <ProsCons /> */}
             <div id="amenities">
               <AmenitiesGrid amenities={property.amenities} />
@@ -151,30 +145,10 @@ export default function PropertyDetailPage() {
 
 /* ================= HERO GALLERY ================= */
 
-// function HeroGallery({ property }) {
-//   return (
-//     <div className="bg-white border rounded-xl p-3">
-//       <div className="grid grid-cols-2 gap-3 h-auto">
-//         <div className="row-span-2 bg-gray-200 rounded-lg flex items-center justify-center">
-//           {property.mainPropertyImage ? (
-//             <img
-//               src={property.mainPropertyImage}
-//               className="w-full h-full object-cover rounded-lg"
-//             />
-//           ) : (
-//             "No Image"
-//           )}
-//         </div>
-
-//         <GalleryItem src={property.imageGallery?.[0]} />
-//         <GalleryItem src={property.imageGallery?.[1]} />
-//       </div>
-//     </div>
-//   );
-// }
-
 function HeroGallery({ property }) {
-  const hasImage = !!property.mainPropertyImage;
+  const mainImg = property.mainPropertyImage || property.imageGallery?.[0];
+  // If mainPropertyImage is absent, imageGallery[0] is used as main → shift right slots by 1
+  const galleryOffset = property.mainPropertyImage ? 0 : 1;
 
   return (
     <div className="bg-white border rounded-xl p-3">
@@ -182,11 +156,11 @@ function HeroGallery({ property }) {
         {/* LEFT BIG IMAGE */}
         <div
             className="row-span-2 bg-gray-200 rounded-lg flex items-center justify-center"
-            style={!hasImage ? { height: 420 } : undefined}
+            style={!mainImg ? { height: 420 } : undefined}
         >
-          {hasImage ? (
+          {mainImg ? (
             <img
-              src={property.mainPropertyImage}
+              src={mainImg}
               className="w-full h-auto object-cover rounded-lg"
             />
           ) : (
@@ -195,8 +169,8 @@ function HeroGallery({ property }) {
         </div>
 
         {/* RIGHT SIDE IMAGES */}
-        <GalleryItem src={property.imageGallery?.[0]} />
-        <GalleryItem src={property.imageGallery?.[1]} />
+        <GalleryItem src={property.imageGallery?.[galleryOffset]} />
+        <GalleryItem src={property.imageGallery?.[galleryOffset + 1]} />
       </div>
     </div>
   );
@@ -212,7 +186,7 @@ function formatAreaDisplay(area) {
     const max = Math.max(...values);
     return min === max ? `${min} sq.ft` : `${min} – ${max} sq.ft`;
   }
-  if (area != null && area !== "" && area !== 0) return `${area} sq.ft`;
+  if (!Array.isArray(area) && area != null && area !== "" && area !== 0) return `${area} sq.ft`;
   return "—";
 }
 
@@ -288,28 +262,21 @@ function DescriptionCard({ property }) {
 
 /* ================= VIDEO ================= */
 
-function VideoSection() {
+function VideoSection({ property }) {
+  if (!property?.videoWalkthrough) return null;
   return (
     <Card title="Project Video">
-      <div className="h-80 bg-gray-100 rounded-lg flex items-center justify-center">
-        Video player here
-      </div>
+      <a
+        href={property.videoWalkthrough}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-purple-600 hover:underline"
+      >
+        Watch video walkthrough
+      </a>
     </Card>
   );
 }
-
-/* ================= PROS CONS ================= */
-
-// function ProsCons() {
-//   return (
-//     <Card title="Pros & Cons">
-//       <div className="space-y-3">
-//         <Accordion title="Pros" />
-//         <Accordion title="Cons" />
-//       </div>
-//     </Card>
-//   );
-// }
 
 /* ================= AMENITIES ================= */
 
@@ -467,9 +434,9 @@ const TYPES_WITH_SUBTYPES = ["Apartment", "Office Space", "Duplex", "Shop"];
 function ConfigurationsCard({ property }) {
   const builtUp = property.builtUpArea;
   const carpet = property.carpetArea;
-  const canHaveSubTypes = TYPES_WITH_SUBTYPES.includes(property.propertyType);
-  const isArray = Array.isArray(builtUp) && builtUp.length > 0 && canHaveSubTypes;
-  if (!isArray) return null;
+  // Show whenever builtUpArea is an array with at least one named subType entry
+  const hasSubTypeData = Array.isArray(builtUp) && builtUp.some(e => e.subType);
+  if (!hasSubTypeData) return null;
 
   return (
     <Card title="Configurations">
@@ -538,6 +505,9 @@ function PricingCard({ property }) {
         {typeDisplay && <Detail label="Type" value={typeDisplay} />}
         {property.bookingAmount ? <Detail label="Booking Amount" value={`${property.bookingAmount}%`} /> : null}
         {property.maintenanceCharges ? <Detail label="Maintenance" value={`₹ ${property.maintenanceCharges}`} /> : null}
+        {property.stampDuty ? <Detail label="Stamp Duty" value={`₹ ${property.stampDuty}`} /> : null}
+        {property.negotiable ? <Detail label="Negotiable" value={property.negotiable} /> : null}
+        {property.emiAvailable ? <Detail label="EMI Available" value={property.emiAvailable} /> : null}
       </div>
       {tokenTypes.length > 0 && (
         <div>
@@ -785,32 +755,21 @@ function GallerySlider({ property }) {
   );
 }
 
-/* ================= QR ================= */
-
-// function QRSection() {
-//   return (
-//     <Card title="QR Code">
-//       <div className="h-32 w-32 bg-gray-200 rounded-lg" />
-//     </Card>
-//   );
-// }
-
-/* ================= BUILDER ================= */
-
 /* ================= BUILDER ================= */
 
 function BuilderSection({ property }) {
+  const name = property.builderName || property.sellerName;
+  if (!name) return null;
   return (
     <Card title="About Builder">
       <div className="flex justify-between items-center">
         <div>
-          <p className="font-semibold">{property.sellerName}</p>
+          <p className="font-semibold">{name}</p>
           <p className="text-gray-500 text-sm">Project Developer</p>
         </div>
-
         <SellerContactActions
-          phone={property.phoneNumber}
-          email={property.email}
+          phone={property.seller?.phoneNumber || property.phoneNumber}
+          email={property.seller?.email || property.email}
           propertyTitle={property.propertyTitle}
         />
       </div>
@@ -854,105 +813,6 @@ function FAQSection() {
     </Card>
   );
 }
-
-function SameDeveloperCarousel({ developerName, properties, loading }) {
-  const sliderRef = useRef(null);
-
-  const slideBy = (direction) => {
-    if (!sliderRef.current) return;
-    sliderRef.current.scrollBy({
-      left: direction * 300,
-      behavior: "smooth",
-    });
-  };
-
-  if (!developerName) return null;
-
-  return (
-    <Card title={`Properties From ${developerName}`}>
-      {loading ? (
-        <p className="text-gray-500">Loading properties...</p>
-      ) : properties.length === 0 ? (
-        <p className="text-gray-500">
-          No other properties from this developer yet.
-        </p>
-      ) : (
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => slideBy(-1)}
-            className="absolute left-1 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
-            aria-label="Previous properties"
-          >
-            <ChevronLeft size={18} />
-          </button>
-
-          <div
-            ref={sliderRef}
-            className="overflow-x-auto scroll-smooth hide-scrollbar px-12"
-          >
-            <div className="flex gap-4 w-max">
-              {properties.map((item) => (
-                <a
-                  key={item.id}
-                  href={`/properties/${item.id}`}
-                  className="w-70 shrink-0 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="h-44 bg-gray-100">
-                    {item.mainPropertyImage ? (
-                      <img
-                        src={item.mainPropertyImage}
-                        alt={item.propertyTitle || item.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <p className="text-sm font-semibold text-gray-800 truncate">
-                      {item.propertyTitle || item.title || "Property"}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate mt-1">
-                      {item.locality || "-"}, {item.city || "-"}
-                    </p>
-                    <p className="text-lg font-bold text-brickred mt-2">
-                      {formatPrice(item.totalPrice || item.price)}
-                    </p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => slideBy(1)}
-            className="absolute right-1 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
-            aria-label="Next properties"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-/* ================= RELATED ================= */
-
-// function RelatedProjects() {
-//   return (
-//     <Card title="Explore Related Projects">
-//       <div className="grid md:grid-cols-2 gap-6">
-//         <div className="h-40 bg-gray-100 rounded-lg" />
-//         <div className="h-40 bg-gray-100 rounded-lg" />
-//       </div>
-//     </Card>
-//   );
-// }
 
 /* ================= REUSABLE ================= */
 
