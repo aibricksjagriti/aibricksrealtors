@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+const PRODUCTION_DOMAIN = 'aibricksrealtors.com';
+
 export function middleware(request) {
   const hostname = request.headers.get('host') || '';
   const url = request.nextUrl;
@@ -29,8 +31,10 @@ export function middleware(request) {
     if (parts.length >= 2 && parts[0] !== 'www') {
       subdomain = parts[0];
     }
-  } else {
-    // Production: e.g. lodha.aibricksrealtors.com
+  } else if (host === PRODUCTION_DOMAIN || host.endsWith(`.${PRODUCTION_DOMAIN}`)) {
+    // Only apply subdomain logic for the real production domain.
+    // Vercel preview URLs (*.vercel.app), ngrok, and other tunnels are intentionally
+    // excluded so they don't get rewritten to /sub/[random-hostname].
     if (parts.length >= 3 && parts[0] !== 'www') {
       subdomain = parts[0];
     }

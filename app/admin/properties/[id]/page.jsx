@@ -67,7 +67,24 @@ export default function PropertyViewPage() {
 
   const formatPrice = (price) => {
     if (!price) return "N/A";
-    return `₹${Number(price).toLocaleString("en-IN")}`;
+    const n = Number(price);
+    if (isNaN(n)) return "N/A";
+    if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
+    if (n >= 100000) return `₹${(n / 100000).toFixed(0)} Lac`;
+    return `₹${n.toLocaleString("en-IN")}`;
+  };
+
+  const formatPriceRange = (min, max) => {
+    const fmt = (v) => {
+      const n = Number(v);
+      if (!n || isNaN(n)) return null;
+      return n >= 10000000 ? `${(n / 10000000).toFixed(2)} Cr` : `${(n / 100000).toFixed(0)} Lac`;
+    };
+    const lo = fmt(min); const hi = fmt(max);
+    if (lo && hi) return `₹${lo} – ₹${hi}`;
+    if (lo) return `From ₹${lo}`;
+    if (hi) return `Up to ₹${hi}`;
+    return null;
   };
 
   const formatDate = (date) => {
@@ -202,7 +219,7 @@ export default function PropertyViewPage() {
                 <p className="font-semibold text-gray-800">
                   {Array.isArray(property.subTypes) && property.subTypes.length > 0
                     ? property.subTypes.join(", ")
-                    : property.subType || "N/A"}
+                    : "N/A"}
                 </p>
               </div>
               <div>
@@ -237,18 +254,24 @@ export default function PropertyViewPage() {
                     : property.carpetArea ? `${property.carpetArea} sq ft` : "N/A"}
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Floor Number</p>
-                <p className="font-semibold text-gray-800">{property.floorNumber || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Total Floors</p>
-                <p className="font-semibold text-gray-800">{property.totalFloors || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Facing Direction</p>
-                <p className="font-semibold text-gray-800">{property.facingDirection || "N/A"}</p>
-              </div>
+              {property.totalFloors && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Total Floors</p>
+                  <p className="font-semibold text-gray-800">{property.totalFloors}</p>
+                </div>
+              )}
+              {property.floorNumber && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Floor Number</p>
+                  <p className="font-semibold text-gray-800">{property.floorNumber}</p>
+                </div>
+              )}
+              {property.facingDirection && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Facing Direction</p>
+                  <p className="font-semibold text-gray-800">{property.facingDirection}</p>
+                </div>
+              )}
               {property.propertyStatus === "Under Construction" && (
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Possession Date</p>
@@ -325,22 +348,12 @@ export default function PropertyViewPage() {
               Pricing & Financial Information
             </h2>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Total Price</p>
-                <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  {formatPrice(property.totalPrice)}
-                </p>
-              </div>
-              {property.pricePerSquareFoot && (
+              {(property.priceRangeMin || property.priceRangeMax) && (
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Price Per Square Foot</p>
-                  <p className="font-semibold text-gray-800">{formatPrice(property.pricePerSquareFoot)}</p>
-                </div>
-              )}
-              {property.monthlyRent && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Monthly Rent</p>
-                  <p className="font-semibold text-gray-800">{formatPrice(property.monthlyRent)}</p>
+                  <p className="text-sm text-gray-500 mb-1">Price Range</p>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    {formatPriceRange(property.priceRangeMin, property.priceRangeMax)}
+                  </p>
                 </div>
               )}
               {property.maintenanceCharges && (
@@ -349,16 +362,16 @@ export default function PropertyViewPage() {
                   <p className="font-semibold text-gray-800">{formatPrice(property.maintenanceCharges)}</p>
                 </div>
               )}
-              {property.securityDeposit && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Security Deposit</p>
-                  <p className="font-semibold text-gray-800">{formatPrice(property.securityDeposit)}</p>
-                </div>
-              )}
               {property.bookingAmount && (
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Booking Amount</p>
-                  <p className="font-semibold text-gray-800">{formatPrice(property.bookingAmount)}</p>
+                  <p className="font-semibold text-gray-800">{property.bookingAmount}%</p>
+                </div>
+              )}
+              {property.stampDuty && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Stamp Duty</p>
+                  <p className="font-semibold text-gray-800">{formatPrice(property.stampDuty)}</p>
                 </div>
               )}
               {property.negotiable && (
@@ -374,6 +387,18 @@ export default function PropertyViewPage() {
                 </div>
               )}
             </div>
+            {property.tokenTypes && Array.isArray(property.tokenTypes) && property.tokenTypes.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Token Types</h3>
+                <div className="flex flex-wrap gap-2">
+                  {property.tokenTypes.map((token, idx) => (
+                    <span key={idx} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
+                      {typeof token === 'string' ? token : `${token.name}${token.amount ? ` – ₹${token.amount}` : ''}`}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Configurations & Amenities */}
@@ -500,7 +525,7 @@ export default function PropertyViewPage() {
           )}
 
           {/* Media */}
-          {(property.imageGallery?.length > 0 || property.floorPlanImages?.length > 0 || property.videoWalkthrough || property.virtualTour360 || (property.brochures && property.brochures.length > 0) || property.propertyBrochure) && (
+          {(property.imageGallery?.length > 0 || property.floorPlanImages?.length > 0 || property.videoWalkthrough || property.virtualTour360 || (property.brochures && property.brochures.length > 0)) && (
             <div className="admin-card p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <ImageIcon className="mr-2 text-purple-600" size={24} />
@@ -542,49 +567,33 @@ export default function PropertyViewPage() {
                   </a>
                 </div>
               )}
-              {(property.brochures && property.brochures.length > 0) || property.propertyBrochure ? (
+              {property.brochures && property.brochures.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Property Brochures</h3>
                   <div className="space-y-2">
-                    {property.brochures && property.brochures.length > 0 ? (
-                      property.brochures.map((brochure, idx) => (
-                        brochure.url && (
-                          <a
-                            key={idx}
-                            href={brochure.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center space-x-2 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-                          >
-                            <FileText className="text-purple-600" size={20} />
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-800">
-                                {brochure.name || `Brochure ${idx + 1}`}
-                              </p>
-                              <p className="text-xs text-gray-500 truncate">{brochure.url}</p>
-                            </div>
-                            <Download className="text-gray-400" size={18} />
-                          </a>
-                        )
-                      ))
-                    ) : property.propertyBrochure ? (
-                      <a
-                        href={property.propertyBrochure}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-2 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-                      >
-                        <FileText className="text-purple-600" size={20} />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-800">Property Brochure</p>
-                          <p className="text-xs text-gray-500 truncate">{property.propertyBrochure}</p>
-                        </div>
-                        <Download className="text-gray-400" size={18} />
-                      </a>
-                    ) : null}
+                    {property.brochures.map((brochure, idx) => (
+                      brochure.url && (
+                        <a
+                          key={idx}
+                          href={brochure.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-2 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                        >
+                          <FileText className="text-purple-600" size={20} />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-800">
+                              {brochure.name || `Brochure ${idx + 1}`}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">{brochure.url}</p>
+                          </div>
+                          <Download className="text-gray-400" size={18} />
+                        </a>
+                      )
+                    ))}
                   </div>
                 </div>
-              ) : null}
+              )}
             </div>
           )}
         </div>

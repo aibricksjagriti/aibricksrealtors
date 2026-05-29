@@ -115,11 +115,13 @@ export async function GET(req) {
       data: finalResultsWithConvertedDates
     });
   } catch (error) {
-    logger.error('Error in advanced search:', error);
+    logger.error('Error in advanced search:', error.message);
+    logger.error('Stack:', error.stack);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to perform search. Please try again later.'
+        error: 'Failed to perform search. Please try again later.',
+        detail: process.env.NODE_ENV === 'development' ? error.message : undefined,
       },
       { status: 500 }
     );
