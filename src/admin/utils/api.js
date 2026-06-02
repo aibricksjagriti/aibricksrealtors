@@ -288,6 +288,12 @@ export const localitiesAPI = {
   delete: async (id) => await apiRequest(`/v1/localities/${id}`, { method: 'DELETE' }),
 };
 
+export const citiesAPI = {
+  getAll: async () => await apiRequest('/v1/cities'),
+  create: async (data) => await apiRequest('/v1/cities', { method: 'POST', body: JSON.stringify(data) }),
+  delete: async (id) => await apiRequest(`/v1/cities?id=${id}`, { method: 'DELETE' }),
+};
+
 // Health check
 export const healthAPI = {
   check: async () => {
