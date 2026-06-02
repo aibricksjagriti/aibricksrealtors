@@ -10,14 +10,16 @@ import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
 const FALLBACK_IMAGE = "/home/ajman.webp";
 
 /* ---------------- PRICE FORMATTER ---------------- */
-const formatPrice = (price) => {
-  if (!price) return "₹ N/A";
+const fmtVal = (v) => {
+  const n = Number(v);
+  if (!n || isNaN(n)) return null;
+  return n >= 10000000 ? `${(n / 10000000).toFixed(2)} Cr` : `${(n / 100000).toFixed(0)} Lac`;
+};
 
-  if (price < 10000000) {
-    return `₹ ${(price / 100000).toFixed(0)} Lakhs`;
-  } else {
-    return `₹ ${(price / 10000000).toFixed(2)} Cr`;
-  }
+const formatPrice = (p) => {
+  const base = p.priceRangeMin || p.totalPrice || p.monthlyRent;
+  const formatted = fmtVal(base);
+  return formatted ? `Starts from ₹ ${formatted}` : "Price on request";
 };
 
 /* ---------------- CARD ---------------- */
@@ -118,7 +120,7 @@ export default function ProjectGrid({ projects, builderName }) {
         })()
       : p.builtUpArea ? `${p.builtUpArea} sq.ft` : "—",
     completion: p.propertyStatus,
-    price: formatPrice(p.totalPrice),
+    price: formatPrice(p),
     image: p.imageGallery?.[0] || FALLBACK_IMAGE,
     rawType: p.propertyType,
   }));

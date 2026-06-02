@@ -45,14 +45,9 @@ export default function PropertyCard({ property }) {
               <p className="text-lg font-semibold text-darkGray">
                 {(() => {
                   const fmt = (v) => { const n = Number(v); if (!n || isNaN(n)) return null; return n >= 10000000 ? `${(n / 10000000).toFixed(2)} Cr` : `${(n / 100000).toFixed(0)} Lac`; };
-                  if (property.priceRangeMin || property.priceRangeMax) {
-                    const lo = fmt(property.priceRangeMin); const hi = fmt(property.priceRangeMax);
-                    if (lo && hi) return `₹ ${lo} – ₹ ${hi}`;
-                    if (lo) return `From ₹ ${lo}`;
-                    if (hi) return `Up to ₹ ${hi}`;
-                  }
-                  const p = property.totalPrice || property.monthlyRent;
-                  return p ? `₹ ${fmt(p) || Number(p).toLocaleString("en-IN")}` : "Price on request";
+                  const base = property.priceRangeMin || property.totalPrice || property.monthlyRent;
+                  const formatted = fmt(base);
+                  return formatted ? `Starts from ₹ ${formatted}` : "Price on request";
                 })()}
               </p>
             </div>
@@ -85,14 +80,9 @@ export default function PropertyCard({ property }) {
                 <span className="text-right font-medium">
                   {(() => {
                     const fmt = (v) => { const n = Number(v); if (!n || isNaN(n)) return null; return n >= 10000000 ? `${(n / 10000000).toFixed(2)} Cr` : `${(n / 100000).toFixed(0)} Lac`; };
-                    if (property.priceRangeMin || property.priceRangeMax) {
-                      const lo = fmt(property.priceRangeMin); const hi = fmt(property.priceRangeMax);
-                      if (lo && hi) return `₹ ${lo}–${hi}`;
-                      if (lo) return `From ₹ ${lo}`;
-                      if (hi) return `Up to ₹ ${hi}`;
-                    }
-                    const p = property.totalPrice || property.monthlyRent;
-                    return p ? `₹ ${fmt(p) || Number(p).toLocaleString("en-IN")}` : "—";
+                    const base = property.priceRangeMin || property.totalPrice || property.monthlyRent;
+                    const formatted = fmt(base);
+                    return formatted ? `Starts from ₹ ${formatted}` : "—";
                   })()}
                 </span>
               </div>

@@ -207,15 +207,9 @@ const fmtVal = (v) => {
 };
 
 const formatPrice = (p) => {
-  if (p.priceRangeMin || p.priceRangeMax) {
-    const lo = fmtVal(p.priceRangeMin);
-    const hi = fmtVal(p.priceRangeMax);
-    if (lo && hi) return `₹ ${lo} – ₹ ${hi}`;
-    if (lo) return `From ₹ ${lo}`;
-    if (hi) return `Up to ₹ ${hi}`;
-  }
-  const single = p.totalPrice || p.monthlyRent;
-  return single ? `₹ ${fmtVal(single) || Number(single).toLocaleString("en-IN")}` : "Price on request";
+  const base = p.priceRangeMin || p.totalPrice || p.monthlyRent;
+  const formatted = fmtVal(base);
+  return formatted ? `Starts from ₹ ${formatted}` : "Price on request";
 };
 
 /* ---------------- CARD COMPONENT ---------------- */
