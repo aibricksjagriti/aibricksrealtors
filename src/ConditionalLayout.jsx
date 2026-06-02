@@ -52,21 +52,25 @@ export default function ConditionalLayout({ children, navBuilders = [], navLocat
 
   return (
     <ClientLayout>
-      {!isSubdomainPage && (
-        isPropertyPage ? (
-          <PropertySectionNav />
-        ) : isDeveloperPage ? (
-          <StickySectionNav />
-        ) : (
-          <Navbar initialBuilders={navBuilders} initialLocations={navLocations} />
-        )
-      )}
+      <div className="flex flex-col min-h-screen">
+        {!isSubdomainPage && (
+          isPropertyPage ? (
+            <PropertySectionNav />
+          ) : isDeveloperPage ? (
+            <StickySectionNav />
+          ) : (
+            <Navbar initialBuilders={navBuilders} initialLocations={navLocations} />
+          )
+        )}
 
-      <ContactModal />
+        <ContactModal />
 
-      {children}
+        <main className="flex-1">
+          {children}
+        </main>
 
-      <Footer />
+        <Footer />
+      </div>
     </ClientLayout>
   );
 }

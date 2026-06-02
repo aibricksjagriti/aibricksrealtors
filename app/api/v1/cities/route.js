@@ -4,7 +4,7 @@ import { protect } from '@/lib/middleware/auth';
 
 export async function GET() {
   try {
-    const cities = await cityModel.getNames();
+    const cities = await cityModel.getAll();
     return NextResponse.json(
       { success: true, data: cities },
       { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } }

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, Image as ImageIcon, Plus } from "lucide-react";
-import { propertiesAPI, developersAPI, localitiesAPI } from "@/src/admin/utils/api";
+import { propertiesAPI, developersAPI, localitiesAPI, citiesAPI } from "@/src/admin/utils/api";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
@@ -175,8 +175,9 @@ export default function EditPropertyPage() {
     Promise.all([
       localitiesAPI.getAll(),
       propertiesAPI.getAll({ limit: 500 }),
+      citiesAPI.getAll(),
     ])
-      .then(([locRes, propRes]) => {
+      .then(([locRes, propRes, cityRes]) => {
         const registered = locRes.data || [];
         const registeredNames = new Set(registered.map((l) => l.name?.toLowerCase().trim()).filter(Boolean));
 
@@ -195,7 +196,9 @@ export default function EditPropertyPage() {
         });
 
         const all = [...registered, ...fromProps];
-        const cities = [...new Set(all.map((l) => l.city).filter(Boolean))].sort();
+        const cityNamesFromLocalities = all.map((l) => l.city).filter(Boolean);
+        const cityNamesFromCollection = (cityRes.data || []).map((c) => c.name).filter(Boolean);
+        const cities = [...new Set([...cityNamesFromCollection, ...cityNamesFromLocalities])].sort();
         setAllCities(cities);
 
         const map = {};
