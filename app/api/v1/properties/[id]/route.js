@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import propertyModel from '@/lib/models/Property';
 import { protect } from '@/lib/middleware/auth';
 import { authorizeProperty } from '@/lib/middleware/authorize';
@@ -81,6 +82,8 @@ export async function PUT(req, { params }) {
       );
     }
 
+    revalidateTag('properties');
+
     // Convert Firestore timestamps to ISO strings
     const propertyWithConvertedDates = convertTimestamps(property);
 
@@ -134,6 +137,8 @@ export async function DELETE(req, { params }) {
         { status: 404 }
       );
     }
+
+    revalidateTag('properties');
 
     return NextResponse.json({
       success: true,
