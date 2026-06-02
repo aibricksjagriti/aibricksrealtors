@@ -200,16 +200,22 @@ const API_URL = "/api/v1/properties?activeStatus=Yes&limit=9&includeTotal=false"
 const FALLBACK_IMAGE = "/home/ajman.webp";
 
 /* ---------------- PRICE FORMATTER ---------------- */
-const formatPrice = (price) => {
-  if (!price) return "₹ N/A";
+const fmtVal = (v) => {
+  const n = Number(v);
+  if (!n || isNaN(n)) return null;
+  return n >= 10000000 ? `${(n / 10000000).toFixed(2)} Cr` : `${(n / 100000).toFixed(0)} Lac`;
+};
 
-  if (price < 10000000) {
-    // Below 1 Cr → show in Lakhs
-    return `₹ ${(price / 100000).toFixed(0)} Lakhs`;
-  } else {
-    // 1 Cr and above → show in Crores
-    return `₹ ${(price / 10000000).toFixed(2)} Cr`;
+const formatPrice = (p) => {
+  if (p.priceRangeMin || p.priceRangeMax) {
+    const lo = fmtVal(p.priceRangeMin);
+    const hi = fmtVal(p.priceRangeMax);
+    if (lo && hi) return `₹ ${lo} – ₹ ${hi}`;
+    if (lo) return `From ₹ ${lo}`;
+    if (hi) return `Up to ₹ ${hi}`;
   }
+  const single = p.totalPrice || p.monthlyRent;
+  return single ? `₹ ${fmtVal(single) || Number(single).toLocaleString("en-IN")}` : "Price on request";
 };
 
 /* ---------------- CARD COMPONENT ---------------- */
@@ -325,7 +331,7 @@ export default function TrendingProjects() {
               })()
             : p.builtUpArea ? `${p.builtUpArea} sq.ft` : "—",
           completion: p.propertyStatus,
-          price: formatPrice(p.totalPrice), // ✅ FIXED HERE
+          price: formatPrice(p),
           image: p.imageGallery?.[0] || FALLBACK_IMAGE,
         }));
 
