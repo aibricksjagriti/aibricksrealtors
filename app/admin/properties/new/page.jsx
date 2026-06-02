@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, Image as ImageIcon, Plus } from "lucide-react";
-import { propertiesAPI, developersAPI, localitiesAPI } from "@/src/admin/utils/api";
+import { propertiesAPI, developersAPI, localitiesAPI, citiesAPI } from "@/src/admin/utils/api";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
@@ -145,12 +145,12 @@ export default function NewPropertyPage() {
     Promise.all([
       localitiesAPI.getAll(),
       propertiesAPI.getAll({ limit: 500 }),
+      citiesAPI.getAll(),
     ])
-      .then(([locRes, propRes]) => {
+      .then(([locRes, propRes, cityRes]) => {
         const registered = locRes.data || [];
         const registeredNames = new Set(registered.map((l) => l.name?.toLowerCase().trim()).filter(Boolean));
 
-        // pull city+locality from actual property docs (same as localities page)
         const seen = new Set();
         const fromProps = [];
         (propRes.data || []).forEach((p) => {
@@ -165,12 +165,12 @@ export default function NewPropertyPage() {
           }
         });
 
-        const all = [
-          ...registered,
-          ...fromProps,
-        ];
+        const all = [...registered, ...fromProps];
 
-        const cities = [...new Set(all.map((l) => l.city).filter(Boolean))].sort();
+        // Merge cities from cities collection + localities/properties
+        const cityNamesFromLocalities = all.map((l) => l.city).filter(Boolean);
+        const cityNamesFromCollection = (cityRes.data || []).map((c) => c.name).filter(Boolean);
+        const cities = [...new Set([...cityNamesFromCollection, ...cityNamesFromLocalities])].sort();
         setAllCities(cities);
 
         const map = {};
