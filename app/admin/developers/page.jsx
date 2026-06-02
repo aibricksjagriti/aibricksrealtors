@@ -31,12 +31,15 @@ export default function DevelopersPage() {
           registeredMap[d.name.toLowerCase().trim()] = d;
         });
 
-        // Count properties per builder name
+        // Count properties per builder name (normalized key for case-insensitive matching)
         const propertyCounts = {};
+        const propertyNameDisplay = {};
         (propRes.data || []).forEach((p) => {
           const name = p.builderName?.trim();
           if (!name) return;
-          propertyCounts[name] = (propertyCounts[name] || 0) + 1;
+          const key = name.toLowerCase();
+          if (!propertyNameDisplay[key]) propertyNameDisplay[key] = name;
+          propertyCounts[key] = (propertyCounts[key] || 0) + 1;
         });
 
         // Build merged list: developers with custom pages first, then names found only in properties.
@@ -49,18 +52,18 @@ export default function DevelopersPage() {
           merged.push({
             ...d,
             hasProfile: true,
-            propertyCount: propertyCounts[d.name] || 0,
+            propertyCount: propertyCounts[key] || 0,
           });
         });
 
-        Object.keys(propertyCounts).forEach((name) => {
-          if (!seen.has(name.toLowerCase().trim())) {
+        Object.keys(propertyCounts).forEach((key) => {
+          if (!seen.has(key)) {
             merged.push({
               id: null,
-              name,
-              slug: toSlug(name),
+              name: propertyNameDisplay[key],
+              slug: toSlug(propertyNameDisplay[key]),
               hasProfile: false,
-              propertyCount: propertyCounts[name],
+              propertyCount: propertyCounts[key],
             });
           }
         });
