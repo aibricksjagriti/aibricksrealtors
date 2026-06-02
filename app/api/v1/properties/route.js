@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import propertyModel from '@/lib/models/Property';
 import { protect, optionalAuth } from '@/lib/middleware/auth';
 import logger from '@/lib/logger';
@@ -116,6 +117,8 @@ export async function POST(req) {
     }
 
     const property = await propertyModel.create(propertyData);
+
+    revalidateTag('properties');
 
     // Convert Firestore timestamps to ISO strings
     const propertyWithConvertedDates = convertTimestamps(property);
