@@ -36,11 +36,11 @@ export default function StickySectionNav() {
     // Fallback: read subdomain from hostname (middleware rewrites hide the path)
     if (!slug) {
       const host = window.location.hostname; // e.g. lodha.localhost or lodha.domain.com
-      const parts = host.split('.');
+      const parts = host.split(".");
       const isSubdomain =
-        (host.endsWith('.localhost') && parts.length >= 2) ||
-        (!host.endsWith('.localhost') && parts.length >= 3);
-      if (isSubdomain && parts[0] !== 'www') slug = parts[0];
+        (host.endsWith(".localhost") && parts.length >= 2) ||
+        (!host.endsWith(".localhost") && parts.length >= 3);
+      if (isSubdomain && parts[0] !== "www") slug = parts[0];
     }
 
     if (slug) {
@@ -99,7 +99,11 @@ export default function StickySectionNav() {
           {/* LOGO */}
           <div className="flex items-center gap-3 text-xl font-bold text-[var(--color-ochre)]">
             {developerLogo ? (
-              <img src={developerLogo} alt={developerName} className="h-9 w-auto object-contain" />
+              <img
+                src={developerLogo}
+                alt={developerName}
+                className="h-14 w-auto object-contain bg-transparent"
+              />
             ) : (
               <span>{developerName}</span>
             )}

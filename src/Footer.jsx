@@ -26,8 +26,8 @@ function CareersModal({ onClose }) {
           Careers at AiBricks
         </h2>
         <p className="text-gray-500 text-sm mb-6">
-          Interested in joining Pune&apos;s most trusted real estate advisory team?
-          Reach out to our HR team directly.
+          Interested in joining Pune&apos;s most trusted real estate advisory
+          team? Reach out to our HR team directly.
         </p>
 
         <div className="space-y-4">
@@ -79,27 +79,12 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 text-sm md:text-base">
             {/* Company Info */}
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="bg-[var(--color-lightcream)] rounded-xl p-1.5 inline-flex items-center justify-center shadow-sm">
-                  <img
-                    src="/logo-mark.png"
-                    alt="AI Bricks Realtors logo"
-                    className="h-9 w-9 object-contain"
-                  />
-                </span>
-                <span className="flex flex-col leading-none">
-                  <span className="font-serif text-2xl font-semibold tracking-wide">
-                    AI BRICKS
-                  </span>
-                  <span className="text-[10px] tracking-[0.35em] text-[var(--color-lightcream)]/80 mt-1">
-                    REALTORS
-                  </span>
-                </span>
-              </div>
-              <p className="text-sm text-[var(--color-lightcream)]/80 leading-relaxed">
-                India&apos;s first AI-driven real estate platform — helping you
-                buy, sell, and invest smarter.
-              </p>
+              {/* <h2 className="text-2xl font-semibold mb-4">AI BRICKS</h2> */}
+              <img
+                src="/aibricks-logo-2.png"
+                alt="logo"
+                className="w-[150px]"
+              />
             </div>
 
             {/* Features */}
@@ -112,12 +97,18 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="/properties" className="hover:text-[var(--color-ochre)]">
+                  <a
+                    href="/properties"
+                    className="hover:text-[var(--color-ochre)]"
+                  >
                     Properties
                   </a>
                 </li>
                 <li>
-                  <a href="/contact" className="hover:text-[var(--color-ochre)]">
+                  <a
+                    href="/contact"
+                    className="hover:text-[var(--color-ochre)]"
+                  >
                     Contact
                   </a>
                 </li>
@@ -149,12 +140,18 @@ export default function Footer() {
               <h3 className="text-lg font-semibold mb-4">Team and Policies</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="/disclaimer" className="hover:text-[var(--color-ochre)]">
+                  <a
+                    href="/disclaimer"
+                    className="hover:text-[var(--color-ochre)]"
+                  >
                     Disclaimer
                   </a>
                 </li>
                 <li>
-                  <a href="/privacy-policy" className="hover:text-[var(--color-ochre)]">
+                  <a
+                    href="/privacy-policy"
+                    className="hover:text-[var(--color-ochre)]"
+                  >
                     Privacy Policy
                   </a>
                 </li>
