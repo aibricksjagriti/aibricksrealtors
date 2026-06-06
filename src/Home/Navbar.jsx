@@ -5,7 +5,10 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function Navbar({ initialBuilders = [], initialLocations = [] }) {
+export default function Navbar({
+  initialBuilders = [],
+  initialLocations = [],
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [showDevDropdown, setShowDevDropdown] = useState(false);
   const [showMobileDev, setShowMobileDev] = useState(false);
@@ -29,9 +32,10 @@ export default function Navbar({ initialBuilders = [], initialLocations = [] }) 
     <>
       <nav className="fixed top-0 left-0 w-full bg-brickred shadow-md z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <div className="text-2xl font-bold text-ochre">
+          <div className="text-2xl font-bold text-ochre w-[100px]">
             <Link href="/" className="cursor-pointer">
-              AI BRICKS
+              {/* AI BRICKS */}
+              <img src="/aibricks-logo-2.png" alt="logo" />
             </Link>
           </div>
 
@@ -70,7 +74,9 @@ export default function Navbar({ initialBuilders = [], initialLocations = [] }) 
                             href={`/developers/${typeof builder === "object" ? builder.slug : toSlug(builder)}`}
                             className="block w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer"
                           >
-                            {typeof builder === "object" ? builder.name : builder}
+                            {typeof builder === "object"
+                              ? builder.name
+                              : builder}
                           </Link>
                         ))}
                       </div>
@@ -135,17 +141,33 @@ export default function Navbar({ initialBuilders = [], initialLocations = [] }) 
       >
         <div className="flex justify-between p-5 border-b items-center">
           <span className="font-semibold">Menu</span>
-          <X onClick={() => setIsOpen(false)} className="cursor-pointer" size={22} />
+          <X
+            onClick={() => setIsOpen(false)}
+            className="cursor-pointer"
+            size={22}
+          />
         </div>
 
         <div className="flex flex-col p-6 gap-4 text-darkgray">
-          <Link href="/" className="cursor-pointer" onClick={() => setIsOpen(false)}>
+          <Link
+            href="/"
+            className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
             Home
           </Link>
-          <Link href="/about" className="cursor-pointer" onClick={() => setIsOpen(false)}>
+          <Link
+            href="/about"
+            className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
             About
           </Link>
-          <Link href="/properties" className="cursor-pointer" onClick={() => setIsOpen(false)}>
+          <Link
+            href="/properties"
+            className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
             Properties
           </Link>
 
@@ -207,7 +229,11 @@ export default function Navbar({ initialBuilders = [], initialLocations = [] }) 
             )}
           </div>
 
-          <Link href="/contact" className="cursor-pointer" onClick={() => setIsOpen(false)}>
+          <Link
+            href="/contact"
+            className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
             Contact
           </Link>
         </div>
