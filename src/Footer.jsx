@@ -79,7 +79,27 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 text-sm md:text-base">
             {/* Company Info */}
             <div>
-              <h2 className="text-2xl font-semibold mb-4">AI BRICKS</h2>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="bg-[var(--color-lightcream)] rounded-xl p-1.5 inline-flex items-center justify-center shadow-sm">
+                  <img
+                    src="/logo-mark.png"
+                    alt="AI Bricks Realtors logo"
+                    className="h-9 w-9 object-contain"
+                  />
+                </span>
+                <span className="flex flex-col leading-none">
+                  <span className="font-serif text-2xl font-semibold tracking-wide">
+                    AI BRICKS
+                  </span>
+                  <span className="text-[10px] tracking-[0.35em] text-[var(--color-lightcream)]/80 mt-1">
+                    REALTORS
+                  </span>
+                </span>
+              </div>
+              <p className="text-sm text-[var(--color-lightcream)]/80 leading-relaxed">
+                India&apos;s first AI-driven real estate platform — helping you
+                buy, sell, and invest smarter.
+              </p>
             </div>
 
             {/* Features */}

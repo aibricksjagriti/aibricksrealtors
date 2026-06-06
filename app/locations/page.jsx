@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { getCachedProperties } from "@/lib/data/properties";
 import Locality from "@/lib/models/Locality";
+import { buildMetadata } from "@/lib/utils/seo";
 
 export const revalidate = 300;
+
+export const metadata = buildMetadata({
+  title: "Property Locations Across India | AI Bricks Realtors",
+  description:
+    "Explore properties by city and locality. Find residential and commercial projects in top Indian cities with AI Bricks Realtors.",
+  path: "/locations",
+});
 
 function createSlug(name) {
   return name?.toLowerCase().replace(/\s+/g, "-");

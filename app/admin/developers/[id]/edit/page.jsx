@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { developersAPI } from "@/src/admin/utils/api";
+import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import "@/src/admin/styles/admin.css";
 
 const defaultImpactPointsText = [
@@ -53,6 +54,7 @@ export default function EditDeveloperPage() {
   const [form, setForm] = useState({
     name: "", slug: "", logo: "", banner: "", tagline: "",
     description: "", about: "", impactPointsText: defaultImpactPointsText,
+    metaTitle: "", metaDescription: "", metaKeywords: "", canonicalUrl: "",
   });
 
   useEffect(() => {
@@ -63,6 +65,8 @@ export default function EditDeveloperPage() {
         banner: d.banner || "", tagline: d.tagline || `${d.name || "Developer"} Projects`,
         description: d.description || "", about: d.about || getDefaultAbout(d.name),
         impactPointsText: formatImpactPoints(d.impactPoints),
+        metaTitle: d.metaTitle || "", metaDescription: d.metaDescription || "",
+        metaKeywords: d.metaKeywords || "", canonicalUrl: d.canonicalUrl || "",
       });
     }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, [id]);
@@ -192,6 +196,18 @@ export default function EditDeveloperPage() {
               className="admin-input w-full min-h-80 resize-y font-mono text-sm leading-6"
               rows={13}
               placeholder="Title - Description"
+            />
+          </section>
+
+          <section className="admin-card p-6 space-y-5">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">SEO</h2>
+              <p className="text-sm text-gray-500">Search engine settings for this developer page. Updates reflect on the live page automatically.</p>
+            </div>
+            <SeoFieldsSection
+              values={form}
+              onChange={handleChange}
+              pageUrl={`https://aibricksrealtors.com/developers/${form.slug || "..."}`}
             />
           </section>
         </div>

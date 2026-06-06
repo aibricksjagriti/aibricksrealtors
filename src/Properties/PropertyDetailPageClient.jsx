@@ -40,7 +40,7 @@ const formatPrice = (price) => {
 
 /* ================= PAGE ================= */
 
-export default function PropertyDetailPage() {
+export default function PropertyDetailPageClient() {
   const { id } = useParams();
 
   /* ✅ FETCH MAIN PROPERTY */

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { locationPagesAPI } from "@/src/admin/utils/api";
+import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import "@/src/admin/styles/admin.css";
 
 export default function EditLocationPage({ params }) {
@@ -22,6 +23,8 @@ export default function EditLocationPage({ params }) {
     about: "",
     metaTitle: "",
     metaDescription: "",
+    metaKeywords: "",
+    canonicalUrl: "",
   });
 
   useEffect(() => {
@@ -42,6 +45,8 @@ export default function EditLocationPage({ params }) {
           about: d.about || "",
           metaTitle: d.metaTitle || "",
           metaDescription: d.metaDescription || "",
+          metaKeywords: d.metaKeywords || "",
+          canonicalUrl: d.canonicalUrl || "",
         });
       })
       .catch((err) => setError(err.message))
@@ -160,18 +165,11 @@ export default function EditLocationPage({ params }) {
         {/* SEO */}
         <div>
           <h2 className="font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">SEO</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Title</label>
-              <input name="metaTitle" value={form.metaTitle} onChange={handleChange} className="admin-input w-full" />
-              <p className="text-xs text-gray-400 mt-1">{form.metaTitle.length}/60 characters recommended</p>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Description</label>
-              <textarea name="metaDescription" value={form.metaDescription} onChange={handleChange} className="admin-input w-full" rows={3} />
-              <p className="text-xs text-gray-400 mt-1">{form.metaDescription.length}/160 characters recommended</p>
-            </div>
-          </div>
+          <SeoFieldsSection
+            values={form}
+            onChange={handleChange}
+            pageUrl={`https://aibricksrealtors.com/locations/${form.slug || "..."}`}
+          />
         </div>
 
         {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded">{error}</p>}

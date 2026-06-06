@@ -2,6 +2,7 @@ import { getCachedProperties } from "@/lib/data/properties";
 import Locality from "@/lib/models/Locality";
 import LocationPage from "@/lib/models/LocationPage";
 import LocationDetailClient from "@/src/Locations/LocationDetailClient";
+import { buildMetadata } from "@/lib/utils/seo";
 
 export const revalidate = 300;
 
@@ -16,16 +17,25 @@ function formatName(slug) {
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams?.slug;
+  const cityFallback = formatName(slug);
+
+  let page = null;
   try {
-    const page = await LocationPage.getBySlug(slug);
-    if (page?.metaTitle || page?.metaDescription) {
-      return {
-        title: page.metaTitle || undefined,
-        description: page.metaDescription || undefined,
-      };
-    }
+    page = await LocationPage.getBySlug(slug);
   } catch {}
-  return {};
+
+  const cityName = page?.city || cityFallback;
+  return buildMetadata({
+    title: page?.metaTitle || `Properties in ${cityName} | AI Bricks Realtors`,
+    description:
+      page?.metaDescription ||
+      page?.description ||
+      `Discover residential and commercial properties in ${cityName} with AI Bricks Realtors.`,
+    keywords: page?.metaKeywords,
+    canonicalUrl: page?.canonicalUrl,
+    path: `/locations/${slug}`,
+    image: page?.banner,
+  });
 }
 
 export default async function LocationPageRoute({ params }) {

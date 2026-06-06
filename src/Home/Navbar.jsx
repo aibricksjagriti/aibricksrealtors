@@ -29,11 +29,23 @@ export default function Navbar({ initialBuilders = [], initialLocations = [] }) 
     <>
       <nav className="fixed top-0 left-0 w-full bg-brickred shadow-md z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <div className="text-2xl font-bold text-ochre">
-            <Link href="/" className="cursor-pointer">
-              AI BRICKS
-            </Link>
-          </div>
+          <Link href="/" className="flex items-center gap-3 cursor-pointer shrink-0">
+            <span className="bg-lightcream rounded-xl p-1.5 inline-flex items-center justify-center shadow-sm">
+              <img
+                src="/logo-mark.png"
+                alt="AI Bricks Realtors logo"
+                className="h-8 w-8 md:h-9 md:w-9 object-contain"
+              />
+            </span>
+            <span className="flex flex-col leading-none">
+              <span className="font-serif text-xl md:text-2xl font-bold tracking-wide text-ochre">
+                AI BRICKS
+              </span>
+              <span className="text-[10px] tracking-[0.35em] text-lightcream/80 mt-1">
+                REALTORS
+              </span>
+            </span>
+          </Link>
 
           <div className="hidden md:flex items-center gap-8 text-lightcream">
             <Link href="/" className="nav-link cursor-pointer">
