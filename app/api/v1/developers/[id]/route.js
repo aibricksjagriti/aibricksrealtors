@@ -12,6 +12,10 @@ const pickDeveloperFields = (body) => {
     'description',
     'about',
     'impactPoints',
+    'metaTitle',
+    'metaDescription',
+    'metaKeywords',
+    'canonicalUrl',
   ];
 
   return Object.fromEntries(

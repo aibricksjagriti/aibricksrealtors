@@ -14,6 +14,7 @@ import Locality from "@/lib/models/Locality";
 import LocationPage from "@/lib/models/LocationPage";
 import LocationDetailClient from "@/src/Locations/LocationDetailClient";
 import { notFound } from "next/navigation";
+import { buildMetadata } from "@/lib/utils/seo";
 
 export const revalidate = 300;
 
@@ -26,27 +27,45 @@ function formatCityName(slug) {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
+  const subdomainUrl = `https://${slug}.aibricksrealtors.com`;
 
   // Try developer metadata first
   try {
     const developer = await Developer.getBySlug(slug);
     if (developer?.name) {
-      return { title: developer.name, description: developer.tagline || undefined };
+      return buildMetadata({
+        title: developer.metaTitle || `${developer.name} Projects | AI Bricks Realtors`,
+        description:
+          developer.metaDescription ||
+          developer.description ||
+          developer.tagline ||
+          `Explore ${developer.name} residential and commercial projects, prices, floor plans and offers on AI Bricks Realtors.`,
+        keywords: developer.metaKeywords,
+        canonicalUrl: developer.canonicalUrl || subdomainUrl,
+        image: developer.banner || developer.logo,
+      });
     }
   } catch {}
 
   // Fall back to city metadata
   try {
     const page = await LocationPage.getBySlug(slug);
-    if (page?.metaTitle || page?.metaDescription) {
-      return {
-        title: page.metaTitle || undefined,
-        description: page.metaDescription || undefined,
-      };
+    if (page) {
+      const cityName = page.city || formatCityName(slug);
+      return buildMetadata({
+        title: page.metaTitle || `Properties in ${cityName} | AI Bricks Realtors`,
+        description:
+          page.metaDescription ||
+          page.description ||
+          `Discover residential and commercial properties in ${cityName} with AI Bricks Realtors.`,
+        keywords: page.metaKeywords,
+        canonicalUrl: page.canonicalUrl || subdomainUrl,
+        image: page.banner,
+      });
     }
   } catch {}
 
-  return {};
+  return buildMetadata({ canonicalUrl: subdomainUrl });
 }
 
 export default async function SubdomainPage({ params }) {

@@ -19,12 +19,17 @@ const lato = Lato({
 });
 
 export const metadata = {
-  title: "Live The Future",
-  description: "Coming Soon",
+  metadataBase: new URL("https://aibricksrealtors.com"),
+  title: {
+    default: "AI Bricks Realtors | India's First AI-Driven Real Estate Platform",
+    template: "%s",
+  },
+  description:
+    "AI Bricks Realtors is India's first AI-driven real estate platform, empowering buyers, sellers, and investors to make smarter property decisions.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo-mark.png",
+    shortcut: "/logo-mark.png",
+    apple: "/logo-mark.png",
   },
 };
 

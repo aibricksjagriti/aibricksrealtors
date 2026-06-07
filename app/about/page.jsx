@@ -1,4 +1,12 @@
+import { buildMetadata } from "@/lib/utils/seo";
 import { aboutFaqs } from "@/data/faq";
+
+export const metadata = buildMetadata({
+  title: "About Us | AI Bricks Realtors",
+  description:
+    "Learn about AI Bricks Realtors — India's first AI-driven real estate platform helping buyers, sellers, and investors make smarter property decisions.",
+  path: "/about",
+});
 import HeroSection from "@/src/About/HeroSection";
 import IntroSection from "@/src/About/IntroSection";
 import MissionVision from "@/src/About/MissionVision";
