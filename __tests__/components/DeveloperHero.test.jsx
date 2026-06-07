@@ -21,28 +21,36 @@ describe('DeveloperHero (developer page banner)', () => {
 
   test('renders developer logo and banner images', () => {
     render(<DeveloperHero builderName="Godrej" projects={[]} developer={developer} />);
-    expect(screen.getByAltText('Godrej logo')).toHaveAttribute('src', '/logos/godrej.png');
-    expect(screen.getByAltText('Godrej banner')).toHaveAttribute('src', '/banners/godrej.jpg');
+    const images = screen.getAllByAltText('Godrej');
+    const srcs = images.map((img) => img.getAttribute('src'));
+    expect(srcs).toContain('/banners/godrej.jpg');
+    expect(srcs).toContain('/logos/godrej.png');
   });
 
-  test('shows project count when projects exist', () => {
-    render(<DeveloperHero builderName="Godrej" projects={[{}, {}, {}]} developer={developer} />);
-    expect(screen.getByText('3 Projects Available')).toBeInTheDocument();
-    expect(screen.getByText('View Projects')).toHaveAttribute('href', '#projects');
-  });
-
-  test('shows coming soon when no projects', () => {
+  test('renders premium developer badge', () => {
     render(<DeveloperHero builderName="Godrej" projects={[]} developer={developer} />);
-    expect(screen.getByText(/Coming Soon/)).toBeInTheDocument();
-    expect(screen.queryByText('View Projects')).not.toBeInTheDocument();
+    expect(screen.getByText(/Premium Developer/)).toBeInTheDocument();
+  });
+
+  test('shows project count in stats card', () => {
+    render(<DeveloperHero builderName="Godrej" projects={[{}, {}, {}]} developer={developer} />);
+    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByText('Active Projects')).toBeInTheDocument();
+    expect(screen.getByText('Explore Projects')).toHaveAttribute('href', '#projects');
+  });
+
+  test('shows zero projects in stats card when none exist', () => {
+    render(<DeveloperHero builderName="Godrej" projects={[]} developer={developer} />);
+    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByText('Active Projects')).toBeInTheDocument();
   });
 
   test('uses fallback banner and tagline when developer data is missing', () => {
     render(<DeveloperHero builderName="Godrej" projects={[]} developer={null} />);
-    expect(screen.getByAltText('Godrej banner')).toHaveAttribute('src', '/developers/kolt_wagoh.jpg');
+    const images = screen.getAllByAltText('Godrej');
+    expect(images).toHaveLength(1); // banner only, no logo
+    expect(images[0]).toHaveAttribute('src', '/developers/kolt_wagoh.jpg');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Godrej Projects');
-    // no logo chip when developer has no logo
-    expect(screen.queryByAltText('Godrej logo')).not.toBeInTheDocument();
   });
 
   test('opens lead capture modal on Get Details click', () => {
