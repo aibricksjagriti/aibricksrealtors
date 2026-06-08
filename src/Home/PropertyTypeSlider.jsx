@@ -132,9 +132,177 @@
 //   );
 // }
 
+// "use client";
+
+// import { useState, useCallback } from "react";
+// import { motion } from "framer-motion";
+// import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+// import { useRouter } from "next/navigation";
+
+// const propertyTypes = [
+//   {
+//     title: "Apartment",
+//     subtitle: "Modern City Living",
+//     image: "/home/abu-dhabi.webp",
+//   },
+//   {
+//     title: "Commercial",
+//     subtitle: "Prime Business Spaces",
+//     image: "/home/sarjah.webp",
+//   },
+//   {
+//     title: "Plot",
+//     subtitle: "Build Your Dream Space",
+//     image: "/home/rak.webp",
+//   },
+//   {
+//     title: "Investment",
+//     subtitle: "High-Return Opportunities",
+//     image: "/home/ajman.webp",
+//   },
+// ];
+
+// export default function PropertyTypeSlider() {
+//   const [index, setIndex] = useState(0);
+//   const router = useRouter();
+
+//   const visibleCards = 4;
+
+//   const nextSlide = () => {
+//     if (index < propertyTypes.length - visibleCards) {
+//       setIndex((prev) => prev + 1);
+//     }
+//   };
+
+//   const prevSlide = () => {
+//     if (index > 0) {
+//       setIndex((prev) => prev - 1);
+//     }
+//   };
+
+//   /** 🔹 Optimized click handler */
+//   const handleCardClick = useCallback(
+//     (title) => {
+//       router.push(`/search?propertyType=${encodeURIComponent(title)}`);
+//     },
+//     [router],
+//   );
+
+//   return (
+//     <section className="bg-[linear-gradient(135deg,_#f1df9e_0%,_#d5b258_100%)] pt-16 pb-32 px-4 sm:px-6 md:px-10 relative overflow-hidden mt-16">
+//       {/* Title */}
+//       <div className="max-w-7xl mx-auto text-center mb-10">
+//         <div className="pb-10">
+//           <div className="flex justify-center mb-2">
+//             <Building2 size={40} className="text-[var(--color-brickred)]" />
+//           </div>
+//           <h2 className="text-4xl font-serif font-bold text-[var(--color-darkgray)] uppercase">
+//             One Size Doesn’t Fit All
+//           </h2>
+//         </div>
+//       </div>
+
+//       {/* Slider */}
+//       <div className="relative flex items-center justify-center">
+//         {/* Left Arrow */}
+//         <button
+//           onClick={prevSlide}
+//           disabled={index === 0}
+//           className={`absolute left-2 sm:left-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 cursor-pointer ${
+//             index === 0 ? "opacity-40" : "hover:scale-110"
+//           }`}
+//         >
+//           <ChevronLeft size={22} className="text-[var(--color-lightcream)]" />
+//         </button>
+
+//         {/* Cards */}
+//         <div className="overflow-hidden w-full max-w-7xl">
+//           <motion.div
+//             className="flex gap-4"
+//             animate={{ x: `-${index * (100 / visibleCards)}%` }}
+//             transition={{ type: "spring", stiffness: 80, damping: 25 }}
+//           >
+//             {propertyTypes.map((type) => (
+//               <motion.div
+//                 key={type.title}
+//                 onClick={() => handleCardClick(type.title)}
+//                 role="button"
+//                 tabIndex={0}
+//                 className="relative cursor-pointer min-w-[80%] sm:min-w-[45%] md:min-w-[30%] lg:min-w-[24%] rounded-3xl overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-500"
+//               >
+//                 <img
+//                   src={type.image}
+//                   alt={type.title}
+//                   loading="lazy"
+//                   decoding="async"
+//                   className="w-full h-[320px] sm:h-[360px] md:h-[400px] object-cover group-hover:scale-110 transition-transform duration-700"
+//                 />
+
+//                 <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-brickred)]/80 via-[var(--color-brickred)]/40 to-transparent" />
+
+//                 <div className="absolute top-4 left-5 sm:top-6 sm:left-6 text-left">
+//                   <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-white">
+//                     {type.title}
+//                   </h3>
+//                   <p className="text-sm sm:text-base text-gray-200">
+//                     {type.subtitle}
+//                   </p>
+//                 </div>
+//               </motion.div>
+//             ))}
+//           </motion.div>
+//         </div>
+
+//         {/* Right Arrow */}
+//         <button
+//           onClick={nextSlide}
+//           disabled={index >= propertyTypes.length - visibleCards}
+//           className={`absolute right-2 sm:right-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 cursor-pointer ${
+//             index >= propertyTypes.length - visibleCards
+//               ? "opacity-40"
+//               : "hover:scale-110"
+//           }`}
+//         >
+//           <ChevronRight size={22} className="text-[var(--color-lightcream)]" />
+//         </button>
+//       </div>
+//     </section>
+//   );
+// }
+
+// "use client";
+
+// import { useState, useCallback, useEffect } from "react";
+// import { motion } from "framer-motion";
+// import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+// import { useRouter } from "next/navigation";
+
+// const propertyTypes = [
+//   {
+//     title: "Apartment",
+//     subtitle: "Modern City Living",
+//     image: "/home/abu-dhabi.webp",
+//   },
+//   {
+//     title: "Commercial",
+//     subtitle: "Prime Business Spaces",
+//     image: "/home/sarjah.webp",
+//   },
+//   {
+//     title: "Plot",
+//     subtitle: "Build Your Dream Space",
+//     image: "/home/rak.webp",
+//   },
+//   {
+//     title: "Investment",
+//     subtitle: "High-Return Opportunities",
+//     image: "/home/ajman.webp",
+//   },
+// ];
+
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -164,29 +332,54 @@ const propertyTypes = [
 
 export default function PropertyTypeSlider() {
   const [index, setIndex] = useState(0);
+  const [visibleCards, setVisibleCards] = useState(4);
   const router = useRouter();
 
-  const visibleCards = 4;
+  useEffect(() => {
+    const updateVisibleCards = () => {
+      if (window.innerWidth < 640) {
+        setVisibleCards(1);
+      } else if (window.innerWidth < 768) {
+        setVisibleCards(2);
+      } else if (window.innerWidth < 1024) {
+        setVisibleCards(3);
+      } else {
+        setVisibleCards(4);
+      }
+    };
+
+    updateVisibleCards();
+    window.addEventListener("resize", updateVisibleCards);
+
+    return () => window.removeEventListener("resize", updateVisibleCards);
+  }, []);
+
+  const maxIndex = Math.max(0, propertyTypes.length - visibleCards);
 
   const nextSlide = () => {
-    if (index < propertyTypes.length - visibleCards) {
-      setIndex((prev) => prev + 1);
-    }
+    setIndex((prev) => Math.min(prev + 1, maxIndex));
   };
 
   const prevSlide = () => {
-    if (index > 0) {
-      setIndex((prev) => prev - 1);
-    }
+    setIndex((prev) => Math.max(prev - 1, 0));
   };
 
-  /** 🔹 Optimized click handler */
   const handleCardClick = useCallback(
     (title) => {
       router.push(`/search?propertyType=${encodeURIComponent(title)}`);
     },
     [router],
   );
+
+  const handleDragEnd = (_, info) => {
+    const threshold = 80;
+
+    if (info.offset.x < -threshold && index < maxIndex) {
+      nextSlide();
+    } else if (info.offset.x > threshold && index > 0) {
+      prevSlide();
+    }
+  };
 
   return (
     <section className="bg-[linear-gradient(135deg,_#f1df9e_0%,_#d5b258_100%)] pt-16 pb-32 px-4 sm:px-6 md:px-10 relative overflow-hidden mt-16">
@@ -196,6 +389,7 @@ export default function PropertyTypeSlider() {
           <div className="flex justify-center mb-2">
             <Building2 size={40} className="text-[var(--color-brickred)]" />
           </div>
+
           <h2 className="text-4xl font-serif font-bold text-[var(--color-darkgray)] uppercase">
             One Size Doesn’t Fit All
           </h2>
@@ -203,52 +397,70 @@ export default function PropertyTypeSlider() {
       </div>
 
       {/* Slider */}
-      <div className="relative flex items-center justify-center">
+      <div className="relative">
         {/* Left Arrow */}
         <button
           onClick={prevSlide}
           disabled={index === 0}
-          className={`absolute left-2 sm:left-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 cursor-pointer ${
-            index === 0 ? "opacity-40" : "hover:scale-110"
+          className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-[var(--color-brickred)] rounded-full p-3 ${
+            index === 0 ? "opacity-40 cursor-not-allowed" : "hover:scale-110"
           }`}
         >
           <ChevronLeft size={22} className="text-[var(--color-lightcream)]" />
         </button>
 
-        {/* Cards */}
-        <div className="overflow-hidden w-full max-w-7xl">
+        {/* Slider Container */}
+        <div className="overflow-hidden max-w-7xl mx-auto">
           <motion.div
-            className="flex gap-4"
-            animate={{ x: `-${index * (100 / visibleCards)}%` }}
-            transition={{ type: "spring", stiffness: 80, damping: 25 }}
+            className="flex"
+            animate={{
+              x: `-${index * (100 / visibleCards)}%`,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 120,
+              damping: 20,
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={handleDragEnd}
           >
             {propertyTypes.map((type) => (
-              <motion.div
+              <div
                 key={type.title}
-                onClick={() => handleCardClick(type.title)}
-                role="button"
-                tabIndex={0}
-                className="relative cursor-pointer min-w-[80%] sm:min-w-[45%] md:min-w-[30%] lg:min-w-[24%] rounded-3xl overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-500"
+                className="
+                  flex-shrink-0
+                  w-full
+                  sm:w-1/2
+                  md:w-1/3
+                  lg:w-1/4
+                  px-2
+                "
               >
-                <img
-                  src={type.image}
-                  alt={type.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-[320px] sm:h-[360px] md:h-[400px] object-cover group-hover:scale-110 transition-transform duration-700"
-                />
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  onClick={() => handleCardClick(type.title)}
+                  role="button"
+                  tabIndex={0}
+                  className="relative cursor-pointer rounded-3xl overflow-hidden shadow-lg h-full"
+                >
+                  <img
+                    src={type.image}
+                    alt={type.title}
+                    className="w-full h-[360px] sm:h-[360px] md:h-[400px] object-cover"
+                  />
 
-                <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-brickred)]/80 via-[var(--color-brickred)]/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-brickred)]/80 via-[var(--color-brickred)]/40 to-transparent" />
 
-                <div className="absolute top-4 left-5 sm:top-6 sm:left-6 text-left">
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-white">
-                    {type.title}
-                  </h3>
-                  <p className="text-sm sm:text-base text-gray-200">
-                    {type.subtitle}
-                  </p>
-                </div>
-              </motion.div>
+                  <div className="absolute top-5 left-5">
+                    <h3 className="text-xl md:text-2xl font-semibold text-white">
+                      {type.title}
+                    </h3>
+
+                    <p className="text-gray-200">{type.subtitle}</p>
+                  </div>
+                </motion.div>
+              </div>
             ))}
           </motion.div>
         </div>
@@ -256,10 +468,10 @@ export default function PropertyTypeSlider() {
         {/* Right Arrow */}
         <button
           onClick={nextSlide}
-          disabled={index >= propertyTypes.length - visibleCards}
-          className={`absolute right-2 sm:right-6 z-10 bg-[var(--color-brickred)] rounded-full p-2 sm:p-3 cursor-pointer ${
-            index >= propertyTypes.length - visibleCards
-              ? "opacity-40"
+          disabled={index >= maxIndex}
+          className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-[var(--color-brickred)] rounded-full p-3 ${
+            index >= maxIndex
+              ? "opacity-40 cursor-not-allowed"
               : "hover:scale-110"
           }`}
         >

@@ -25,7 +25,7 @@ export default function HeroSection() {
 
         {/* HERO CONTENT */}
         <div className="absolute bottom-0 w-full px-4 pb-10 text-white z-10">
-          <h1 className="text-center text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">
+          <h1 className="text-center text-4xl md:text-5xl lg:text-7xl font-serif font-bold mb-6">
             Live The Future
           </h1>
 
