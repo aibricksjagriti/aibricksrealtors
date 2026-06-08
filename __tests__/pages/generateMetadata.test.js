@@ -32,6 +32,7 @@ jest.mock('@/src/Properties/PropertyDetailPageClient', () => () => null);
 const Developer = require('@/lib/models/Developer');
 const LocationPage = require('@/lib/models/LocationPage');
 const propertyModel = require('@/lib/models/Property');
+const { getCachedProperties } = require('@/lib/data/properties');
 const { SITE_URL } = require('@/lib/utils/seo');
 
 const { generateMetadata: developerMetadata } = require('@/app/developers/[slug]/page.jsx');
@@ -72,11 +73,28 @@ describe('/developers/[slug] metadata', () => {
     expect(meta.alternates.canonical).toBe(`${SITE_URL}/developers/lodha`);
   });
 
-  test('does not crash when developer lookup fails', async () => {
-    Developer.getBySlug.mockRejectedValue(new Error('firestore down'));
+  test('returns 404 for unknown slugs with no matching properties (no soft-404)', async () => {
+    Developer.getBySlug.mockResolvedValue(null);
+    getCachedProperties.mockResolvedValue([]);
+    await expect(
+      developerMetadata(params({ slug: 'random-gibberish-xyz' }))
+    ).rejects.toThrow(); // notFound() throws → real HTTP 404
+  });
+
+  test('unregistered slug with matching properties stays up, builds metadata from name', async () => {
+    Developer.getBySlug.mockResolvedValue(null);
+    getCachedProperties.mockResolvedValue([{ builderName: 'Godrej Properties' }]);
     const meta = await developerMetadata(params({ slug: 'godrej-properties' }));
     expect(meta.title).toContain('Godrej Properties');
     expect(meta.alternates.canonical).toBe(`${SITE_URL}/developers/godrej-properties`);
+  });
+
+  test('alias slug canonicalizes to the proper builder slug', async () => {
+    Developer.getBySlug.mockResolvedValue(null);
+    getCachedProperties.mockResolvedValue([{ builderName: 'Godrej ' }]);
+    // /developers/godrej-new fuzzy-matches "Godrej" properties → canonical points to /developers/godrej
+    const meta = await developerMetadata(params({ slug: 'godrej-new' }));
+    expect(meta.alternates.canonical).toBe(`${SITE_URL}/developers/godrej`);
   });
 });
 
