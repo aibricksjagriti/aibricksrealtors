@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { developersAPI } from "@/src/admin/utils/api";
+import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import "@/src/admin/styles/admin.css";
 
 const toSlug = (name) => name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -46,6 +47,10 @@ export default function NewDeveloperPage() {
     description: "",
     about: "",
     impactPointsText: defaultImpactPointsText,
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
+    canonicalUrl: "",
   });
 
   // Pre-fill from URL params (e.g., when registering from properties list)
@@ -192,6 +197,18 @@ export default function NewDeveloperPage() {
               className="admin-input w-full min-h-80 resize-y font-mono text-sm leading-6"
               rows={13}
               placeholder="Title - Description"
+            />
+          </section>
+
+          <section className="admin-card p-6 space-y-5">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">SEO</h2>
+              <p className="text-sm text-gray-500">Search engine settings for this developer page. Updates reflect on the live page automatically.</p>
+            </div>
+            <SeoFieldsSection
+              values={form}
+              onChange={handleChange}
+              pageUrl={`https://aibricksrealtors.com/developers/${form.slug || "..."}`}
             />
           </section>
         </div>

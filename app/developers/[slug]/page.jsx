@@ -9,8 +9,32 @@ import { notFound } from "next/navigation";
 import { getCachedProperties } from "@/lib/data/properties";
 import Developer from "@/lib/models/Developer";
 import { convertTimestamps } from "@/lib/utils/timestampConverter";
+import { buildMetadata } from "@/lib/utils/seo";
 
 export const revalidate = 300;
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+
+  let developer = null;
+  try {
+    developer = await Developer.getBySlug(slug);
+  } catch {}
+
+  const name = developer?.name || formatBuilderName(slug);
+  return buildMetadata({
+    title: developer?.metaTitle || `${name} Projects | AI Bricks Realtors`,
+    description:
+      developer?.metaDescription ||
+      developer?.description ||
+      developer?.tagline ||
+      `Explore ${name} residential and commercial projects, prices, floor plans and offers on AI Bricks Realtors.`,
+    keywords: developer?.metaKeywords,
+    canonicalUrl: developer?.canonicalUrl,
+    path: `/developers/${slug}`,
+    image: developer?.banner || developer?.logo,
+  });
+}
 
 async function getDeveloperData(slug) {
   // Try to find registered developer by slug first

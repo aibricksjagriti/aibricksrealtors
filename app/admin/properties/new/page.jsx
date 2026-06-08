@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, Image as ImageIcon, Plus } from "lucide-react";
 import { propertiesAPI, developersAPI, localitiesAPI, citiesAPI } from "@/src/admin/utils/api";
+import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
@@ -122,6 +123,12 @@ export default function NewPropertyPage() {
     premiumListing: "No",
     soldStatus: "No",
     activeStatus: "Yes",
+
+    // SEO
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
+    canonicalUrl: "",
   });
 
   const [developers, setDevelopers] = useState([]);
@@ -1381,6 +1388,12 @@ export default function NewPropertyPage() {
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-1">SEO</h3>
+              <p className="text-xs text-gray-400 mb-4">Search engine settings for this property page. Updates reflect on the live page automatically.</p>
+              <SeoFieldsSection values={formData} onChange={handleChange} />
             </div>
           </div>
         );

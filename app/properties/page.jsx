@@ -7,10 +7,18 @@ import Link from "next/link";
 import FAQSection from "@/src/FAQSection";
 import { propertyFaqs } from "@/data/faq";
 import { getCachedProperties } from "@/lib/data/properties";
+import { buildMetadata } from "@/lib/utils/seo";
 
 const ITEMS_PER_PAGE = 10;
 
 export const revalidate = 300;
+
+export const metadata = buildMetadata({
+  title: "Properties for Sale in India | AI Bricks Realtors",
+  description:
+    "Browse residential and commercial properties — apartments, villas, plots, and offices from top developers, curated by AI Bricks Realtors.",
+  path: "/properties",
+});
 
 // async function getProperties() {
 //   try {

@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, Image as ImageIcon, Plus } from "lucide-react";
 import { propertiesAPI, developersAPI, localitiesAPI, citiesAPI } from "@/src/admin/utils/api";
+import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
@@ -152,6 +153,12 @@ export default function EditPropertyPage() {
     premiumListing: "No",
     soldStatus: "No",
     activeStatus: "Yes",
+
+    // SEO
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
+    canonicalUrl: "",
   });
 
   const [developers, setDevelopers] = useState([]);
@@ -456,6 +463,12 @@ export default function EditPropertyPage() {
           premiumListing: getValue(property.premiumListing, "No"),
           soldStatus: getValue(property.soldStatus, "No"),
           activeStatus: getValue(property.activeStatus, "Yes"),
+
+          // SEO
+          metaTitle: getValue(property.metaTitle),
+          metaDescription: getValue(property.metaDescription),
+          metaKeywords: getValue(property.metaKeywords),
+          canonicalUrl: getValue(property.canonicalUrl),
         });
       } else {
         setError("Property not found");
@@ -807,6 +820,11 @@ export default function EditPropertyPage() {
             submitData[key] = value;
           }
         }
+      });
+
+      // Always send SEO fields so they can be cleared from the admin panel
+      ["metaTitle", "metaDescription", "metaKeywords", "canonicalUrl"].forEach((key) => {
+        submitData[key] = formData[key] ?? "";
       });
 
       const response = await propertiesAPI.update(propertyId, submitData);
@@ -1552,6 +1570,12 @@ export default function EditPropertyPage() {
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-1">SEO</h3>
+              <p className="text-xs text-gray-400 mb-4">Search engine settings for this property page. Updates reflect on the live page automatically.</p>
+              <SeoFieldsSection values={formData} onChange={handleChange} />
             </div>
           </div>
         );
