@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import Developer from '@/lib/models/Developer';
 import { protect } from '@/lib/middleware/auth';
+
+// Purge the cached (ISR) developer page so admin edits — including SEO meta
+// fields (metaTitle, metaDescription, canonicalUrl) — reflect immediately
+// instead of after the 300s revalidate window.
+const revalidateDeveloper = (slug) => {
+  if (slug) revalidatePath(`/developers/${slug}`);
+};
 
 const pickDeveloperFields = (body) => {
   const allowedFields = [
@@ -50,11 +58,15 @@ export async function PUT(request, { params }) {
     }
 
     const { id } = await params;
+    const existing = await Developer.getById(id);
     const body = await request.json();
     const developer = await Developer.update(id, pickDeveloperFields(body));
     if (!developer) {
       return NextResponse.json({ success: false, error: 'Developer not found' }, { status: 404 });
     }
+    // Revalidate both the new and previous slug (in case the slug changed).
+    revalidateDeveloper(developer.slug || body.slug);
+    if (existing?.slug && existing.slug !== developer.slug) revalidateDeveloper(existing.slug);
     return NextResponse.json({ success: true, data: developer });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -69,7 +81,9 @@ export async function DELETE(request, { params }) {
     }
 
     const { id } = await params;
+    const existing = await Developer.getById(id);
     await Developer.delete(id);
+    revalidateDeveloper(existing?.slug);
     return NextResponse.json({ success: true, message: 'Developer deleted' });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
