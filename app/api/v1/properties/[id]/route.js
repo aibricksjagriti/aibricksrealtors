@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 import propertyModel from '@/lib/models/Property';
 import { protect } from '@/lib/middleware/auth';
 import { authorizeProperty } from '@/lib/middleware/authorize';
@@ -83,6 +83,10 @@ export async function PUT(req, { params }) {
     }
 
     revalidateTag('properties');
+    // The /properties/[id] page reads Firestore directly in generateMetadata,
+    // so it isn't covered by the 'properties' tag — purge its route cache too
+    // so edited SEO meta (title, description, canonical) reflects immediately.
+    revalidatePath(`/properties/${id}`);
 
     // Convert Firestore timestamps to ISO strings
     const propertyWithConvertedDates = convertTimestamps(property);
@@ -139,6 +143,7 @@ export async function DELETE(req, { params }) {
     }
 
     revalidateTag('properties');
+    revalidatePath(`/properties/${id}`);
 
     return NextResponse.json({
       success: true,

@@ -1,5 +1,5 @@
 // Tests for lib/utils/seo.js — buildMetadata()
-const { buildMetadata, SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } = require('@/lib/utils/seo');
+const { buildMetadata, normalizeCanonical, SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } = require('@/lib/utils/seo');
 
 describe('buildMetadata', () => {
   test('builds default canonical from path', () => {
@@ -74,5 +74,35 @@ describe('buildMetadata', () => {
     const meta = buildMetadata();
     expect(meta.alternates.canonical).toBe(`${SITE_URL}/`);
     expect(meta.title).toBeUndefined();
+  });
+});
+
+describe('normalizeCanonical (admin-entered canonical values)', () => {
+  test('keeps full URLs as-is', () => {
+    expect(normalizeCanonical('https://example.com/x', '/developers/godrej')).toBe('https://example.com/x');
+  });
+
+  test('prefixes site URL for absolute paths', () => {
+    expect(normalizeCanonical('/developers/godrej', '/developers/godrej-new')).toBe(
+      `${SITE_URL}/developers/godrej`
+    );
+  });
+
+  test('resolves bare slugs against the page path', () => {
+    // admin typed just "godrej-new" on /developers/godrej
+    expect(normalizeCanonical('godrej-new', '/developers/godrej')).toBe(
+      `${SITE_URL}/developers/godrej-new`
+    );
+  });
+
+  test('returns null for empty or whitespace values', () => {
+    expect(normalizeCanonical('', '/x')).toBeNull();
+    expect(normalizeCanonical('   ', '/x')).toBeNull();
+    expect(normalizeCanonical(null, '/x')).toBeNull();
+  });
+
+  test('buildMetadata uses normalized bare-slug canonical', () => {
+    const meta = buildMetadata({ canonicalUrl: 'godrej-new', path: '/developers/godrej' });
+    expect(meta.alternates.canonical).toBe(`${SITE_URL}/developers/godrej-new`);
   });
 });

@@ -18,6 +18,13 @@ import { buildMetadata } from "@/lib/utils/seo";
 
 export const revalidate = 300;
 
+// Opt into on-demand ISR: paths are generated on first request, cached for
+// `revalidate` seconds, and rendered blocking — so notFound() returns a real
+// HTTP 404 instead of a streamed 200 soft-404.
+export async function generateStaticParams() {
+  return [];
+}
+
 function formatCityName(slug) {
   return slug
     ?.split("-")

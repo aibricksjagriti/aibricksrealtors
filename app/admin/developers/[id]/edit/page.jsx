@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { developersAPI } from "@/src/admin/utils/api";
 import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
+import RichTextEditor from "@/src/admin/components/RichTextEditor";
 import "@/src/admin/styles/admin.css";
 
 const defaultImpactPointsText = [
@@ -180,7 +181,12 @@ export default function EditDeveloperPage() {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">About</label>
-              <textarea name="about" value={form.about} onChange={handleChange} className="admin-input w-full min-h-36 resize-y" rows={6} />
+              <RichTextEditor
+                value={form.about}
+                onChange={(html) => setForm((prev) => ({ ...prev, about: html }))}
+                placeholder="Full developer bio — use the toolbar for headings, bold and bullet points…"
+              />
+              <p className="text-xs text-gray-400 mt-1">Formatting (headings, bold, lists) shows on the public developer page.</p>
             </div>
           </section>
 

@@ -1,5 +1,5 @@
 import { developersFaqs } from "@/data/faq";
-import { formatBuilderName } from "@/lib/utils/formatBuilderName";
+import { formatBuilderName, createSlug } from "@/lib/utils/formatBuilderName";
 import AboutDeveloper from "@/src/Developers/AboutDeveloper";
 import DeveloperHero from "@/src/Developers/DeveloperHero";
 import DeveloperImpact from "@/src/Developers/DeveloperImpact";
@@ -13,6 +13,22 @@ import { buildMetadata } from "@/lib/utils/seo";
 
 export const revalidate = 300;
 
+// Opt into on-demand ISR: paths are generated on first request, cached for
+// `revalidate` seconds, and rendered blocking — so notFound() returns a real
+// HTTP 404 instead of a streamed 200 soft-404.
+export async function generateStaticParams() {
+  return [];
+}
+
+function matchProjects(properties, builderName) {
+  const pageName = builderName.toLowerCase().trim();
+  return properties.filter((item) => {
+    if (!item?.builderName) return false;
+    const apiName = item.builderName.toLowerCase().trim();
+    return apiName === pageName || apiName.includes(pageName) || pageName.includes(apiName);
+  });
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
 
@@ -22,6 +38,28 @@ export async function generateMetadata({ params }) {
   } catch {}
 
   const name = developer?.name || formatBuilderName(slug);
+  // Canonical path defaults to this page's own URL
+  let path = `/developers/${slug}`;
+
+  if (!developer) {
+    // No registered developer for this slug — only allow the page if
+    // properties match the builder name; otherwise return a real 404.
+    // (notFound() here, before streaming starts, sets the HTTP status to 404 —
+    // throwing it only in the page body results in a 200 "soft 404".)
+    let projects = [];
+    try {
+      const properties = await getCachedProperties({ activeStatus: "Yes" });
+      projects = matchProjects(properties, name);
+    } catch {}
+
+    if (!projects.length) notFound();
+
+    // Fuzzy-matched alias slug (e.g. /developers/godrej-new matching "Godrej"):
+    // canonicalize to the builder's proper slug so search engines index one URL.
+    const properSlug = createSlug(projects[0].builderName.trim());
+    if (properSlug && properSlug !== slug) path = `/developers/${properSlug}`;
+  }
+
   return buildMetadata({
     title: developer?.metaTitle || `${name} Projects | AI Bricks Realtors`,
     description:
@@ -31,7 +69,7 @@ export async function generateMetadata({ params }) {
       `Explore ${name} residential and commercial projects, prices, floor plans and offers on AI Bricks Realtors.`,
     keywords: developer?.metaKeywords,
     canonicalUrl: developer?.canonicalUrl,
-    path: `/developers/${slug}`,
+    path,
     image: developer?.banner || developer?.logo,
   });
 }
@@ -52,12 +90,7 @@ async function getDeveloperData(slug) {
   let projects = [];
   try {
     const properties = await getCachedProperties({ activeStatus: "Yes" });
-    projects = properties.filter((item) => {
-      if (!item?.builderName) return false;
-      const apiName = item.builderName.toLowerCase().trim();
-      const pageName = builderName.toLowerCase().trim();
-      return apiName === pageName || apiName.includes(pageName) || pageName.includes(apiName);
-    });
+    projects = matchProjects(properties, builderName);
   } catch (err) {
     console.error("Error fetching projects:", err);
   }
