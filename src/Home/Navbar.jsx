@@ -30,7 +30,7 @@ export default function Navbar({
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full bg-brickred shadow-md z-50">
+      <nav className="fixed top-0 left-0 w-full bg-[var(--color-lightblue)] shadow-md z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <div className="text-2xl font-bold text-ochre w-[100px]">
             <Link href="/" className="cursor-pointer">
@@ -39,7 +39,7 @@ export default function Navbar({
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-lightcream">
+          <div className="hidden md:flex items-center gap-8 text-darkgray">
             <Link href="/" className="nav-link cursor-pointer">
               HOME
             </Link>
@@ -55,7 +55,7 @@ export default function Navbar({
               onMouseEnter={() => setShowDevDropdown(true)}
               onMouseLeave={() => setShowDevDropdown(false)}
             >
-              <button className="flex items-center gap-1 text-lightcream hover:text-ochre cursor-pointer">
+              <button className="flex items-center gap-1 text-darkgray hover:text-ochre cursor-pointer">
                 DEVELOPERS <ChevronDown size={16} />
               </button>
 
@@ -120,7 +120,7 @@ export default function Navbar({
 
           <button
             onClick={() => setIsOpen(true)}
-            className="md:hidden text-white cursor-pointer"
+            className="md:hidden text-brickred cursor-pointer"
           >
             <Menu size={26} />
           </button>

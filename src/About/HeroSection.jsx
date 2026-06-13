@@ -32,7 +32,7 @@ export default function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 pt-10">
           AiBricks Realtors
         </h1>
         <p className="text-xl md:text-2xl text-blue-400 font-medium italic mb-6">
@@ -40,8 +40,8 @@ export default function HeroSection() {
         </p>
         <p className="text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed">
           Pune&apos;s premier real estate advisory firm — connecting discerning
-          homebuyers and investors with reputed, verified developers. We don&apos;t
-          just sell property; we build lasting relationships.
+          homebuyers and investors with reputed, verified developers. We
+          don&apos;t just sell property; we build lasting relationships.
         </p>
       </motion.div>
     </section>
