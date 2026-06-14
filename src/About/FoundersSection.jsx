@@ -11,7 +11,7 @@ const founders = [
       "₹500Cr+ in personal transactions",
       "Deep corridor expertise across Pune micro-markets",
     ],
-    image:'/about/abhishek.png',
+    image: "/about/abhishek.png",
   },
   {
     name: "Sumit Kumar",
@@ -31,13 +31,13 @@ const founders = [
       "Developer relations lead",
       "Network & growth strategy",
     ],
-    image: '/about/deepak.jpg',
+    image: "/about/deepak.jpg",
   },
 ];
 
 export default function FoundersSection() {
   return (
-    <section className="w-full bg-[var(--color-darkgray)] py-16 overflow-hidden">
+    <section className="w-full bg-[var(--color-brickred)] py-16 overflow-hidden">
       <div className="w-[90%] mx-auto">
         <motion.span
           className="inline-block bg-[var(--color-ochre)] text-[var(--color-darkgray)] text-xs font-semibold px-4 py-1.5 rounded mb-4 tracking-widest uppercase"
@@ -69,7 +69,8 @@ export default function FoundersSection() {
           With deep-rooted 20+ years of expertise spanning real estate advisory
           and marketing, the founders of AiBricks Realtors established the firm
           with a clear conviction: that the Pune property market deserved an
-          advisory brand built on radical transparency and genuine buyer advocacy.
+          advisory brand built on radical transparency and genuine buyer
+          advocacy.
         </motion.p>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -84,7 +85,12 @@ export default function FoundersSection() {
             >
               {/* Placeholder avatar */}
               <div className="w-24 h-24 rounded-full bg-white/10 mb-5 mx-auto border-2 border-[var(--color-ochre)]/40 relative overflow-hidden">
-                <Image src={f.image} alt={f.name} fill className="object-cover" />
+                <Image
+                  src={f.image}
+                  alt={f.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
 
               <h3 className="text-xl font-bold text-white text-center mb-1">
@@ -96,8 +102,13 @@ export default function FoundersSection() {
 
               <ul className="space-y-3">
                 {f.highlights.map((h, j) => (
-                  <li key={j} className="flex items-start gap-2 text-gray-300 text-sm">
-                    <span className="text-[var(--color-ochre)] mt-0.5 shrink-0">▸</span>
+                  <li
+                    key={j}
+                    className="flex items-start gap-2 text-gray-300 text-sm"
+                  >
+                    <span className="text-[var(--color-ochre)] mt-0.5 shrink-0">
+                      ▸
+                    </span>
                     {h}
                   </li>
                 ))}
@@ -115,8 +126,9 @@ export default function FoundersSection() {
           transition={{ duration: 0.7, delay: 0.3 }}
         >
           <p className="text-white text-lg leading-relaxed italic mb-4">
-            &ldquo;Real estate is not just property — it&apos;s a long-term relationship.
-            At AiBricks, we honour that responsibility with every client we serve.&rdquo;
+            &ldquo;Real estate is not just property — it&apos;s a long-term
+            relationship. At AiBricks, we honour that responsibility with every
+            client we serve.&rdquo;
           </p>
           <p className="text-[var(--color-ochre)] font-semibold">
             — AiBricks Realtors

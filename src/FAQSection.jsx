@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 export default function FAQSection({ faqs = [] }) {
   return (
-    <section className="bg-gradient-to-r from-[#5a082a] via-[#8D0B41] to-[#a63b1e] py-16 px-4">
+    <section className="bg-gradient-to-r from-[#0F1E3E] via-[#23448b] to-[#DCE6F2] py-16 px-4">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         {/* LEFT CONTENT */}
         <div className="text-center lg:text-left">

@@ -3,7 +3,7 @@
 export default function StatsSection() {
   return (
     <section
-      className="relative bg-gradient-to-r from-[#5a082a] via-[#8D0B41] to-[#a63b1e]
+      className="relative bg-gradient-to-r from-[#0F1E3E] via-[#23448b] to-[#DCE6F2]
  text-white py-12 px-6 sm:px-10 md:px-20"
     >
       {/* NEWS Ribbon */}
@@ -13,7 +13,7 @@ export default function StatsSection() {
         </div>
 
         {/* News Ticker */}
-        <div className="text-lightcream  font-medium text-md  text-center mb-8 border-b border-lightcream pb-2 whitespace-nowrap overflow-hidden">
+        <div className="text-lightcream  font-medium text-lg  text-center mb-8 border-b border-lightcream pb-2 whitespace-nowrap overflow-hidden">
           <marquee behavior="scroll" direction="left" scrollamount="5">
             Dubai cracks down on illegal, overcrowded apartments – AP News. UAE
             property sales hit $87 bn as luxury deals soar – Arabian Business.

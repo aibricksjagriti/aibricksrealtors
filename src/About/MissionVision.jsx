@@ -27,7 +27,7 @@ const MissionVisionSection = () => {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Vision */}
         <motion.div
-          className="bg-[var(--color-darkgray)] text-white rounded-2xl p-8 shadow-md"
+          className="bg-[var(--color-brickred)] text-white rounded-2xl p-8 shadow-md"
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}

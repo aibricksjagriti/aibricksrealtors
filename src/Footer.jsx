@@ -73,7 +73,7 @@ export default function Footer() {
     <>
       {careersOpen && <CareersModal onClose={() => setCareersOpen(false)} />}
 
-      <footer className="bg-[var(--color-brickred)] text-[var(--color-lightcream)] pt-12 pb-4 overflow-hidden z-10">
+      <footer className="bg-[var(--color-lightblue)] text-[var(--color-darkgray)] pt-12 pb-4 overflow-hidden z-10">
         <div className="z-10 container mx-auto px-6 md:px-12 w-[90%]">
           {/* Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 text-sm md:text-base">
@@ -200,7 +200,7 @@ export default function Footer() {
           </div>
 
           {/* Divider */}
-          <div className="border-t border-white/20 mt-10 pt-4 text-center text-sm">
+          <div className="border-t border-white/20 mt-10 pt-4 text-center text-sm text-darkgray">
             <p>
               © Copyright {new Date().getFullYear()}{" "}
               <span className="font-semibold">Ai Bricks</span> - All Rights

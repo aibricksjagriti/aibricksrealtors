@@ -1,6 +1,14 @@
 "use client";
 import { motion } from "framer-motion";
-import { Home, TrendingUp, MapPin, ShieldCheck, HandshakeIcon, BarChart2, UserCheck } from "lucide-react";
+import {
+  Home,
+  TrendingUp,
+  MapPin,
+  ShieldCheck,
+  HandshakeIcon,
+  BarChart2,
+  UserCheck,
+} from "lucide-react";
 
 const specialisms = [
   {
@@ -95,7 +103,8 @@ export default function OurExpertise() {
         >
           From first-time homebuyers exploring 2BHK options to seasoned
           investors seeking high-yield assets, AiBricks Realtors offers
-          end-to-end expertise across Pune&apos;s most sought-after micro-markets.
+          end-to-end expertise across Pune&apos;s most sought-after
+          micro-markets.
         </motion.p>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -119,7 +128,7 @@ export default function OurExpertise() {
       </section>
 
       {/* Why AiBricks Stands Apart */}
-      <section className="w-full bg-[var(--color-darkgray)] py-16 overflow-hidden">
+      <section className="w-full bg-[var(--color-brickred)] py-16 overflow-hidden">
         <div className="w-[90%] mx-auto">
           <motion.span
             className="inline-block bg-[var(--color-ochre)] text-[var(--color-darkgray)] text-xs font-semibold px-4 py-1.5 rounded mb-4 tracking-widest uppercase"
@@ -154,7 +163,9 @@ export default function OurExpertise() {
                 <h3 className="text-lg font-bold text-[var(--color-ochre)] mb-2">
                   {u.title}
                 </h3>
-                <p className="text-gray-300 text-sm leading-relaxed">{u.desc}</p>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {u.desc}
+                </p>
               </motion.div>
             ))}
           </div>
