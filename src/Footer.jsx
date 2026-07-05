@@ -214,7 +214,8 @@ export default function Footer() {
           href="https://wa.me/8130120098"
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-5 right-5 bg-green-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
+          // className="fixed bottom-5 right-5 bg-green-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
+          className="fixed bottom-20 md:bottom-5 right-5 bg-green-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform "
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
