@@ -175,9 +175,43 @@ export default function RichTextEditor({
   };
 
   // eslint-disable-next-line no-deprecated
+  // const exec = useCallback(
+  //   (command, arg) => {
+  //     ref.current?.focus();
+  //     document.execCommand(command, false, arg);
+  //     emit();
+  //   },
+  //   [emit],
+  // );
   const exec = useCallback(
     (command, arg) => {
       ref.current?.focus();
+
+      if (command === "formatBlock") {
+        const selection = window.getSelection();
+
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+
+        const content = range.extractContents();
+
+        const node = document.createElement(arg.replace(/[<>]/g, ""));
+
+        node.appendChild(content);
+
+        range.insertNode(node);
+
+        selection.removeAllRanges();
+
+        const newRange = document.createRange();
+        newRange.selectNodeContents(node);
+        selection.addRange(newRange);
+
+        emit();
+        return;
+      }
+
       document.execCommand(command, false, arg);
       emit();
     },

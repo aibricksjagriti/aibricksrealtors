@@ -239,6 +239,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0.875rem 0 0.5rem;
 }
 .rich-text p {
+  font-size: 1rem;
   margin: 0.5rem 0;
 }
 .rich-text ul {
