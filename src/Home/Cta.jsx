@@ -31,14 +31,14 @@ export default function Cta() {
             Live The Future
           </motion.p>
 
-          <motion.h1
+          <motion.h2
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
             className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-serif mb-8"
           >
             AI BRICKS
-          </motion.h1>
+          </motion.h2>
 
           <motion.h2
             initial={{ opacity: 0, scale: 0.9 }}

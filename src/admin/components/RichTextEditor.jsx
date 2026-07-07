@@ -115,6 +115,7 @@ import {
   Underline,
   List,
   ListOrdered,
+  Heading1,
   Heading2,
   Heading3,
   Link2,
@@ -293,6 +294,9 @@ export default function RichTextEditor({
           <Underline size={16} />
         </Btn>
         <span className="mx-1 h-5 w-px bg-gray-200" />
+        <Btn title="Heading" onClick={() => exec("formatBlock", "<h1>")}>
+          <Heading1 size={16} />
+        </Btn>
         <Btn title="Heading" onClick={() => exec("formatBlock", "<h2>")}>
           <Heading2 size={16} />
         </Btn>
