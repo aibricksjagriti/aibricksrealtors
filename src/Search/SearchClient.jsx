@@ -99,7 +99,11 @@ export default function SearchClient() {
   }, [city, propertyType, developerName, listingType]);
 
   /* -------------------- TANSTACK QUERY -------------------- */
-  const { data: properties = [], isLoading: loading, isError: error } = useQuery({
+  const {
+    data: properties = [],
+    isLoading: loading,
+    isError: error,
+  } = useQuery({
     queryKey: ["properties", searchParams.toString()],
     queryFn: async () => {
       const res = await fetch(
@@ -142,18 +146,22 @@ export default function SearchClient() {
   }, [filters, router, searchParams]);
 
   const filterPanel = (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between gap-3">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm mt-24">
+      <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-darkgray">Refine results</p>
-            <p className="text-xs text-gray-500">Filters apply as soon as you change them.</p>
+          <p className="text-xs text-gray-500">
+            Filters apply as soon as you change them.
+          </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <select
           value={filters.city}
-          onChange={(e) => setFilters((current) => ({ ...current, city: e.target.value }))}
+          onChange={(e) =>
+            setFilters((current) => ({ ...current, city: e.target.value }))
+          }
           className="input"
         >
           <option value="">All Cities</option>
@@ -164,7 +172,12 @@ export default function SearchClient() {
 
         <select
           value={filters.propertyType}
-          onChange={(e) => setFilters((current) => ({ ...current, propertyType: e.target.value }))}
+          onChange={(e) =>
+            setFilters((current) => ({
+              ...current,
+              propertyType: e.target.value,
+            }))
+          }
           className="input"
         >
           <option value="">All Types</option>
@@ -177,7 +190,9 @@ export default function SearchClient() {
 
         <select
           value={filters.developer}
-          onChange={(e) => setFilters((current) => ({ ...current, developer: e.target.value }))}
+          onChange={(e) =>
+            setFilters((current) => ({ ...current, developer: e.target.value }))
+          }
           className="input"
         >
           <option value="">All Developers</option>
@@ -465,24 +480,39 @@ export default function SearchClient() {
 
               <div className="flex flex-wrap gap-6 text-sm text-gray-600 mb-2">
                 <span>
-                  {Array.isArray(item.builtUpArea) && item.builtUpArea.length > 0
+                  {Array.isArray(item.builtUpArea) &&
+                  item.builtUpArea.length > 0
                     ? (() => {
-                        const vals = item.builtUpArea.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+                        const vals = item.builtUpArea
+                          .map((e) => Number(e.area))
+                          .filter((v) => !isNaN(v) && v > 0);
                         if (vals.length === 0) return null;
-                        const min = Math.min(...vals); const max = Math.max(...vals);
-                        return min === max ? `${min} sq.ft` : `${min}–${max} sq.ft`;
+                        const min = Math.min(...vals);
+                        const max = Math.max(...vals);
+                        return min === max
+                          ? `${min} sq.ft`
+                          : `${min}–${max} sq.ft`;
                       })()
-                    : item.builtUpArea ? `${item.builtUpArea} sq.ft` : null}
+                    : item.builtUpArea
+                      ? `${item.builtUpArea} sq.ft`
+                      : null}
                 </span>
                 <span>
                   {Array.isArray(item.carpetArea) && item.carpetArea.length > 0
                     ? (() => {
-                        const vals = item.carpetArea.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+                        const vals = item.carpetArea
+                          .map((e) => Number(e.area))
+                          .filter((v) => !isNaN(v) && v > 0);
                         if (vals.length === 0) return null;
-                        const min = Math.min(...vals); const max = Math.max(...vals);
-                        return min === max ? `${min} sq.ft` : `${min}–${max} sq.ft`;
+                        const min = Math.min(...vals);
+                        const max = Math.max(...vals);
+                        return min === max
+                          ? `${min} sq.ft`
+                          : `${min}–${max} sq.ft`;
                       })()
-                    : item.carpetArea ? `${item.carpetArea} sq.ft` : null}
+                    : item.carpetArea
+                      ? `${item.carpetArea} sq.ft`
+                      : null}
                 </span>
                 <span>{item.propertyStatus}</span>
               </div>
@@ -567,18 +597,23 @@ export default function SearchClient() {
 function DeveloperCategoryHero({ developerName, city, onGetDetails }) {
   return (
     <div
-      className="rounded-2xl overflow-hidden border border-gray-200 shadow-md text-white"
-      style={{ background: "linear-gradient(to right, #1a2b4a, #243a5c, #8D0B41)" }}
+      className="rounded-2xl overflow-hidden border border-gray-200 shadow-md text-white mt-10"
+      style={{
+        background: "linear-gradient(to right, #1a2b4a, #243a5c, #8D0B41)",
+      }}
     >
       <div className="px-6 py-8 md:px-10 md:py-10 md:flex md:items-center md:justify-between gap-6">
         <div className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-wider text-white/75 mb-2">
             Developer
           </p>
-          <h2 className="text-2xl md:text-3xl font-bold leading-tight">{developerName}</h2>
+          <h2 className="text-2xl md:text-3xl font-bold leading-tight">
+            {developerName}
+          </h2>
           {city ? <p className="mt-2 text-base text-white/90">{city}</p> : null}
           <p className="mt-4 text-sm text-white/85 leading-relaxed">
-            Request inventory, pricing, floor plans, and payment options. Our team will contact you with tailored project details.
+            Request inventory, pricing, floor plans, and payment options. Our
+            team will contact you with tailored project details.
           </p>
         </div>
         <button
