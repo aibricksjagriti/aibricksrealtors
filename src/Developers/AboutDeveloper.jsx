@@ -10,7 +10,9 @@ export default function AboutDeveloper({ builderName, developer }) {
   // New entries are rich-text HTML; legacy entries are plain text — keep their
   // line breaks by converting newlines to <br> when no HTML tags are present.
   const hasHtml = /<[a-z][\s\S]*?>/i.test(about);
-  const aboutHtml = hasHtml ? sanitizeHtml(about) : about.replace(/\n/g, "<br />");
+  const aboutHtml = hasHtml
+    ? sanitizeHtml(about)
+    : about.replace(/\n/g, "<br />");
 
   return (
     <section className="py-10 max-w-7xl mx-auto px-4">
@@ -21,7 +23,7 @@ export default function AboutDeveloper({ builderName, developer }) {
       )}
 
       <div
-        className="rich-text text-gray-600 text-lg"
+        className="rich-text text-gray-600 "
         dangerouslySetInnerHTML={{ __html: aboutHtml }}
       />
     </section>

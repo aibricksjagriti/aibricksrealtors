@@ -102,7 +102,7 @@ export default function StickySectionNav() {
               <img
                 src={developerLogo}
                 alt={developerName}
-                className="h-14 w-[180px] object-contain"
+                className="h-16 w-[80px] object-contain"
               />
             ) : (
               <span>{developerName}</span>
