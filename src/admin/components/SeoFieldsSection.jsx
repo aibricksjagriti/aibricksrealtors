@@ -15,7 +15,9 @@ export default function SeoFieldsSection({ values, onChange, pageUrl }) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Title</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Meta Title
+        </label>
         <input
           name="metaTitle"
           value={metaTitle}
@@ -23,13 +25,17 @@ export default function SeoFieldsSection({ values, onChange, pageUrl }) {
           className="admin-input w-full"
           placeholder="Title shown in Google search results & browser tab"
         />
-        <p className={`text-xs mt-1 ${metaTitle.length > 60 ? "text-amber-600" : "text-gray-400"}`}>
+        <p
+          className={`text-xs mt-1 ${metaTitle.length > 60 ? "text-amber-600" : "text-gray-400"}`}
+        >
           {metaTitle.length}/60 characters recommended
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Description</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Meta Description
+        </label>
         <textarea
           name="metaDescription"
           value={metaDescription}
@@ -38,13 +44,17 @@ export default function SeoFieldsSection({ values, onChange, pageUrl }) {
           rows={3}
           placeholder="Brief summary shown in search engine results..."
         />
-        <p className={`text-xs mt-1 ${metaDescription.length > 160 ? "text-amber-600" : "text-gray-400"}`}>
+        <p
+          className={`text-xs mt-1 ${metaDescription.length > 160 ? "text-amber-600" : "text-gray-400"}`}
+        >
           {metaDescription.length}/160 characters recommended
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Keywords</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Meta Keywords
+        </label>
         <input
           name="metaKeywords"
           value={metaKeywords}
@@ -56,13 +66,15 @@ export default function SeoFieldsSection({ values, onChange, pageUrl }) {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Canonical URL</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Canonical URL
+        </label>
         <input
           name="canonicalUrl"
           value={canonicalUrl}
           onChange={onChange}
           className="admin-input w-full font-mono text-sm"
-          placeholder={pageUrl || "https://aibricksrealtors.com/..."}
+          placeholder={pageUrl || "https://www.aibricksrealtors.com/..."}
         />
         <p className="text-xs text-gray-400 mt-1">
           Leave blank to use the default page URL{pageUrl ? `: ${pageUrl}` : ""}

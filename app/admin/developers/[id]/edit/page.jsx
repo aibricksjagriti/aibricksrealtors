@@ -19,7 +19,8 @@ const defaultImpactPointsText = [
 ].join("\n");
 
 const formatImpactPoints = (impactPoints) => {
-  if (!Array.isArray(impactPoints) || !impactPoints.length) return defaultImpactPointsText;
+  if (!Array.isArray(impactPoints) || !impactPoints.length)
+    return defaultImpactPointsText;
 
   return impactPoints
     .map((item) => `${item.title || ""} - ${item.desc || ""}`.trim())
@@ -53,23 +54,42 @@ export default function EditDeveloperPage() {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
-    name: "", slug: "", logo: "", banner: "", tagline: "",
-    description: "", about: "", impactPointsText: defaultImpactPointsText,
-    metaTitle: "", metaDescription: "", metaKeywords: "", canonicalUrl: "",
+    name: "",
+    slug: "",
+    logo: "",
+    banner: "",
+    tagline: "",
+    description: "",
+    about: "",
+    impactPointsText: defaultImpactPointsText,
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
+    canonicalUrl: "",
   });
 
   useEffect(() => {
-    developersAPI.getById(id).then((res) => {
-      const d = res.data;
-      setForm({
-        name: d.name || "", slug: d.slug || "", logo: d.logo || "",
-        banner: d.banner || "", tagline: d.tagline || `${d.name || "Developer"} Projects`,
-        description: d.description || "", about: d.about || getDefaultAbout(d.name),
-        impactPointsText: formatImpactPoints(d.impactPoints),
-        metaTitle: d.metaTitle || "", metaDescription: d.metaDescription || "",
-        metaKeywords: d.metaKeywords || "", canonicalUrl: d.canonicalUrl || "",
-      });
-    }).catch((err) => setError(err.message)).finally(() => setLoading(false));
+    developersAPI
+      .getById(id)
+      .then((res) => {
+        const d = res.data;
+        setForm({
+          name: d.name || "",
+          slug: d.slug || "",
+          logo: d.logo || "",
+          banner: d.banner || "",
+          tagline: d.tagline || `${d.name || "Developer"} Projects`,
+          description: d.description || "",
+          about: d.about || getDefaultAbout(d.name),
+          impactPointsText: formatImpactPoints(d.impactPoints),
+          metaTitle: d.metaTitle || "",
+          metaDescription: d.metaDescription || "",
+          metaKeywords: d.metaKeywords || "",
+          canonicalUrl: d.canonicalUrl || "",
+        });
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, [id]);
 
   const handleChange = (e) => {
@@ -84,7 +104,10 @@ export default function EditDeveloperPage() {
     fd.append("file", file);
     fd.append("path", "developers");
     try {
-      const res = await fetch(`${window.location.origin}/api/upload`, { method: "POST", body: fd });
+      const res = await fetch(`${window.location.origin}/api/upload`, {
+        method: "POST",
+        body: fd,
+      });
       const data = await res.json();
       if (data.success) setForm((prev) => ({ ...prev, logo: data.url }));
       else alert("Upload failed: " + data.error);
@@ -102,7 +125,10 @@ export default function EditDeveloperPage() {
     fd.append("file", file);
     fd.append("path", "developers");
     try {
-      const res = await fetch(`${window.location.origin}/api/upload`, { method: "POST", body: fd });
+      const res = await fetch(`${window.location.origin}/api/upload`, {
+        method: "POST",
+        body: fd,
+      });
       const data = await res.json();
       if (data.success) setForm((prev) => ({ ...prev, banner: data.url }));
       else alert("Upload failed: " + data.error);
@@ -115,8 +141,12 @@ export default function EditDeveloperPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.slug) { setError("Name and slug are required"); return; }
-    setSaving(true); setError("");
+    if (!form.name || !form.slug) {
+      setError("Name and slug are required");
+      return;
+    }
+    setSaving(true);
+    setError("");
     try {
       const { impactPointsText, ...developerData } = form;
       await developersAPI.update(id, {
@@ -131,69 +161,132 @@ export default function EditDeveloperPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  if (loading)
+    return <div className="p-8 text-center text-gray-500">Loading...</div>;
 
   return (
     <div className="animate-slide-in max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <Link href="/admin/developers" className="inline-flex items-center text-gray-600 hover:text-gray-800 mb-3">
+          <Link
+            href="/admin/developers"
+            className="inline-flex items-center text-gray-600 hover:text-gray-800 mb-3"
+          >
             <ArrowLeft size={18} className="mr-2" /> Back to Developers
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Edit Developer</h1>
-          <p className="text-sm text-gray-500 mt-1">Update the public developer page content and media.</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Update the public developer page content and media.
+          </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start"
+      >
         <div className="space-y-6">
           <section className="admin-card p-6 space-y-5">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Basic Details</h2>
-              <p className="text-sm text-gray-500">Controls the page URL and hero heading.</p>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Basic Details
+              </h2>
+              <p className="text-sm text-gray-500">
+                Controls the page URL and hero heading.
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
-                <input name="name" value={form.name} onChange={handleChange} className="admin-input w-full" required />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  required
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Slug <span className="text-red-500">*</span></label>
-                <input name="slug" value={form.slug} onChange={handleChange} className="admin-input w-full font-mono" required />
-                <p className="text-xs text-gray-400 mt-1">/developers/{form.slug || "..."}</p>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Slug <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="slug"
+                  value={form.slug}
+                  onChange={handleChange}
+                  className="admin-input w-full font-mono"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  /developers/{form.slug || "..."}
+                </p>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
-              <input name="tagline" value={form.tagline} onChange={handleChange} className="admin-input w-full" placeholder={`${form.name || "Developer"} Projects`} />
-              <p className="text-xs text-gray-400 mt-1">Shown as the main hero title.</p>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Title
+              </label>
+              <input
+                name="tagline"
+                value={form.tagline}
+                onChange={handleChange}
+                className="admin-input w-full"
+                placeholder={`${form.name || "Developer"} Projects`}
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Shown as the main hero title.
+              </p>
             </div>
           </section>
 
           <section className="admin-card p-6 space-y-5">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">About Content</h2>
-              <p className="text-sm text-gray-500">Shown in the About section on the public page.</p>
+              <h2 className="text-lg font-semibold text-gray-900">
+                About Content
+              </h2>
+              <p className="text-sm text-gray-500">
+                Shown in the About section on the public page.
+              </p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
-              <input name="description" value={form.description} onChange={handleChange} className="admin-input w-full" />
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Short Description
+              </label>
+              <input
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                className="admin-input w-full"
+              />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">About</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                About
+              </label>
               <RichTextEditor
                 value={form.about}
-                onChange={(html) => setForm((prev) => ({ ...prev, about: html }))}
+                onChange={(html) =>
+                  setForm((prev) => ({ ...prev, about: html }))
+                }
                 placeholder="Full developer bio — use the toolbar for headings, bold and bullet points…"
               />
-              <p className="text-xs text-gray-400 mt-1">Formatting (headings, bold, lists) shows on the public developer page.</p>
+              <p className="text-xs text-gray-400 mt-1">
+                Formatting (headings, bold, lists) shows on the public developer
+                page.
+              </p>
             </div>
           </section>
 
           <section className="admin-card p-6 space-y-5">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Impact Bullet Points</h2>
-              <p className="text-sm text-gray-500">One bullet per line, using: Title - Description</p>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Impact Bullet Points
+              </h2>
+              <p className="text-sm text-gray-500">
+                One bullet per line, using: Title - Description
+              </p>
             </div>
             <textarea
               name="impactPointsText"
@@ -208,12 +301,15 @@ export default function EditDeveloperPage() {
           <section className="admin-card p-6 space-y-5">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">SEO</h2>
-              <p className="text-sm text-gray-500">Search engine settings for this developer page. Updates reflect on the live page automatically.</p>
+              <p className="text-sm text-gray-500">
+                Search engine settings for this developer page. Updates reflect
+                on the live page automatically.
+              </p>
             </div>
             <SeoFieldsSection
               values={form}
               onChange={handleChange}
-              pageUrl={`https://aibricksrealtors.com/developers/${form.slug || "..."}`}
+              pageUrl={`https://www.aibricksrealtors.com/developers/${form.slug || "..."}`}
             />
           </section>
         </div>
@@ -222,46 +318,101 @@ export default function EditDeveloperPage() {
           <section className="admin-card p-6 space-y-5">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Media</h2>
-              <p className="text-sm text-gray-500">Logo and hero image shown on the developer page.</p>
+              <p className="text-sm text-gray-500">
+                Logo and hero image shown on the developer page.
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Logo</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Logo
+              </label>
               <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
                 {form.logo ? (
-                  <img src={form.logo} alt="Logo" className="h-20 w-full rounded-lg border bg-white object-contain p-2" />
+                  <img
+                    src={form.logo}
+                    alt="Logo"
+                    className="h-20 w-full rounded-lg border bg-white object-contain p-2"
+                  />
                 ) : (
-                  <div className="h-20 rounded-lg bg-white border flex items-center justify-center text-sm text-gray-400">No logo uploaded</div>
+                  <div className="h-20 rounded-lg bg-white border flex items-center justify-center text-sm text-gray-400">
+                    No logo uploaded
+                  </div>
                 )}
-                <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} className="admin-input mt-3" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    e.target.files?.[0] && handleLogoUpload(e.target.files[0])
+                  }
+                  className="admin-input mt-3"
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Hero Banner</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Hero Banner
+              </label>
               <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
                 {form.banner ? (
                   <div>
-                    <img src={form.banner} alt="Developer banner" className="w-full h-40 rounded-lg border object-cover" />
-                    <button type="button" onClick={() => setForm((p) => ({ ...p, banner: "" }))} className="text-xs text-red-500 hover:underline mt-2">Remove banner</button>
+                    <img
+                      src={form.banner}
+                      alt="Developer banner"
+                      className="w-full h-40 rounded-lg border object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm((p) => ({ ...p, banner: "" }))}
+                      className="text-xs text-red-500 hover:underline mt-2"
+                    >
+                      Remove banner
+                    </button>
                   </div>
                 ) : (
-                  <div className="h-40 rounded-lg bg-white border flex items-center justify-center text-sm text-gray-400">No banner uploaded</div>
+                  <div className="h-40 rounded-lg bg-white border flex items-center justify-center text-sm text-gray-400">
+                    No banner uploaded
+                  </div>
                 )}
-                <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleBannerUpload(e.target.files[0])} className="admin-input mt-3" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    e.target.files?.[0] && handleBannerUpload(e.target.files[0])
+                  }
+                  className="admin-input mt-3"
+                />
               </div>
             </div>
 
-            {uploading && <p className="text-blue-600 animate-pulse text-sm">Uploading image...</p>}
+            {uploading && (
+              <p className="text-blue-600 animate-pulse text-sm">
+                Uploading image...
+              </p>
+            )}
           </section>
 
           <section className="admin-card p-5 space-y-4">
-            {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded">{error}</p>}
+            {error && (
+              <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded">
+                {error}
+              </p>
+            )}
             <div className="flex flex-col gap-3">
-              <button type="submit" disabled={saving || uploading} className="admin-btn-primary disabled:opacity-50 w-full">
+              <button
+                type="submit"
+                disabled={saving || uploading}
+                className="admin-btn-primary disabled:opacity-50 w-full"
+              >
                 {saving ? "Saving..." : "Save Changes"}
               </button>
-              <Link href="/admin/developers" className="admin-btn-secondary text-center">Cancel</Link>
+              <Link
+                href="/admin/developers"
+                className="admin-btn-secondary text-center"
+              >
+                Cancel
+              </Link>
             </div>
           </section>
         </aside>
