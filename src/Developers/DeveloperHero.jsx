@@ -86,15 +86,15 @@ export default function DeveloperHero({ builderName, projects, developer }) {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-5 lg:px-10 min-h-[85vh] flex items-center">
-          <div className="max-w-4xl">
+        <div className="relative z-10 container mx-auto px-5 lg:px-10 min-h-[85vh] flex items-center ">
+          <div className="max-w-4xl ml-20">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/40 bg-white/10 backdrop-blur-md px-4 py-2 text-sm text-[#D4AF37] mb-6">
               ✦ Premium Developer
             </div>
 
             {/* Logo */}
-            {developer?.logo && (
+            {/* {developer?.logo && (
               <div className="mb-8">
                 <div className="inline-flex bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-2xl">
                   <img
@@ -104,7 +104,7 @@ export default function DeveloperHero({ builderName, projects, developer }) {
                   />
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Heading */}
             <h1 className="text-white font-serif text-2xl md:text-3xl xl:text-5xl leading-tight font-bold">

@@ -158,13 +158,30 @@ export default function RichTextEditor({
     onChange?.(html);
   }, [onChange]);
 
+  // const saveSelection = () => {
+  //   const selection = window.getSelection();
+
+  //   if (!selection.rangeCount) return;
+
+  //   savedSelection.current = selection.getRangeAt(0);
+  // };
+
   const saveSelection = () => {
     const selection = window.getSelection();
 
-    if (!selection.rangeCount) return;
-
-    savedSelection.current = selection.getRangeAt(0);
+    if (selection.rangeCount) {
+      savedSelection.current = selection.getRangeAt(0).cloneRange();
+    }
   };
+
+  // const restoreSelection = () => {
+  //   if (!savedSelection.current) return;
+
+  //   const selection = window.getSelection();
+
+  //   selection.removeAllRanges();
+  //   selection.addRange(savedSelection.current);
+  // };
 
   const restoreSelection = () => {
     if (!savedSelection.current) return;
@@ -281,6 +298,39 @@ export default function RichTextEditor({
     </button>
   );
 
+  const applyFontSize = useCallback(
+    (size) => {
+      ref.current?.focus();
+
+      const selection = window.getSelection();
+
+      if (!selection.rangeCount) return;
+
+      const range = selection.getRangeAt(0);
+
+      if (range.collapsed) return;
+
+      // Preserve selected content
+      const contents = range.extractContents();
+
+      const span = document.createElement("span");
+      span.style.fontSize = `${size}px`;
+      span.appendChild(contents);
+
+      range.insertNode(span);
+
+      // Select the newly inserted span
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+
+      emit();
+    },
+    [emit],
+  );
+
   return (
     <div className="rounded-lg border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-[var(--color-brickred)]/40">
       <div className="flex flex-wrap items-center gap-0.5 border-b border-gray-200 px-2 py-1.5">
@@ -294,6 +344,29 @@ export default function RichTextEditor({
           <Underline size={16} />
         </Btn>
         <span className="mx-1 h-5 w-px bg-gray-200" />
+
+        <select
+          onClick={saveSelection}
+          onChange={(e) => {
+            restoreSelection();
+            applyFontSize(e.target.value);
+          }}
+          className="border rounded px-2 py-1 text-sm"
+        >
+          <option value="">Font Size</option>
+          <option value="10">10px</option>
+          <option value="12">12px</option>
+          <option value="14">14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+          <option value="24">24px</option>
+          <option value="28">28px</option>
+          <option value="32">32px</option>
+          <option value="36">36px</option>
+          <option value="48">48px</option>
+        </select>
+
         <Btn title="Heading" onClick={() => exec("formatBlock", "<h1>")}>
           <Heading1 size={16} />
         </Btn>
