@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
-import Developer from '@/lib/models/Developer';
-import { protect } from '@/lib/middleware/auth';
+import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import Developer from "@/lib/models/Developer";
+import { protect } from "@/lib/middleware/auth";
 
 // Purge the cached (ISR) developer page so admin edits — including SEO meta
 // fields (metaTitle, metaDescription, canonicalUrl) — reflect immediately
@@ -12,24 +12,25 @@ const revalidateDeveloper = (slug) => {
 
 const pickDeveloperFields = (body) => {
   const allowedFields = [
-    'name',
-    'slug',
-    'logo',
-    'banner',
-    'tagline',
-    'description',
-    'about',
-    'impactPoints',
-    'metaTitle',
-    'metaDescription',
-    'metaKeywords',
-    'canonicalUrl',
+    "name",
+    "slug",
+    "logo",
+    "banner",
+    "tagline",
+    "description",
+    "about",
+    "aboutBlocks", // ← added: array of { image, text } for the 3-block About layout
+    "impactPoints",
+    "metaTitle",
+    "metaDescription",
+    "metaKeywords",
+    "canonicalUrl",
   ];
 
   return Object.fromEntries(
     allowedFields
       .filter((field) => Object.prototype.hasOwnProperty.call(body, field))
-      .map((field) => [field, body[field]])
+      .map((field) => [field, body[field]]),
   );
 };
 
@@ -42,11 +43,17 @@ export async function GET(request, { params }) {
       developer = await Developer.getBySlug(id);
     }
     if (!developer) {
-      return NextResponse.json({ success: false, error: 'Developer not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Developer not found" },
+        { status: 404 },
+      );
     }
     return NextResponse.json({ success: true, data: developer });
   } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 },
+    );
   }
 }
 
@@ -54,7 +61,9 @@ export async function PUT(request, { params }) {
   try {
     const authResult = await protect(request);
     if (authResult.error) {
-      return NextResponse.json(authResult.error, { status: authResult.error.statusCode });
+      return NextResponse.json(authResult.error, {
+        status: authResult.error.statusCode,
+      });
     }
 
     const { id } = await params;
@@ -62,14 +71,21 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const developer = await Developer.update(id, pickDeveloperFields(body));
     if (!developer) {
-      return NextResponse.json({ success: false, error: 'Developer not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Developer not found" },
+        { status: 404 },
+      );
     }
     // Revalidate both the new and previous slug (in case the slug changed).
     revalidateDeveloper(developer.slug || body.slug);
-    if (existing?.slug && existing.slug !== developer.slug) revalidateDeveloper(existing.slug);
+    if (existing?.slug && existing.slug !== developer.slug)
+      revalidateDeveloper(existing.slug);
     return NextResponse.json({ success: true, data: developer });
   } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 },
+    );
   }
 }
 
@@ -77,15 +93,20 @@ export async function DELETE(request, { params }) {
   try {
     const authResult = await protect(request);
     if (authResult.error) {
-      return NextResponse.json(authResult.error, { status: authResult.error.statusCode });
+      return NextResponse.json(authResult.error, {
+        status: authResult.error.statusCode,
+      });
     }
 
     const { id } = await params;
     const existing = await Developer.getById(id);
     await Developer.delete(id);
     revalidateDeveloper(existing?.slug);
-    return NextResponse.json({ success: true, message: 'Developer deleted' });
+    return NextResponse.json({ success: true, message: "Developer deleted" });
   } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 },
+    );
   }
 }
