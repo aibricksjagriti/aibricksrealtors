@@ -470,8 +470,8 @@ const emptyBlock = () => ({ image: "", text: "" });
 
 // Always work with exactly 3 blocks in the form, regardless of what's saved
 const normalizeAboutBlocks = (blocks) => {
-  const arr = Array.isArray(blocks) ? blocks.slice(0, 3) : [];
-  while (arr.length < 3) arr.push(emptyBlock());
+  const arr = Array.isArray(blocks) ? blocks.slice(0, 6) : [];
+  while (arr.length < 6) arr.push(emptyBlock());
   return arr.map((b) => ({ image: b?.image || "", text: b?.text || "" }));
 };
 
