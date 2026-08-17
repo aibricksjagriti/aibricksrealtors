@@ -422,6 +422,517 @@
 //   );
 // }
 
+// "use client";
+// import { useState, useEffect } from "react";
+// import { useRouter, useParams } from "next/navigation";
+// import { ArrowLeft } from "lucide-react";
+// import Link from "next/link";
+// import { developersAPI } from "@/src/admin/utils/api";
+// import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
+// import RichTextEditor from "@/src/admin/components/RichTextEditor";
+// import "@/src/admin/styles/admin.css";
+
+// const defaultImpactPointsText = [
+//   "Economic Contribution - The development of residential, commercial, and retail projects by the builder has significantly contributed to job creation and economic growth in the region.",
+//   "Focus on Sustainability - The builder emphasizes eco-friendly construction practices by incorporating green building concepts, energy-efficient technologies, rainwater harvesting systems, and sustainable materials.",
+//   "Enhanced Infrastructure - Through large-scale residential and commercial developments, the builder has played a crucial role in improving local infrastructure.",
+//   "Influence on Market Trends - The builder has set new benchmarks in the real estate industry by introducing innovative architectural designs, modern amenities, and smart living solutions.",
+//   "Customer Satisfaction - Customer-centric approach, timely project delivery, and transparent dealings have helped the builder establish a strong reputation in the market.",
+//   "Integrated Township Development - The builder focuses on creating integrated townships that offer a complete lifestyle experience.",
+//   "Technological Innovation - Adoption of modern construction technologies and smart home features has enabled the builder to deliver high-quality projects efficiently.",
+// ].join("\n");
+
+// const formatImpactPoints = (impactPoints) => {
+//   if (!Array.isArray(impactPoints) || !impactPoints.length)
+//     return defaultImpactPointsText;
+
+//   return impactPoints
+//     .map((item) => `${item.title || ""} - ${item.desc || ""}`.trim())
+//     .filter((line) => line !== "-")
+//     .join("\n");
+// };
+
+// const parseImpactPoints = (value) =>
+//   value
+//     .split("\n")
+//     .map((line) => line.trim())
+//     .filter(Boolean)
+//     .map((line) => {
+//       const [title, ...descParts] = line.split(" - ");
+//       return {
+//         title: title.trim(),
+//         desc: descParts.join(" - ").trim(),
+//       };
+//     })
+//     .filter((item) => item.title && item.desc);
+
+// const emptyBlock = () => ({ image: "", text: "" });
+
+// // Always work with exactly 3 blocks in the form, regardless of what's saved
+// const normalizeAboutBlocks = (blocks) => {
+//   const arr = Array.isArray(blocks) ? blocks.slice(0, 6) : [];
+//   while (arr.length < 6) arr.push(emptyBlock());
+//   return arr.map((b) => ({ image: b?.image || "", text: b?.text || "" }));
+// };
+
+// export default function EditDeveloperPage() {
+//   const router = useRouter();
+//   const params = useParams();
+//   const id = params.id;
+//   const [loading, setLoading] = useState(true);
+//   const [saving, setSaving] = useState(false);
+//   const [error, setError] = useState("");
+//   const [uploading, setUploading] = useState(false);
+//   const [uploadingAboutIndex, setUploadingAboutIndex] = useState(null);
+//   const [form, setForm] = useState({
+//     name: "",
+//     slug: "",
+//     logo: "",
+//     banner: "",
+//     tagline: "",
+//     description: "",
+//     about: "", // kept for legacy fallback on the public page; no longer edited here
+//     aboutBlocks: normalizeAboutBlocks([]),
+//     impactPointsText: defaultImpactPointsText,
+//     metaTitle: "",
+//     metaDescription: "",
+//     metaKeywords: "",
+//     canonicalUrl: "",
+//   });
+
+//   useEffect(() => {
+//     developersAPI
+//       .getById(id)
+//       .then((res) => {
+//         const d = res.data;
+//         setForm({
+//           name: d.name || "",
+//           slug: d.slug || "",
+//           logo: d.logo || "",
+//           banner: d.banner || "",
+//           tagline: d.tagline || `${d.name || "Developer"} Projects`,
+//           description: d.description || "",
+//           about: d.about || "",
+//           aboutBlocks: normalizeAboutBlocks(d.aboutBlocks),
+//           impactPointsText: formatImpactPoints(d.impactPoints),
+//           metaTitle: d.metaTitle || "",
+//           metaDescription: d.metaDescription || "",
+//           metaKeywords: d.metaKeywords || "",
+//           canonicalUrl: d.canonicalUrl || "",
+//         });
+//       })
+//       .catch((err) => setError(err.message))
+//       .finally(() => setLoading(false));
+//   }, [id]);
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setForm((prev) => ({ ...prev, [name]: value }));
+//   };
+
+//   const uploadFile = async (file) => {
+//     const fd = new FormData();
+//     fd.append("file", file);
+//     fd.append("path", "developers");
+//     const res = await fetch(`${window.location.origin}/api/upload`, {
+//       method: "POST",
+//       body: fd,
+//     });
+//     const data = await res.json();
+//     if (!data.success) throw new Error(data.error || "Upload failed");
+//     return data.url;
+//   };
+
+//   const handleLogoUpload = async (file) => {
+//     if (!file) return;
+//     setUploading(true);
+//     try {
+//       const url = await uploadFile(file);
+//       setForm((prev) => ({ ...prev, logo: url }));
+//     } catch (err) {
+//       alert("Upload error: " + err.message);
+//     } finally {
+//       setUploading(false);
+//     }
+//   };
+
+//   const handleBannerUpload = async (file) => {
+//     if (!file) return;
+//     setUploading(true);
+//     try {
+//       const url = await uploadFile(file);
+//       setForm((prev) => ({ ...prev, banner: url }));
+//     } catch (err) {
+//       alert("Upload error: " + err.message);
+//     } finally {
+//       setUploading(false);
+//     }
+//   };
+
+//   const handleAboutBlockImageUpload = async (index, file) => {
+//     if (!file) return;
+//     setUploadingAboutIndex(index);
+//     try {
+//       const url = await uploadFile(file);
+//       setForm((prev) => {
+//         const aboutBlocks = [...prev.aboutBlocks];
+//         aboutBlocks[index] = { ...aboutBlocks[index], image: url };
+//         return { ...prev, aboutBlocks };
+//       });
+//     } catch (err) {
+//       alert("Upload error: " + err.message);
+//     } finally {
+//       setUploadingAboutIndex(null);
+//     }
+//   };
+
+//   const handleAboutBlockTextChange = (index, value) => {
+//     setForm((prev) => {
+//       const aboutBlocks = [...prev.aboutBlocks];
+//       aboutBlocks[index] = { ...aboutBlocks[index], text: value };
+//       return { ...prev, aboutBlocks };
+//     });
+//   };
+
+//   const removeAboutBlockImage = (index) => {
+//     setForm((prev) => {
+//       const aboutBlocks = [...prev.aboutBlocks];
+//       aboutBlocks[index] = { ...aboutBlocks[index], image: "" };
+//       return { ...prev, aboutBlocks };
+//     });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!form.name || !form.slug) {
+//       setError("Name and slug are required");
+//       return;
+//     }
+//     setSaving(true);
+//     setError("");
+//     try {
+//       const { impactPointsText, ...developerData } = form;
+//       await developersAPI.update(id, {
+//         ...developerData,
+//         impactPoints: parseImpactPoints(impactPointsText),
+//       });
+//       router.push("/admin/developers");
+//     } catch (err) {
+//       setError(err.message || "Failed to update developer");
+//     } finally {
+//       setSaving(false);
+//     }
+//   };
+
+//   if (loading)
+//     return <div className="p-8 text-center text-gray-500">Loading...</div>;
+
+//   return (
+//     <div className="animate-slide-in max-w-6xl mx-auto space-y-6">
+//       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+//         <div>
+//           <Link
+//             href="/admin/developers"
+//             className="inline-flex items-center text-gray-600 hover:text-gray-800 mb-3"
+//           >
+//             <ArrowLeft size={18} className="mr-2" /> Back to Developers
+//           </Link>
+//           <h1 className="text-3xl font-bold text-gray-900">Edit Developer</h1>
+//           <p className="text-sm text-gray-500 mt-1">
+//             Update the public developer page content and media.
+//           </p>
+//         </div>
+//       </div>
+
+//       <form
+//         onSubmit={handleSubmit}
+//         className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start"
+//       >
+//         <div className="space-y-6">
+//           <section className="admin-card p-6 space-y-5">
+//             <div>
+//               <h2 className="text-lg font-semibold text-gray-900">
+//                 Basic Details
+//               </h2>
+//               <p className="text-sm text-gray-500">
+//                 Controls the page URL and hero heading.
+//               </p>
+//             </div>
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+//               <div>
+//                 <label className="block text-sm font-semibold text-gray-700 mb-1">
+//                   Name <span className="text-red-500">*</span>
+//                 </label>
+//                 <input
+//                   name="name"
+//                   value={form.name}
+//                   onChange={handleChange}
+//                   className="admin-input w-full"
+//                   required
+//                 />
+//               </div>
+//               <div>
+//                 <label className="block text-sm font-semibold text-gray-700 mb-1">
+//                   Slug <span className="text-red-500">*</span>
+//                 </label>
+//                 <input
+//                   name="slug"
+//                   value={form.slug}
+//                   onChange={handleChange}
+//                   className="admin-input w-full font-mono"
+//                   required
+//                 />
+//                 <p className="text-xs text-gray-400 mt-1">
+//                   /developers/{form.slug || "..."}
+//                 </p>
+//               </div>
+//             </div>
+//             <div>
+//               <label className="block text-sm font-semibold text-gray-700 mb-1">
+//                 Title
+//               </label>
+//               <input
+//                 name="tagline"
+//                 value={form.tagline}
+//                 onChange={handleChange}
+//                 className="admin-input w-full"
+//                 placeholder={`${form.name || "Developer"} Projects`}
+//               />
+//               <p className="text-xs text-gray-400 mt-1">
+//                 Shown as the main hero title.
+//               </p>
+//             </div>
+//           </section>
+
+//           <section className="admin-card p-6 space-y-5">
+//             <div>
+//               <h2 className="text-lg font-semibold text-gray-900">
+//                 About Content
+//               </h2>
+//               <p className="text-sm text-gray-500">
+//                 Shown in the About section on the public page — 3 paragraphs,
+//                 each with its own image.
+//               </p>
+//             </div>
+//             <div>
+//               <label className="block text-sm font-semibold text-gray-700 mb-1">
+//                 Short Description
+//               </label>
+//               <input
+//                 name="description"
+//                 value={form.description}
+//                 onChange={handleChange}
+//                 className="admin-input w-full"
+//               />
+//             </div>
+
+//             <div className="space-y-4">
+//               {form.aboutBlocks.map((block, i) => (
+//                 <div
+//                   key={i}
+//                   className="rounded-xl border border-gray-200 p-4 space-y-3"
+//                 >
+//                   <p className="text-sm font-semibold text-gray-700">
+//                     Paragraph {i + 1}
+//                   </p>
+
+//                   <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-4">
+//                     <div>
+//                       <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-2">
+//                         {block.image ? (
+//                           <div>
+//                             <img
+//                               src={block.image}
+//                               alt={`Paragraph ${i + 1}`}
+//                               className="h-24 w-full rounded-md border object-cover"
+//                             />
+//                             <button
+//                               type="button"
+//                               onClick={() => removeAboutBlockImage(i)}
+//                               className="text-xs text-red-500 hover:underline mt-1"
+//                             >
+//                               Remove
+//                             </button>
+//                           </div>
+//                         ) : (
+//                           <div className="h-24 rounded-md bg-white border flex items-center justify-center text-xs text-gray-400 text-center px-2">
+//                             No image
+//                           </div>
+//                         )}
+//                         <input
+//                           type="file"
+//                           accept="image/*"
+//                           onChange={(e) =>
+//                             e.target.files?.[0] &&
+//                             handleAboutBlockImageUpload(i, e.target.files[0])
+//                           }
+//                           className="admin-input mt-2 text-xs w-full"
+//                         />
+//                         {uploadingAboutIndex === i && (
+//                           <p className="text-blue-600 animate-pulse text-xs mt-1">
+//                             Uploading...
+//                           </p>
+//                         )}
+//                       </div>
+//                     </div>
+
+//                     <RichTextEditor
+//                       value={block.text}
+//                       onChange={(html) => handleAboutBlockTextChange(i, html)}
+//                       placeholder={`Paragraph ${i + 1} text — use the toolbar for bold, font size, headings…`}
+//                     />
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//             <p className="text-xs text-gray-400">
+//               Leave a paragraph's image or text blank to skip it on the public
+//               page.
+//             </p>
+//           </section>
+
+//           <section className="admin-card p-6 space-y-5">
+//             <div>
+//               <h2 className="text-lg font-semibold text-gray-900">
+//                 Impact Bullet Points
+//               </h2>
+//               <p className="text-sm text-gray-500">
+//                 One bullet per line, using: Title - Description
+//               </p>
+//             </div>
+//             <textarea
+//               name="impactPointsText"
+//               value={form.impactPointsText}
+//               onChange={handleChange}
+//               className="admin-input w-full min-h-80 resize-y font-mono text-sm leading-6"
+//               rows={13}
+//               placeholder="Title - Description"
+//             />
+//           </section>
+
+//           <section className="admin-card p-6 space-y-5">
+//             <div>
+//               <h2 className="text-lg font-semibold text-gray-900">SEO</h2>
+//               <p className="text-sm text-gray-500">
+//                 Search engine settings for this developer page. Updates reflect
+//                 on the live page automatically.
+//               </p>
+//             </div>
+//             <SeoFieldsSection
+//               values={form}
+//               onChange={handleChange}
+//               pageUrl={`https://www.aibricksrealtors.com/developers/${form.slug || "..."}`}
+//             />
+//           </section>
+//         </div>
+
+//         <aside className="space-y-6 xl:sticky xl:top-6">
+//           <section className="admin-card p-6 space-y-5">
+//             <div>
+//               <h2 className="text-lg font-semibold text-gray-900">Media</h2>
+//               <p className="text-sm text-gray-500">
+//                 Logo and hero image shown on the developer page.
+//               </p>
+//             </div>
+
+//             <div>
+//               <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                 Logo
+//               </label>
+//               <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+//                 {form.logo ? (
+//                   <img
+//                     src={form.logo}
+//                     alt="Logo"
+//                     className="h-20 w-full rounded-lg border bg-white object-contain p-2"
+//                   />
+//                 ) : (
+//                   <div className="h-20 rounded-lg bg-white border flex items-center justify-center text-sm text-gray-400">
+//                     No logo uploaded
+//                   </div>
+//                 )}
+//                 <input
+//                   type="file"
+//                   accept="image/*"
+//                   onChange={(e) =>
+//                     e.target.files?.[0] && handleLogoUpload(e.target.files[0])
+//                   }
+//                   className="admin-input mt-3"
+//                 />
+//               </div>
+//             </div>
+
+//             <div>
+//               <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                 Hero Banner
+//               </label>
+//               <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+//                 {form.banner ? (
+//                   <div>
+//                     <img
+//                       src={form.banner}
+//                       alt="Developer banner"
+//                       className="w-full h-40 rounded-lg border object-cover"
+//                     />
+//                     <button
+//                       type="button"
+//                       onClick={() => setForm((p) => ({ ...p, banner: "" }))}
+//                       className="text-xs text-red-500 hover:underline mt-2"
+//                     >
+//                       Remove banner
+//                     </button>
+//                   </div>
+//                 ) : (
+//                   <div className="h-40 rounded-lg bg-white border flex items-center justify-center text-sm text-gray-400">
+//                     No banner uploaded
+//                   </div>
+//                 )}
+//                 <input
+//                   type="file"
+//                   accept="image/*"
+//                   onChange={(e) =>
+//                     e.target.files?.[0] && handleBannerUpload(e.target.files[0])
+//                   }
+//                   className="admin-input mt-3"
+//                 />
+//               </div>
+//             </div>
+
+//             {uploading && (
+//               <p className="text-blue-600 animate-pulse text-sm">
+//                 Uploading image...
+//               </p>
+//             )}
+//           </section>
+
+//           <section className="admin-card p-5 space-y-4">
+//             {error && (
+//               <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded">
+//                 {error}
+//               </p>
+//             )}
+//             <div className="flex flex-col gap-3">
+//               <button
+//                 type="submit"
+//                 disabled={saving || uploading || uploadingAboutIndex !== null}
+//                 className="admin-btn-primary disabled:opacity-50 w-full"
+//               >
+//                 {saving ? "Saving..." : "Save Changes"}
+//               </button>
+//               <Link
+//                 href="/admin/developers"
+//                 className="admin-btn-secondary text-center"
+//               >
+//                 Cancel
+//               </Link>
+//             </div>
+//           </section>
+//         </aside>
+//       </form>
+//     </div>
+//   );
+// }
+
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -430,6 +941,7 @@ import Link from "next/link";
 import { developersAPI } from "@/src/admin/utils/api";
 import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import RichTextEditor from "@/src/admin/components/RichTextEditor";
+import { buildDeveloperSchema } from "@/lib/utils/buildDeveloperSchema";
 import "@/src/admin/styles/admin.css";
 
 const defaultImpactPointsText = [
@@ -468,12 +980,14 @@ const parseImpactPoints = (value) =>
 
 const emptyBlock = () => ({ image: "", text: "" });
 
-// Always work with exactly 3 blocks in the form, regardless of what's saved
+// Always work with exactly 6 blocks in the form, regardless of what's saved
 const normalizeAboutBlocks = (blocks) => {
   const arr = Array.isArray(blocks) ? blocks.slice(0, 6) : [];
   while (arr.length < 6) arr.push(emptyBlock());
   return arr.map((b) => ({ image: b?.image || "", text: b?.text || "" }));
 };
+
+const SCHEMA_TYPES = ["RealEstateAgent", "Organization", "LocalBusiness"];
 
 export default function EditDeveloperPage() {
   const router = useRouter();
@@ -498,6 +1012,22 @@ export default function EditDeveloperPage() {
     metaDescription: "",
     metaKeywords: "",
     canonicalUrl: "",
+    // Structured data (Schema.org JSON-LD)
+    schemaType: "RealEstateAgent",
+    schemaName: "",
+    schemaUrl: "",
+    schemaLogo: "",
+    schemaImage: "",
+    schemaTelephone: "",
+    schemaEmail: "",
+    schemaStreetAddress: "",
+    schemaAddressLocality: "",
+    schemaAddressRegion: "",
+    schemaPostalCode: "",
+    schemaAddressCountry: "",
+    schemaPriceRange: "",
+    schemaSameAsText: "",
+    schemaRawJsonLd: "",
   });
 
   useEffect(() => {
@@ -519,6 +1049,23 @@ export default function EditDeveloperPage() {
           metaDescription: d.metaDescription || "",
           metaKeywords: d.metaKeywords || "",
           canonicalUrl: d.canonicalUrl || "",
+          schemaType: d.schema?.type || "RealEstateAgent",
+          schemaName: d.schema?.fields?.name || "",
+          schemaUrl: d.schema?.fields?.url || "",
+          schemaLogo: d.schema?.fields?.logo || d.logo || "",
+          schemaImage: d.schema?.fields?.image || "",
+          schemaTelephone: d.schema?.fields?.telephone || "",
+          schemaEmail: d.schema?.fields?.email || "",
+          schemaStreetAddress: d.schema?.fields?.streetAddress || "",
+          schemaAddressLocality: d.schema?.fields?.addressLocality || "",
+          schemaAddressRegion: d.schema?.fields?.addressRegion || "",
+          schemaPostalCode: d.schema?.fields?.postalCode || "",
+          schemaAddressCountry: d.schema?.fields?.addressCountry || "",
+          schemaPriceRange: d.schema?.fields?.priceRange || "",
+          schemaSameAsText: Array.isArray(d.schema?.fields?.sameAs)
+            ? d.schema.fields.sameAs.join(", ")
+            : "",
+          schemaRawJsonLd: d.schema?.rawJsonLd || "",
         });
       })
       .catch((err) => setError(err.message))
@@ -608,13 +1155,70 @@ export default function EditDeveloperPage() {
       setError("Name and slug are required");
       return;
     }
+
+    // Validate the raw JSON-LD override, if the admin filled one in, before
+    // it ever reaches the public page.
+    if (form.schemaRawJsonLd.trim()) {
+      try {
+        JSON.parse(form.schemaRawJsonLd);
+      } catch (err) {
+        setError(
+          "Structured Data: raw JSON-LD is not valid JSON — " + err.message,
+        );
+        return;
+      }
+    }
+
     setSaving(true);
     setError("");
     try {
-      const { impactPointsText, ...developerData } = form;
+      const {
+        impactPointsText,
+        schemaType,
+        schemaName,
+        schemaUrl,
+        schemaLogo,
+        schemaImage,
+        schemaTelephone,
+        schemaEmail,
+        schemaStreetAddress,
+        schemaAddressLocality,
+        schemaAddressRegion,
+        schemaPostalCode,
+        schemaAddressCountry,
+        schemaPriceRange,
+        schemaSameAsText,
+        schemaRawJsonLd,
+        ...developerData
+      } = form;
+
+      const schema = {
+        type: schemaType,
+        fields: {
+          name: schemaName,
+          url: schemaUrl,
+          logo: schemaLogo,
+          image: schemaImage,
+          telephone: schemaTelephone,
+          email: schemaEmail,
+          streetAddress: schemaStreetAddress,
+          addressLocality: schemaAddressLocality,
+          addressRegion: schemaAddressRegion,
+          postalCode: schemaPostalCode,
+          addressCountry: schemaAddressCountry,
+          priceRange: schemaPriceRange,
+          sameAs: schemaSameAsText
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        },
+        rawJsonLd: schemaRawJsonLd,
+      };
+
       await developersAPI.update(id, {
         ...developerData,
         impactPoints: parseImpactPoints(impactPointsText),
+        schema,
       });
       router.push("/admin/developers");
     } catch (err) {
@@ -626,6 +1230,49 @@ export default function EditDeveloperPage() {
 
   if (loading)
     return <div className="p-8 text-center text-gray-500">Loading...</div>;
+
+  // Live preview of the JSON-LD that will ship on save — reuses the exact
+  // same builder function the public page uses, so what the admin sees here
+  // is what search engines will see.
+  let schemaPreview = null;
+  let schemaPreviewError = "";
+  if (form.schemaRawJsonLd.trim()) {
+    try {
+      schemaPreview = JSON.parse(form.schemaRawJsonLd);
+    } catch (err) {
+      schemaPreviewError = "Invalid JSON: " + err.message;
+    }
+  } else {
+    schemaPreview = buildDeveloperSchema(
+      {
+        schema: {
+          type: form.schemaType,
+          fields: {
+            name: form.schemaName,
+            url: form.schemaUrl,
+            logo: form.schemaLogo,
+            image: form.schemaImage,
+            telephone: form.schemaTelephone,
+            email: form.schemaEmail,
+            streetAddress: form.schemaStreetAddress,
+            addressLocality: form.schemaAddressLocality,
+            addressRegion: form.schemaAddressRegion,
+            postalCode: form.schemaPostalCode,
+            addressCountry: form.schemaAddressCountry,
+            priceRange: form.schemaPriceRange,
+            sameAs: form.schemaSameAsText
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean),
+          },
+        },
+      },
+      {
+        builderName: form.name,
+        pageUrl: `https://www.aibricksrealtors.com/developers/${form.slug || ""}`,
+      },
+    );
+  }
 
   return (
     <div className="animate-slide-in max-w-6xl mx-auto space-y-6">
@@ -823,6 +1470,223 @@ export default function EditDeveloperPage() {
               onChange={handleChange}
               pageUrl={`https://www.aibricksrealtors.com/developers/${form.slug || "..."}`}
             />
+          </section>
+
+          <section className="admin-card p-6 space-y-5">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Structured Data (Schema.org)
+              </h2>
+              <p className="text-sm text-gray-500">
+                Powers rich results in Google search for this developer. Fill in
+                the fields below, or paste your own JSON-LD in the advanced box
+                to take full control.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Schema Type
+              </label>
+              <select
+                name="schemaType"
+                value={form.schemaType}
+                onChange={handleChange}
+                className="admin-input w-full md:w-64"
+              >
+                {SCHEMA_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Name
+                </label>
+                <input
+                  name="schemaName"
+                  value={form.schemaName}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  placeholder={form.name || "Developer name"}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Website URL
+                </label>
+                <input
+                  name="schemaUrl"
+                  value={form.schemaUrl}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  placeholder={`https://www.aibricksrealtors.com/developers/${form.slug || "..."}`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Logo URL
+                </label>
+                <input
+                  name="schemaLogo"
+                  value={form.schemaLogo}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  placeholder="Defaults to the Logo uploaded under Media"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Image URL
+                </label>
+                <input
+                  name="schemaImage"
+                  value={form.schemaImage}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  placeholder="Defaults to the logo if left blank"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Telephone
+                </label>
+                <input
+                  name="schemaTelephone"
+                  value={form.schemaTelephone}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  name="schemaEmail"
+                  value={form.schemaEmail}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Price Range
+                </label>
+                <input
+                  name="schemaPriceRange"
+                  value={form.schemaPriceRange}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  placeholder="e.g. ₹60L - ₹5Cr"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Social Profile URLs
+                </label>
+                <input
+                  name="schemaSameAsText"
+                  value={form.schemaSameAsText}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  placeholder="Comma-separated: Facebook, Instagram, LinkedIn…"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Street Address
+                </label>
+                <input
+                  name="schemaStreetAddress"
+                  value={form.schemaStreetAddress}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  City
+                </label>
+                <input
+                  name="schemaAddressLocality"
+                  value={form.schemaAddressLocality}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  State
+                </label>
+                <input
+                  name="schemaAddressRegion"
+                  value={form.schemaAddressRegion}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Postal Code
+                </label>
+                <input
+                  name="schemaPostalCode"
+                  value={form.schemaPostalCode}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Country
+                </label>
+                <input
+                  name="schemaAddressCountry"
+                  value={form.schemaAddressCountry}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  placeholder="IN"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Advanced: Raw JSON-LD override
+              </label>
+              <textarea
+                name="schemaRawJsonLd"
+                value={form.schemaRawJsonLd}
+                onChange={handleChange}
+                className="admin-input w-full min-h-32 resize-y font-mono text-xs"
+                rows={6}
+                placeholder='If filled in, this replaces the fields above entirely — e.g. {"@context": "https://schema.org", "@type": "RealEstateAgent", ...}'
+              />
+              {schemaPreviewError && (
+                <p className="text-red-600 text-xs mt-1">
+                  {schemaPreviewError}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">
+                Live preview
+              </p>
+              <pre className="rounded-lg bg-gray-900 text-gray-100 text-[11px] leading-5 p-3 overflow-x-auto max-h-64 overflow-y-auto">
+                {schemaPreview
+                  ? JSON.stringify(schemaPreview, null, 2)
+                  : "// Fill in fields above to see the generated JSON-LD"}
+              </pre>
+            </div>
           </section>
         </div>
 
