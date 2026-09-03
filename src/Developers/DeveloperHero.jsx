@@ -80,7 +80,8 @@ export default function DeveloperHero({ builderName, projects, developer }) {
           />
 
           {/* Luxury Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
+          {/* <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" /> */}
+          <div className="absolute inset-y-0 left-0 w-full md:w-[70%] bg-gradient-to-r from-black/90 via-black/65 to-transparent" />
 
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.18),transparent_35%)]" />
         </div>
