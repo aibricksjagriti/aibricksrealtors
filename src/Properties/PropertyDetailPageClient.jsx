@@ -21,6 +21,7 @@ import { downloadGalleryImages } from "@/src/utils/downloadGalleryImages";
 import { PropertyDetailSkeleton } from "@/src/skeletons/PropertyDetailSkeleton";
 import { LocationMapWithLoading } from "@/src/skeletons/LocationMapWithLoading";
 import toast from "react-hot-toast";
+import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
 
 /* ================= UTIL ================= */
 
@@ -84,8 +85,13 @@ export default function PropertyDetailPageClient() {
 
           <div className="bg-white border rounded-xl px-6 py-4 shadow-sm text-right">
             <p className="text-gray-500 text-sm">Price</p>
-            {(property.priceRangeMin || property.priceRangeMax) ? (
-              <p className="text-2xl font-bold text-brickred">{formatPriceRange(property.priceRangeMin, property.priceRangeMax)}</p>
+            {property.priceRangeMin || property.priceRangeMax ? (
+              <p className="text-2xl font-bold text-brickred">
+                {formatPriceRange(
+                  property.priceRangeMin,
+                  property.priceRangeMax,
+                )}
+              </p>
             ) : (
               <p className="text-3xl font-bold text-brickred flex items-center gap-1 justify-end">
                 <IndianRupee size={24} />
@@ -111,7 +117,10 @@ export default function PropertyDetailPageClient() {
             <VideoSection property={property} />
             {/* <ProsCons /> */}
             <div id="amenities">
-              <AmenitiesGrid amenities={property.amenities} />
+              <AmenitiesGrid
+                amenities={property.amenities}
+                propertyName={property.propertyTitle}
+              />
             </div>
             <MasterPlan property={property} />
             <ConfigurationsCard property={property} />
@@ -155,8 +164,8 @@ function HeroGallery({ property }) {
       <div className="grid grid-cols-2 gap-3">
         {/* LEFT BIG IMAGE */}
         <div
-            className="row-span-2 bg-gray-200 rounded-lg flex items-center justify-center"
-            style={!mainImg ? { height: 420 } : undefined}
+          className="row-span-2 bg-gray-200 rounded-lg flex items-center justify-center"
+          style={!mainImg ? { height: 420 } : undefined}
         >
           {mainImg ? (
             <img
@@ -180,13 +189,16 @@ function HeroGallery({ property }) {
 
 function formatAreaDisplay(area) {
   if (Array.isArray(area) && area.length > 0) {
-    const values = area.map(e => Number(e.area)).filter(v => !isNaN(v) && v > 0);
+    const values = area
+      .map((e) => Number(e.area))
+      .filter((v) => !isNaN(v) && v > 0);
     if (values.length === 0) return "—";
     const min = Math.min(...values);
     const max = Math.max(...values);
     return min === max ? `${min} sq.ft` : `${min} – ${max} sq.ft`;
   }
-  if (!Array.isArray(area) && area != null && area !== "" && area !== 0) return `${area} sq.ft`;
+  if (!Array.isArray(area) && area != null && area !== "" && area !== 0)
+    return `${area} sq.ft`;
   return "—";
 }
 
@@ -249,12 +261,89 @@ function OverviewCard({ property }) {
   );
 }
 
+// About Section
 function DescriptionCard({ property }) {
+  const [expanded, setExpanded] = useState(false);
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
+
   if (!property.description) return null;
+
+  const handleEnquire = () => {
+    setIsEnquiryOpen(true);
+  };
+
+  const handleCloseEnquiry = () => {
+    setIsEnquiryOpen(false);
+  };
+
   return (
-    <Card title="About the Project">
-      <p className="text-gray-700 leading-relaxed whitespace-pre-line">{property.description}</p>
-    </Card>
+    <>
+      <Card title={`About ${property.propertyTitle}`}>
+        {/* Description */}
+        <div className="relative">
+          <div
+            className={`text-gray-700 leading-relaxed whitespace-pre-line overflow-hidden transition-all duration-500 ${
+              expanded ? "max-h-[2000px]" : "max-h-62"
+            }`}
+          >
+            {property.description}
+          </div>
+
+          {/* Gradient fade when collapsed */}
+          {!expanded && (
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+          )}
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="flex items-center justify-between gap-4 mt-4">
+          {/* Read More / Read Less */}
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="
+              text-[#D4AF37]
+              font-semibold
+              hover:text-[#b8941f]
+              transition-colors
+              cursor-pointer
+            "
+          >
+            {expanded ? "Read Less" : "Read More"}
+          </button>
+
+          {/* Enquiry Button */}
+          <button
+            type="button"
+            onClick={handleEnquire}
+            className="
+              shrink-0
+              bg-brickred
+              text-white
+              px-5
+              py-2
+              rounded-md
+              text-md
+              font-medium
+              hover:bg-ochre
+              hover:text-darkgray
+              transition
+              cursor-pointer
+              enquiry-blink
+            "
+          >
+            Enquire Now
+          </button>
+        </div>
+      </Card>
+
+      {/* Property Enquiry Modal */}
+      <PropertyEnquiryModal
+        isOpen={isEnquiryOpen}
+        onClose={handleCloseEnquiry}
+        property={property}
+      />
+    </>
   );
 }
 
@@ -265,7 +354,7 @@ function DescriptionCard({ property }) {
 function VideoSection({ property }) {
   if (!property?.videoWalkthrough) return null;
   return (
-    <Card title="Project Video">
+    <Card title={`${property.propertyTitle} Project Video`}>
       <a
         href={property.videoWalkthrough}
         target="_blank"
@@ -280,20 +369,71 @@ function VideoSection({ property }) {
 
 /* ================= AMENITIES ================= */
 
-function AmenitiesGrid({ amenities = [] }) {
+function AmenitiesGrid({ amenities = [], property }) {
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
+
+  const handleEnquire = () => {
+    setIsEnquiryOpen(true);
+  };
+
+  const handleCloseEnquiry = () => {
+    setIsEnquiryOpen(false);
+  };
+
   return (
-    <Card title="Amenities">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {amenities.map((a, i) => (
-          <div key={i} className="border rounded-lg p-4 text-center bg-white">
-            <div className="h-10 w-10 mx-auto flex items-center justify-center bg-brickred/10 text-brickred rounded-full">
-              <Home size={20} />
+    <>
+      <Card title={`${property?.propertyTitle || ""} Amenities`}>
+        {/* Header */}
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <p className="text-sm text-gray-600">
+            Property amenities and facilities
+          </p>
+
+          {/* Enquire Now */}
+          <button
+            type="button"
+            onClick={handleEnquire}
+            className="
+              shrink-0
+              bg-brickred
+              text-white
+              px-5
+              py-2
+              rounded-md
+              text-md
+              font-medium
+              hover:bg-ochre
+              hover:text-darkgray
+              transition
+              cursor-pointer
+              enquiry-blink
+            "
+          >
+            Enquire Now
+          </button>
+        </div>
+
+        {/* Amenities */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {amenities.map((a, i) => (
+            <div key={i} className="border rounded-lg p-4 text-center bg-white">
+              <div className="h-10 w-10 mx-auto flex items-center justify-center bg-brickred/10 text-brickred rounded-full">
+                <Home size={20} />
+              </div>
+
+              <p className="text-sm mt-2">{a}</p>
             </div>
-            <p className="text-sm mt-2">{a}</p>
-          </div>
-        ))}
-      </div>
-    </Card>
+          ))}
+        </div>
+      </Card>
+
+      {/* Property Enquiry Modal */}
+      <PropertyEnquiryModal
+        isOpen={isEnquiryOpen}
+        onClose={handleCloseEnquiry}
+        property={property}
+      />
+    </>
   );
 }
 
@@ -322,107 +462,120 @@ function MasterPlan({ property }) {
 
   return (
     <>
-    <Card title="Master & Floor Plan">
-      {floorPlans.length === 0 ? (
-        <div className="text-gray-500">Floor Plan Not Available</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {floorPlans.map((plan, idx) => (
-            <div
-              key={`${plan.image}-${idx}`}
-              className="rounded-xl border border-gray-300 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="px-3 py-2 border-b border-gray-200">
-                <p className="text-sm font-semibold text-gray-800 truncate">
-                  {plan.name || `Floor Plan ${idx + 1}`}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedFloorPlan(plan)}
-                className="w-full px-3 pt-3 text-left"
+      <Card title={`Master & Floor Plan`}>
+        {floorPlans.length === 0 ? (
+          <div className="text-gray-500">Floor Plan Not Available</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {floorPlans.map((plan, idx) => (
+              <div
+                key={`${plan.image}-${idx}`}
+                className="rounded-xl border border-gray-300 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="h-36 bg-gray-100 rounded border overflow-hidden">
-                  {plan.image ? (
-                    <img
-                      src={plan.image}
-                      alt={plan.name || `Floor Plan ${idx + 1}`}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
+                <div className="px-3 py-2 border-b border-gray-200">
+                  <p className="text-sm font-semibold text-gray-800 truncate">
+                    {plan.name || `Floor Plan ${idx + 1}`}
+                  </p>
                 </div>
-              </button>
-              <div className="px-3 pb-3 pt-2">
-                <p className="text-xs text-gray-500">
-                  Carpet Area:{" "}
-                  {plan.carpetArea ? `${plan.carpetArea} sq ft` : "-"}
-                </p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">
-                  {formatPlanPrice(plan.price)}
-                </p>
                 <button
                   type="button"
-                  onClick={() => { setPriceBreakupPlan(plan); setShowPriceBreakupLead(true); }}
-                  className="mt-3 w-full bg-[#0f2f5f] hover:bg-[#123a73] text-white text-sm font-medium py-2 rounded-md"
+                  onClick={() => setSelectedFloorPlan(plan)}
+                  className="w-full px-3 pt-3 text-left"
                 >
-                  Price Breakup
+                  <div className="h-36 bg-gray-100 rounded border overflow-hidden">
+                    {plan.image ? (
+                      <img
+                        src={plan.image}
+                        alt={plan.name || `Floor Plan ${idx + 1}`}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                </button>
+                <div className="px-3 pb-3 pt-2">
+                  <p className="text-xs text-gray-500">
+                    Carpet Area:{" "}
+                    {plan.carpetArea ? `${plan.carpetArea} sq ft` : "-"}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                    {formatPlanPrice(plan.price)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPriceBreakupPlan(plan);
+                      setShowPriceBreakupLead(true);
+                    }}
+                    className="mt-3 w-full bg-[#0f2f5f] hover:bg-[#123a73] text-white text-sm font-medium py-2 rounded-md"
+                  >
+                    Price Breakup
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {selectedFloorPlan && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                {selectedFloorPlan.name || "Floor Plan"}
+              </h3>
+              <img
+                src={selectedFloorPlan.image}
+                alt={selectedFloorPlan.name || "Floor Plan"}
+                className="w-full max-h-80 object-contain rounded border mb-4"
+              />
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <Detail
+                  label="Carpet Area"
+                  value={`${selectedFloorPlan.carpetArea || "-"} sq ft`}
+                />
+                <Detail
+                  label="Price"
+                  value={formatPlanPrice(selectedFloorPlan.price)}
+                />
+              </div>
+              <div className="flex justify-end mt-4">
+                <button
+                  type="button"
+                  onClick={() => setSelectedFloorPlan(null)}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+                >
+                  Close
                 </button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-      {selectedFloorPlan && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">
-              {selectedFloorPlan.name || "Floor Plan"}
-            </h3>
-            <img
-              src={selectedFloorPlan.image}
-              alt={selectedFloorPlan.name || "Floor Plan"}
-              className="w-full max-h-80 object-contain rounded border mb-4"
-            />
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <Detail
-                label="Carpet Area"
-                value={`${selectedFloorPlan.carpetArea || "-"} sq ft`}
-              />
-              <Detail
-                label="Price"
-                value={formatPlanPrice(selectedFloorPlan.price)}
-              />
-            </div>
-            <div className="flex justify-end mt-4">
-              <button
-                type="button"
-                onClick={() => setSelectedFloorPlan(null)}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
-              >
-                Close
-              </button>
-            </div>
           </div>
-        </div>
-      )}
-    </Card>
+        )}
+      </Card>
 
-    <LeadCaptureModal
-      open={showPriceBreakupLead}
-      onClose={() => { setShowPriceBreakupLead(false); setPriceBreakupPlan(null); }}
-      title="Get Price Breakup"
-      subtitle={priceBreakupPlan ? `Request detailed price breakdown for ${priceBreakupPlan.name || "this unit"}` : "Fill in your details to receive the full price breakdown."}
-      messagePrefix={`[Price Breakup Request] Property: ${property?.propertyTitle || ""} | Unit: ${priceBreakupPlan?.name || ""}`}
-      submitLabel="Get Price Breakup"
-      propertyId={property?.id ?? null}
-      propertyTitle={property?.propertyTitle || property?.title || null}
-      propertyName={property?.propertyTitle || property?.title || null}
-      propertyLocation={[property?.locality, property?.city].filter(Boolean).join(", ") || null}
-    />
+      <LeadCaptureModal
+        open={showPriceBreakupLead}
+        onClose={() => {
+          setShowPriceBreakupLead(false);
+          setPriceBreakupPlan(null);
+        }}
+        title="Get Price Breakup"
+        subtitle={
+          priceBreakupPlan
+            ? `Request detailed price breakdown for ${priceBreakupPlan.name || "this unit"}`
+            : "Fill in your details to receive the full price breakdown."
+        }
+        messagePrefix={`[Price Breakup Request] Property: ${property?.propertyTitle || ""} | Unit: ${priceBreakupPlan?.name || ""}`}
+        submitLabel="Get Price Breakup"
+        propertyId={property?.id ?? null}
+        propertyTitle={property?.propertyTitle || property?.title || null}
+        propertyName={property?.propertyTitle || property?.title || null}
+        propertyLocation={
+          [property?.locality, property?.city].filter(Boolean).join(", ") ||
+          null
+        }
+      />
     </>
   );
 }
@@ -435,11 +588,12 @@ function ConfigurationsCard({ property }) {
   const builtUp = property.builtUpArea;
   const carpet = property.carpetArea;
   // Show whenever builtUpArea is an array with at least one named subType entry
-  const hasSubTypeData = Array.isArray(builtUp) && builtUp.some(e => e.subType);
+  const hasSubTypeData =
+    Array.isArray(builtUp) && builtUp.some((e) => e.subType);
   if (!hasSubTypeData) return null;
 
   return (
-    <Card title="Configurations">
+    <Card title={`${property.propertyTitle} Configurations`}>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -451,12 +605,20 @@ function ConfigurationsCard({ property }) {
           </thead>
           <tbody>
             {builtUp.map((entry, i) => {
-              const carpetEntry = Array.isArray(carpet) ? carpet.find(e => e.subType === entry.subType) : null;
+              const carpetEntry = Array.isArray(carpet)
+                ? carpet.find((e) => e.subType === entry.subType)
+                : null;
               return (
                 <tr key={i} className="border-b last:border-0">
-                  <td className="py-3 pr-4 font-semibold text-gray-800">{entry.subType || "General"}</td>
-                  <td className="py-3 pr-4 text-gray-700">{entry.area ? `${entry.area} sq.ft` : "—"}</td>
-                  <td className="py-3 text-gray-700">{carpetEntry?.area ? `${carpetEntry.area} sq.ft` : "—"}</td>
+                  <td className="py-3 pr-4 font-semibold text-gray-800">
+                    {entry.subType || "General"}
+                  </td>
+                  <td className="py-3 pr-4 text-gray-700">
+                    {entry.area ? `${entry.area} sq.ft` : "—"}
+                  </td>
+                  <td className="py-3 text-gray-700">
+                    {carpetEntry?.area ? `${carpetEntry.area} sq.ft` : "—"}
+                  </td>
                 </tr>
               );
             })}
@@ -486,44 +648,131 @@ function formatPriceRange(min, max) {
 }
 
 function PricingCard({ property }) {
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
+
   const canHaveSubTypes = TYPES_WITH_SUBTYPES.includes(property.propertyType);
+
   const typeDisplay = canHaveSubTypes
-    ? (Array.isArray(property.subTypes) && property.subTypes.length > 0 ? property.subTypes.join(", ") : null)
+    ? Array.isArray(property.subTypes) && property.subTypes.length > 0
+      ? property.subTypes.join(", ")
+      : null
     : property.propertyType;
 
-  const priceRange = formatPriceRange(property.priceRangeMin, property.priceRangeMax);
+  const priceRange = formatPriceRange(
+    property.priceRangeMin,
+    property.priceRangeMax,
+  );
+
   const tokenTypes = Array.isArray(property.tokenTypes)
-    ? property.tokenTypes.filter(t => typeof t === 'string' ? t.trim() : t.name)
+    ? property.tokenTypes.filter((t) =>
+        typeof t === "string" ? t.trim() : t.name,
+      )
     : [];
 
+  const handleEnquire = () => {
+    setIsEnquiryOpen(true);
+  };
+
+  const handleCloseEnquiry = () => {
+    setIsEnquiryOpen(false);
+  };
+
   return (
-    <Card title="Pricing">
-      {priceRange && (
-        <p className="text-2xl font-bold text-gray-900 mb-6">{priceRange}</p>
-      )}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-        {typeDisplay && <Detail label="Type" value={typeDisplay} />}
-        {property.bookingAmount ? <Detail label="Booking Amount" value={`${property.bookingAmount}%`} /> : null}
-        {property.maintenanceCharges ? <Detail label="Maintenance" value={`₹ ${property.maintenanceCharges}`} /> : null}
-        {property.stampDuty ? <Detail label="Stamp Duty" value={`₹ ${property.stampDuty}`} /> : null}
-        {property.negotiable ? <Detail label="Negotiable" value={property.negotiable} /> : null}
-        {property.emiAvailable ? <Detail label="EMI Available" value={property.emiAvailable} /> : null}
-      </div>
-      {tokenTypes.length > 0 && (
-        <div>
-          <p className="text-sm font-semibold text-gray-700 mb-3">Token Types</p>
-          <div className="flex flex-wrap gap-3">
-            {tokenTypes.map((t, i) => (
-              <div key={i} className="border border-purple-200 bg-purple-50 rounded-lg px-4 py-2">
-                <p className="font-semibold text-purple-700">
-                  {typeof t === 'string' ? t : `${t.name}${t.amount ? ` – ₹${t.amount}` : ''}`}
-                </p>
-              </div>
-            ))}
-          </div>
+    <>
+      <Card title="Pricing">
+        {/* Price + Enquiry Button */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          {priceRange && (
+            <p className="text-2xl font-bold text-gray-900">{priceRange}</p>
+          )}
+
+          {/* Enquiry Button */}
+          <button
+            type="button"
+            onClick={handleEnquire}
+            className="
+              shrink-0
+              bg-brickred
+              text-white
+              px-5
+              py-2
+              rounded-md
+              text-md
+              font-medium
+              hover:bg-ochre
+              hover:text-darkgray
+              transition
+              cursor-pointer
+              enquiry-blink
+            "
+          >
+            Enquire Now
+          </button>
         </div>
-      )}
-    </Card>
+
+        {/* Property Details */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+          {typeDisplay && <Detail label="Type" value={typeDisplay} />}
+
+          {property.bookingAmount ? (
+            <Detail
+              label="Booking Amount"
+              value={`${property.bookingAmount}%`}
+            />
+          ) : null}
+
+          {property.maintenanceCharges ? (
+            <Detail
+              label="Maintenance"
+              value={`₹ ${property.maintenanceCharges}`}
+            />
+          ) : null}
+
+          {property.stampDuty ? (
+            <Detail label="Stamp Duty" value={`₹ ${property.stampDuty}`} />
+          ) : null}
+
+          {property.negotiable ? (
+            <Detail label="Negotiable" value={property.negotiable} />
+          ) : null}
+
+          {property.emiAvailable ? (
+            <Detail label="EMI Available" value={property.emiAvailable} />
+          ) : null}
+        </div>
+
+        {/* Token Types */}
+        {tokenTypes.length > 0 && (
+          <div>
+            <p className="text-sm font-semibold text-gray-700 mb-3">
+              Token Types
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              {tokenTypes.map((t, i) => (
+                <div
+                  key={i}
+                  className="border border-purple-200 bg-purple-50 rounded-lg px-4 py-2"
+                >
+                  <p className="font-semibold text-purple-700">
+                    {typeof t === "string"
+                      ? t
+                      : `${t.name}${t.amount ? ` – ₹${t.amount}` : ""}`}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Property Enquiry Modal */}
+      <PropertyEnquiryModal
+        isOpen={isEnquiryOpen}
+        onClose={handleCloseEnquiry}
+        property={property}
+      />
+    </>
   );
 }
 
@@ -630,6 +879,10 @@ function GallerySlider({ property }) {
 
   const [activeImage, setActiveImage] = useState(null);
   const [showDownloadLead, setShowDownloadLead] = useState(false);
+
+  // Enquiry modal state
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
+
   const scrollContainer = useRef(null);
 
   const galleryDownloadSlug =
@@ -638,15 +891,29 @@ function GallerySlider({ property }) {
       .replace(/[^a-zA-Z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "gallery";
 
-  const galleryLeadPrefix = `[Gallery download] Property: ${property?.propertyTitle || property?.title || "Listing"} (id: ${property?.id || "unknown"})`;
+  const galleryLeadPrefix = `[Gallery download] Property: ${
+    property?.propertyTitle || property?.title || "Listing"
+  } (id: ${property?.id || "unknown"})`;
 
   const slideBy = (direction) => {
     if (!scrollContainer.current) return;
+
     const cardWidth = 260;
+
     scrollContainer.current.scrollBy({
       left: direction * cardWidth,
       behavior: "smooth",
     });
+  };
+
+  // Open enquiry modal
+  const handleEnquire = () => {
+    setIsEnquiryOpen(true);
+  };
+
+  // Close enquiry modal
+  const handleCloseEnquiry = () => {
+    setIsEnquiryOpen(false);
   };
 
   if (galleryImages.length === 0) {
@@ -659,27 +926,95 @@ function GallerySlider({ property }) {
 
   return (
     <>
-      <Card title="Gallery">
+      <Card title={`${property.propertyTitle} Gallery`}>
+        {/* Gallery Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <p className="text-sm text-gray-600">Swipe or use arrows to browse images.</p>
-          <button
-            type="button"
-            onClick={() => setShowDownloadLead(true)}
-            className="shrink-0 inline-flex items-center justify-center rounded-lg bg-brickred px-4 py-2 text-sm font-semibold text-white hover:bg-ochre transition"
-          >
-            Download Gallery
-          </button>
+          <p className="text-sm text-gray-600">
+            Swipe or use arrows to browse images.
+          </p>
+
+          {/* Buttons */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Download Gallery */}
+            <button
+              type="button"
+              onClick={() => setShowDownloadLead(true)}
+              className="
+                shrink-0
+                inline-flex
+                items-center
+                justify-center
+                rounded-lg
+                bg-brickred
+                px-4
+                py-2
+                text-sm
+                font-semibold
+                text-white
+                hover:bg-ochre
+                transition
+              "
+            >
+              Download Gallery
+            </button>
+
+            {/* Enquire Now */}
+            <button
+              type="button"
+              onClick={handleEnquire}
+              className="
+                shrink-0
+                inline-flex
+                items-center
+                justify-center
+                rounded-lg
+                bg-brickred
+                px-4
+                py-2
+                text-sm
+                font-semibold
+                text-white
+                hover:bg-ochre
+                transition
+                cursor-pointer
+                enquiry-blink
+              "
+            >
+              Enquire Now
+            </button>
+          </div>
         </div>
+
+        {/* Gallery Slider */}
         <div className="relative">
+          {/* Left Arrow */}
           <button
             type="button"
             onClick={() => slideBy(-1)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
+            className="
+              absolute
+              left-2
+              top-1/2
+              -translate-y-1/2
+              z-10
+              h-10
+              w-10
+              rounded-full
+              bg-white
+              border
+              border-gray-200
+              shadow
+              flex
+              items-center
+              justify-center
+              hover:bg-gray-50
+            "
             aria-label="Scroll left"
           >
             <ChevronLeft size={20} />
           </button>
 
+          {/* Images */}
           <div
             ref={scrollContainer}
             className="overflow-x-auto scroll-smooth hide-scrollbar px-12"
@@ -690,7 +1025,19 @@ function GallerySlider({ property }) {
                   type="button"
                   key={`${image}-${index}`}
                   onClick={() => setActiveImage(image)}
-                  className="w-60 h-42.5 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                  className="
+                    w-60
+                    h-42.5
+                    shrink-0
+                    rounded-xl
+                    overflow-hidden
+                    border
+                    border-gray-200
+                    bg-gray-100
+                    shadow-sm
+                    hover:shadow-md
+                    transition-shadow
+                  "
                 >
                   <img
                     src={image}
@@ -702,10 +1049,28 @@ function GallerySlider({ property }) {
             </div>
           </div>
 
+          {/* Right Arrow */}
           <button
             type="button"
             onClick={() => slideBy(1)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
+            className="
+              absolute
+              right-2
+              top-1/2
+              -translate-y-1/2
+              z-10
+              h-10
+              w-10
+              rounded-full
+              bg-white
+              border
+              border-gray-200
+              shadow
+              flex
+              items-center
+              justify-center
+              hover:bg-gray-50
+            "
             aria-label="Scroll right"
           >
             <ChevronRight size={20} />
@@ -713,6 +1078,7 @@ function GallerySlider({ property }) {
         </div>
       </Card>
 
+      {/* Download Gallery Lead Modal */}
       <LeadCaptureModal
         open={showDownloadLead}
         onClose={() => setShowDownloadLead(false)}
@@ -724,13 +1090,22 @@ function GallerySlider({ property }) {
         propertyTitle={property?.propertyTitle || property?.title || null}
         propertyName={property?.propertyTitle || property?.title || null}
         propertyLocation={
-          [property?.locality, property?.city].filter(Boolean).join(", ") || null
+          [property?.locality, property?.city].filter(Boolean).join(", ") ||
+          null
         }
         onSuccess={() => {
           downloadGalleryImages(galleryImages, galleryDownloadSlug);
         }}
       />
 
+      {/* Property Enquiry Modal */}
+      <PropertyEnquiryModal
+        isOpen={isEnquiryOpen}
+        onClose={handleCloseEnquiry}
+        property={property}
+      />
+
+      {/* Image Preview Modal */}
       {activeImage && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-4">
@@ -739,11 +1114,20 @@ function GallerySlider({ property }) {
               alt="Gallery preview"
               className="w-full max-h-[75vh] object-contain rounded-lg border"
             />
+
             <div className="flex justify-end mt-3">
               <button
                 type="button"
                 onClick={() => setActiveImage(null)}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+                className="
+                  px-4
+                  py-2
+                  rounded-lg
+                  border
+                  border-gray-300
+                  text-gray-700
+                  hover:bg-gray-100
+                "
               >
                 Close
               </button>
@@ -754,6 +1138,142 @@ function GallerySlider({ property }) {
     </>
   );
 }
+
+// function GallerySlider({ property }) {
+//   const galleryImages = [
+//     property?.mainPropertyImage,
+//     ...(Array.isArray(property?.imageGallery) ? property.imageGallery : []),
+//   ].filter(Boolean);
+
+//   const [activeImage, setActiveImage] = useState(null);
+//   const [showDownloadLead, setShowDownloadLead] = useState(false);
+//   const scrollContainer = useRef(null);
+
+//   const galleryDownloadSlug =
+//     (property?.propertyTitle || property?.title || property?.id || "property")
+//       .toString()
+//       .replace(/[^a-zA-Z0-9]+/g, "-")
+//       .replace(/^-|-$/g, "") || "gallery";
+
+//   const galleryLeadPrefix = `[Gallery download] Property: ${property?.propertyTitle || property?.title || "Listing"} (id: ${property?.id || "unknown"})`;
+
+//   const slideBy = (direction) => {
+//     if (!scrollContainer.current) return;
+//     const cardWidth = 260;
+//     scrollContainer.current.scrollBy({
+//       left: direction * cardWidth,
+//       behavior: "smooth",
+//     });
+//   };
+
+//   if (galleryImages.length === 0) {
+//     return (
+//       <Card title="Gallery">
+//         <p className="text-gray-500">No gallery images available</p>
+//       </Card>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <Card title={`${property.propertyTitle} Gallery`}>
+//         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+//           <p className="text-sm text-gray-600">
+//             Swipe or use arrows to browse images.
+//           </p>
+//           <button
+//             type="button"
+//             onClick={() => setShowDownloadLead(true)}
+//             className="shrink-0 inline-flex items-center justify-center rounded-lg bg-brickred px-4 py-2 text-sm font-semibold text-white hover:bg-ochre transition"
+//           >
+//             Download Gallery
+//           </button>
+//         </div>
+//         <div className="relative">
+//           <button
+//             type="button"
+//             onClick={() => slideBy(-1)}
+//             className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
+//             aria-label="Scroll left"
+//           >
+//             <ChevronLeft size={20} />
+//           </button>
+
+//           <div
+//             ref={scrollContainer}
+//             className="overflow-x-auto scroll-smooth hide-scrollbar px-12"
+//           >
+//             <div className="flex gap-4 w-max">
+//               {galleryImages.map((image, index) => (
+//                 <button
+//                   type="button"
+//                   key={`${image}-${index}`}
+//                   onClick={() => setActiveImage(image)}
+//                   className="w-60 h-42.5 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm hover:shadow-md transition-shadow"
+//                 >
+//                   <img
+//                     src={image}
+//                     alt={`Gallery ${index + 1}`}
+//                     className="w-full h-full object-cover"
+//                   />
+//                 </button>
+//               ))}
+//             </div>
+//           </div>
+
+//           <button
+//             type="button"
+//             onClick={() => slideBy(1)}
+//             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
+//             aria-label="Scroll right"
+//           >
+//             <ChevronRight size={20} />
+//           </button>
+//         </div>
+//       </Card>
+
+//       <LeadCaptureModal
+//         open={showDownloadLead}
+//         onClose={() => setShowDownloadLead(false)}
+//         title="Download property gallery"
+//         subtitle="Submit the interested form to download the gallery images."
+//         messagePrefix={galleryLeadPrefix}
+//         submitLabel="Submit & download"
+//         propertyId={property?.id ?? null}
+//         propertyTitle={property?.propertyTitle || property?.title || null}
+//         propertyName={property?.propertyTitle || property?.title || null}
+//         propertyLocation={
+//           [property?.locality, property?.city].filter(Boolean).join(", ") ||
+//           null
+//         }
+//         onSuccess={() => {
+//           downloadGalleryImages(galleryImages, galleryDownloadSlug);
+//         }}
+//       />
+
+//       {activeImage && (
+//         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+//           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-4">
+//             <img
+//               src={activeImage}
+//               alt="Gallery preview"
+//               className="w-full max-h-[75vh] object-contain rounded-lg border"
+//             />
+//             <div className="flex justify-end mt-3">
+//               <button
+//                 type="button"
+//                 onClick={() => setActiveImage(null)}
+//                 className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+//               >
+//                 Close
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// }
 
 /* ================= BUILDER ================= */
 
