@@ -2,24 +2,135 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, Building2, MapPin, IndianRupee, Home, Briefcase, Image as ImageIcon, Plus } from "lucide-react";
-import { propertiesAPI, developersAPI, localitiesAPI, citiesAPI } from "@/src/admin/utils/api";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Building2,
+  MapPin,
+  IndianRupee,
+  Home,
+  Briefcase,
+  Image as ImageIcon,
+  Plus,
+} from "lucide-react";
+import {
+  propertiesAPI,
+  developersAPI,
+  localitiesAPI,
+  citiesAPI,
+} from "@/src/admin/utils/api";
 import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
-const PROPERTY_TYPES = ["Apartment", "Villa", "Townhouse", "Penthouse", "Mansion", "Plot", "Commercial", "Office", "Office Space", "Duplex", "Shop", "Warehouse", "Industrial"];
+const PROPERTY_TYPES = [
+  "Apartment",
+  "Villa",
+  "Townhouse",
+  "Penthouse",
+  "Mansion",
+  "Plot",
+  "Commercial",
+  "Office",
+  "Office Space",
+  "Duplex",
+  "Shop",
+  "Warehouse",
+  "Industrial",
+  "SkyVilla",
+  "RowHouse",
+  "Simplex",
+];
 const SUB_TYPES_MAP = {
-  Apartment: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Penthouse"],
-  "Office Space": ["Small Office", "Medium Office", "Large Office", "Co-working", "Commercial Office"],
-  Duplex: ["2 BHK Duplex", "3 BHK Duplex", "4 BHK Duplex", "Luxury Duplex"],
-  Shop: ["Retail Shop", "Corner Shop", "Food Shop", "Commercial Shop", "Showroom"],
+  Apartment: [
+    "1 BHK",
+    "2 BHK",
+    "2.5 BHK",
+    "3 BHK",
+    "3.5 BHK",
+    "4 BHK",
+    "4.5 BHK",
+    "5 BHK",
+    "5.5 BHK",
+    "Penthouse",
+  ],
+  SkyVilla: [
+    "2 BHK",
+    "2.5 BHK",
+    "3 BHK",
+    "3.5 BHK",
+    "4 BHK",
+    "4.5 BHK",
+    "5 BHK",
+    "5.5 BHK",
+    "6 BHK",
+  ],
+
+  Duplex: [
+    "2 BHK Duplex",
+    "2.5 BHK Duplex",
+    "3 BHK Duplex",
+    "3.5 BHK Duplex",
+    "4 BHK Duplex",
+    "4.5 BHK Duplex",
+    "5 BHK Duplex",
+    "Luxury Duplex",
+  ],
+  Simplex: [
+    "2 BHK",
+    "2.5 BHK",
+    "3 BHK",
+    "3.5 BHK",
+    "4 BHK",
+    "4.5 BHK",
+    "5 BHK",
+  ],
+  RowHouse: [
+    "2 BHK",
+    "2.5 BHK",
+    "3 BHK",
+    "3.5 BHK",
+    "4 BHK",
+    "4.5 BHK",
+    "5 BHK",
+  ],
+  Shop: [
+    "Retail Shop",
+    "Corner Shop",
+    "Food Shop",
+    "Commercial Shop",
+    "Showroom",
+  ],
+  "Office Space": [
+    "Small Office",
+    "Medium Office",
+    "Large Office",
+    "Co-working",
+    "Commercial Office",
+  ],
 };
-const AGE_OF_PROPERTY_OPTIONS = ["New Property", "0–1 Year", "1–3 Years", "3–5 Years", "5–10 Years", "10+ Years"];
+const AGE_OF_PROPERTY_OPTIONS = [
+  "New Property",
+  "0–1 Year",
+  "1–3 Years",
+  "3–5 Years",
+  "5–10 Years",
+  "10+ Years",
+];
 const LISTING_TYPES = ["Sale", "Rent", "PG", "Lease"];
 const PROPERTY_STATUSES = ["Ready to Move", "Under Construction", "Resale"];
 const FURNISHING_TYPES = ["Furnished", "Semi-Furnished", "Unfurnished"];
-const FACING_DIRECTIONS = ["East", "West", "North", "South", "North-East", "North-West", "South-East", "South-West"];
+const FACING_DIRECTIONS = [
+  "East",
+  "West",
+  "North",
+  "South",
+  "North-East",
+  "North-West",
+  "South-East",
+  "South-West",
+];
 const OWNERSHIP_TYPES = ["Freehold", "Leasehold"];
 const YES_NO = ["Yes", "No"];
 
@@ -62,7 +173,7 @@ export default function NewPropertyPage() {
     carpetArea: [],
     totalFloors: "",
     ownershipType: "",
-    
+
     // Step 2: Location
     country: "India",
     state: "",
@@ -77,7 +188,7 @@ export default function NewPropertyPage() {
     nearestMetroStation: "",
     nearestRailwayStation: "",
     nearestBusStop: "",
-    
+
     // Step 3: Pricing
     totalPrice: "",
     pricePerSquareFoot: "",
@@ -90,10 +201,10 @@ export default function NewPropertyPage() {
     emiAvailable: "",
     stampDuty: "",
     description: "",
-    
+
     // Step 4: Details
     amenities: [],
-    
+
     // Step 5: Building Info
     projectName: "",
     builderName: "",
@@ -107,7 +218,7 @@ export default function NewPropertyPage() {
     fireSafetySystem: "",
     cctv: "",
     security24x7: "",
-    
+
     // Step 6: Media
     mainPropertyImage: "",
     imageGallery: [],
@@ -116,7 +227,7 @@ export default function NewPropertyPage() {
     videoWalkthrough: "",
     virtualTour360: "",
     brochures: [{ name: "", url: "" }],
-    
+
     // Additional
     listingDate: "",
     featuredListing: "No",
@@ -147,7 +258,10 @@ export default function NewPropertyPage() {
   const imageGalleryInputRef = useRef(null);
 
   useEffect(() => {
-    developersAPI.getAll().then((res) => setDevelopers(res.data || [])).catch(() => {});
+    developersAPI
+      .getAll()
+      .then((res) => setDevelopers(res.data || []))
+      .catch(() => {});
 
     Promise.all([
       localitiesAPI.getAll(),
@@ -156,7 +270,9 @@ export default function NewPropertyPage() {
     ])
       .then(([locRes, propRes, cityRes]) => {
         const registered = locRes.data || [];
-        const registeredNames = new Set(registered.map((l) => l.name?.toLowerCase().trim()).filter(Boolean));
+        const registeredNames = new Set(
+          registered.map((l) => l.name?.toLowerCase().trim()).filter(Boolean),
+        );
 
         const seen = new Set();
         const fromProps = [];
@@ -176,15 +292,20 @@ export default function NewPropertyPage() {
 
         // Merge cities from cities collection + localities/properties
         const cityNamesFromLocalities = all.map((l) => l.city).filter(Boolean);
-        const cityNamesFromCollection = (cityRes.data || []).map((c) => c.name).filter(Boolean);
-        const cities = [...new Set([...cityNamesFromCollection, ...cityNamesFromLocalities])].sort();
+        const cityNamesFromCollection = (cityRes.data || [])
+          .map((c) => c.name)
+          .filter(Boolean);
+        const cities = [
+          ...new Set([...cityNamesFromCollection, ...cityNamesFromLocalities]),
+        ].sort();
         setAllCities(cities);
 
         const map = {};
         all.forEach((l) => {
           if (!l.city || !l.name) return;
           if (!map[l.city]) map[l.city] = [];
-          if (!map[l.city].includes(l.name.trim())) map[l.city].push(l.name.trim());
+          if (!map[l.city].includes(l.name.trim()))
+            map[l.city].push(l.name.trim());
         });
         Object.keys(map).forEach((c) => map[c].sort());
         setLocalityMap(map);
@@ -215,14 +336,22 @@ export default function NewPropertyPage() {
         event.preventDefault();
         return false;
       }
-      if (event.error && event.error.message && event.error.message.includes("message channel closed")) {
+      if (
+        event.error &&
+        event.error.message &&
+        event.error.message.includes("message channel closed")
+      ) {
         event.preventDefault();
         return false;
       }
     };
 
     const handleUnhandledRejection = (event) => {
-      if (event.reason && event.reason.message && event.reason.message.includes("message channel closed")) {
+      if (
+        event.reason &&
+        event.reason.message &&
+        event.reason.message.includes("message channel closed")
+      ) {
         event.preventDefault();
         return false;
       }
@@ -233,38 +362,47 @@ export default function NewPropertyPage() {
 
     return () => {
       window.removeEventListener("error", handleError);
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection,
+      );
     };
   }, []);
 
   const handleFileUpload = async (file, fieldName, isArray = false) => {
     if (!file) return;
 
-    setUploading(prev => ({ ...prev, [fieldName]: true }));
+    setUploading((prev) => ({ ...prev, [fieldName]: true }));
     const formData = new FormData();
     formData.append("file", file);
     formData.append("path", "properties");
 
     try {
-      const uploadUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/api/upload`
-        : '/api/upload';
+      const uploadUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/api/upload`
+          : "/api/upload";
 
-      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("admin_token")
+          : null;
 
       const res = await fetch(uploadUrl, {
         method: "POST",
         body: formData,
-        redirect: 'manual',
-        credentials: 'same-origin',
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        redirect: "manual",
+        credentials: "same-origin",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      
+
       // Handle redirects manually
-      if (res.type === 'opaqueredirect' || res.status === 0) {
-        throw new Error("Upload request was redirected. Please check authentication.");
+      if (res.type === "opaqueredirect" || res.status === 0) {
+        throw new Error(
+          "Upload request was redirected. Please check authentication.",
+        );
       }
-      
+
       if (!res.ok) {
         // Try to get error message from response
         let errorMessage = `Upload failed with status: ${res.status}`;
@@ -277,20 +415,20 @@ export default function NewPropertyPage() {
         }
         throw new Error(errorMessage);
       }
-      
+
       const data = await res.json();
-      
+
       if (data.success) {
         if (isArray) {
-           setFormData(prev => ({
-             ...prev,
-             [fieldName]: [...prev[fieldName], data.url]
-           }));
+          setFormData((prev) => ({
+            ...prev,
+            [fieldName]: [...prev[fieldName], data.url],
+          }));
         } else {
-           setFormData(prev => ({
-             ...prev,
-             [fieldName]: data.url
-           }));
+          setFormData((prev) => ({
+            ...prev,
+            [fieldName]: data.url,
+          }));
         }
       } else {
         alert("Upload failed: " + (data.error || "Unknown error"));
@@ -300,7 +438,7 @@ export default function NewPropertyPage() {
       // Only show alert, don't cause any navigation
       alert("Upload error: " + (error.message || "Failed to upload file"));
     } finally {
-      setUploading(prev => ({ ...prev, [fieldName]: false }));
+      setUploading((prev) => ({ ...prev, [fieldName]: false }));
     }
   };
 
@@ -308,9 +446,30 @@ export default function NewPropertyPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name.includes("numberOf") || name.includes("Price") || name.includes("priceRange") || name.includes("Charges") || name.includes("Deposit") || name.includes("Amount") || name.includes("Duty") || name.includes("Rate") || name.includes("rating") || name.includes("floor") || name.includes("Floors") || name.includes("Units") || name.includes("Towers") || name.includes("Lifts") || name.includes("latitude") || name.includes("longitude") || name.includes("pricePerSquareFoot")
-        ? value === "" ? "" : (isNaN(value) ? prev[name] : Number(value))
-        : value,
+      [name]:
+        name.includes("numberOf") ||
+        name.includes("Price") ||
+        name.includes("priceRange") ||
+        name.includes("Charges") ||
+        name.includes("Deposit") ||
+        name.includes("Amount") ||
+        name.includes("Duty") ||
+        name.includes("Rate") ||
+        name.includes("rating") ||
+        name.includes("floor") ||
+        name.includes("Floors") ||
+        name.includes("Units") ||
+        name.includes("Towers") ||
+        name.includes("Lifts") ||
+        name.includes("latitude") ||
+        name.includes("longitude") ||
+        name.includes("pricePerSquareFoot")
+          ? value === ""
+            ? ""
+            : isNaN(value)
+              ? prev[name]
+              : Number(value)
+          : value,
     }));
   };
 
@@ -324,22 +483,34 @@ export default function NewPropertyPage() {
       return {
         ...prev,
         subTypes: newSubTypes,
-        builtUpArea: newSubTypes.map(st => prevBuilt.find(e => e.subType === st) || { subType: st, area: "" }),
-        carpetArea: newSubTypes.map(st => prevCarpet.find(e => e.subType === st) || { subType: st, area: "" }),
+        builtUpArea: newSubTypes.map(
+          (st) =>
+            prevBuilt.find((e) => e.subType === st) || {
+              subType: st,
+              area: "",
+            },
+        ),
+        carpetArea: newSubTypes.map(
+          (st) =>
+            prevCarpet.find((e) => e.subType === st) || {
+              subType: st,
+              area: "",
+            },
+        ),
       };
     });
   };
 
   const handleAreaChange = (field, subType, value) => {
-    const numVal = value === "" ? "" : (isNaN(value) ? null : Number(value));
-    setFormData(prev => {
+    const numVal = value === "" ? "" : isNaN(value) ? null : Number(value);
+    setFormData((prev) => {
       const arr = Array.isArray(prev[field]) ? prev[field] : [];
-      const exists = arr.some(e => e.subType === subType);
+      const exists = arr.some((e) => e.subType === subType);
       if (exists) {
         return {
           ...prev,
-          [field]: arr.map(e =>
-            e.subType === subType ? { ...e, area: numVal ?? e.area } : e
+          [field]: arr.map((e) =>
+            e.subType === subType ? { ...e, area: numVal ?? e.area } : e,
           ),
         };
       }
@@ -348,7 +519,10 @@ export default function NewPropertyPage() {
   };
 
   const addAmenity = () => {
-    if (amenityInput.trim() && !formData.amenities.includes(amenityInput.trim())) {
+    if (
+      amenityInput.trim() &&
+      !formData.amenities.includes(amenityInput.trim())
+    ) {
       setFormData((prev) => ({
         ...prev,
         amenities: [...prev.amenities, amenityInput.trim()],
@@ -364,9 +538,23 @@ export default function NewPropertyPage() {
     }));
   };
 
-  const addTokenType = () => setFormData(prev => ({ ...prev, tokenTypes: [...(prev.tokenTypes || []), ""] }));
-  const removeTokenType = (idx) => setFormData(prev => ({ ...prev, tokenTypes: (prev.tokenTypes || []).filter((_, i) => i !== idx) }));
-  const updateTokenType = (idx, value) => setFormData(prev => ({ ...prev, tokenTypes: (prev.tokenTypes || []).map((t, i) => i === idx ? value : t) }));
+  const addTokenType = () =>
+    setFormData((prev) => ({
+      ...prev,
+      tokenTypes: [...(prev.tokenTypes || []), ""],
+    }));
+  const removeTokenType = (idx) =>
+    setFormData((prev) => ({
+      ...prev,
+      tokenTypes: (prev.tokenTypes || []).filter((_, i) => i !== idx),
+    }));
+  const updateTokenType = (idx, value) =>
+    setFormData((prev) => ({
+      ...prev,
+      tokenTypes: (prev.tokenTypes || []).map((t, i) =>
+        i === idx ? value : t,
+      ),
+    }));
 
   const removeImageUrl = (url) => {
     setFormData((prev) => ({
@@ -400,14 +588,20 @@ export default function NewPropertyPage() {
     fileFormData.append("file", file);
     fileFormData.append("path", "properties/floor-plans");
     try {
-      const uploadUrl = typeof window !== "undefined" ? `${window.location.origin}/api/upload` : "/api/upload";
-      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+      const uploadUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/api/upload`
+          : "/api/upload";
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("admin_token")
+          : null;
       const res = await fetch(uploadUrl, {
         method: "POST",
         body: fileFormData,
         redirect: "manual",
         credentials: "same-origin",
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) {
         throw new Error(`Upload failed with status: ${res.status}`);
@@ -419,14 +613,21 @@ export default function NewPropertyPage() {
         alert("Upload failed: " + (data.error || "Unknown error"));
       }
     } catch (uploadError) {
-      alert("Upload error: " + (uploadError.message || "Failed to upload image"));
+      alert(
+        "Upload error: " + (uploadError.message || "Failed to upload image"),
+      );
     } finally {
       setUploading((prev) => ({ ...prev, floorPlanDraftImage: false }));
     }
   };
 
   const addFloorPlan = () => {
-    if (!floorPlanDraft.name || !floorPlanDraft.image || !floorPlanDraft.carpetArea || !floorPlanDraft.price) {
+    if (
+      !floorPlanDraft.name ||
+      !floorPlanDraft.image ||
+      !floorPlanDraft.carpetArea ||
+      !floorPlanDraft.price
+    ) {
       alert("Please fill name, image, carpet area and price for floor plan");
       return;
     }
@@ -462,35 +663,41 @@ export default function NewPropertyPage() {
     if (!file) return;
 
     // Validate PDF file
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a PDF file');
+    if (file.type !== "application/pdf") {
+      alert("Please upload a PDF file");
       return;
     }
 
-    setUploading(prev => ({ ...prev, [`brochure-${index}`]: true }));
+    setUploading((prev) => ({ ...prev, [`brochure-${index}`]: true }));
     const formData = new FormData();
     formData.append("file", file);
     formData.append("path", "properties/brochures");
 
     try {
-      const uploadUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/api/upload`
-        : '/api/upload';
+      const uploadUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/api/upload`
+          : "/api/upload";
 
-      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("admin_token")
+          : null;
 
       const res = await fetch(uploadUrl, {
         method: "POST",
         body: formData,
-        redirect: 'manual',
-        credentials: 'same-origin',
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        redirect: "manual",
+        credentials: "same-origin",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      
-      if (res.type === 'opaqueredirect' || res.status === 0) {
-        throw new Error("Upload request was redirected. Please check authentication.");
+
+      if (res.type === "opaqueredirect" || res.status === 0) {
+        throw new Error(
+          "Upload request was redirected. Please check authentication.",
+        );
       }
-      
+
       if (!res.ok) {
         let errorMessage = `Upload failed with status: ${res.status}`;
         try {
@@ -501,15 +708,15 @@ export default function NewPropertyPage() {
         }
         throw new Error(errorMessage);
       }
-      
+
       const data = await res.json();
-      
+
       if (data.success) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          brochures: prev.brochures.map((brochure, idx) => 
-            idx === index ? { ...brochure, url: data.url } : brochure
-          )
+          brochures: prev.brochures.map((brochure, idx) =>
+            idx === index ? { ...brochure, url: data.url } : brochure,
+          ),
         }));
       } else {
         alert("Upload failed: " + (data.error || "Unknown error"));
@@ -518,30 +725,30 @@ export default function NewPropertyPage() {
       console.error("Upload error:", error);
       alert("Upload error: " + (error.message || "Failed to upload file"));
     } finally {
-      setUploading(prev => ({ ...prev, [`brochure-${index}`]: false }));
+      setUploading((prev) => ({ ...prev, [`brochure-${index}`]: false }));
     }
   };
 
   const addBrochure = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      brochures: [...prev.brochures, { name: "", url: "" }]
+      brochures: [...prev.brochures, { name: "", url: "" }],
     }));
   };
 
   const removeBrochure = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      brochures: prev.brochures.filter((_, idx) => idx !== index)
+      brochures: prev.brochures.filter((_, idx) => idx !== index),
     }));
   };
 
   const handleBrochureNameChange = (index, name) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      brochures: prev.brochures.map((brochure, idx) => 
-        idx === index ? { ...brochure, name } : brochure
-      )
+      brochures: prev.brochures.map((brochure, idx) =>
+        idx === index ? { ...brochure, name } : brochure,
+      ),
     }));
   };
 
@@ -581,13 +788,13 @@ export default function NewPropertyPage() {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     // Prevent navigation if already submitting
     if (isSubmitting || loading) {
       console.warn("Navigation prevented - form is submitting");
       return;
     }
-    
+
     if (validateStep(currentStep)) {
       setCurrentStep((prev) => {
         const nextStep = Math.min(prev + 1, STEPS.length);
@@ -597,7 +804,10 @@ export default function NewPropertyPage() {
         return nextStep;
       });
     } else {
-      console.warn("Navigation prevented - validation failed for step:", currentStep);
+      console.warn(
+        "Navigation prevented - validation failed for step:",
+        currentStep,
+      );
     }
   };
 
@@ -609,18 +819,23 @@ export default function NewPropertyPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Prevent double submission
     if (isSubmitting || loading) {
       return;
     }
-    
+
     // Only allow submission on the last step
     if (currentStep !== STEPS.length) {
-      console.warn("Form submission attempted on step", currentStep, "but should only submit on step", STEPS.length);
+      console.warn(
+        "Form submission attempted on step",
+        currentStep,
+        "but should only submit on step",
+        STEPS.length,
+      );
       return;
     }
-    
+
     if (!validateStep(currentStep)) return;
 
     setError("");
@@ -630,16 +845,18 @@ export default function NewPropertyPage() {
     try {
       // Clean up form data - remove empty strings and convert to proper types
       const submitData = {};
-      
+
       Object.keys(formData).forEach((key) => {
         const value = formData[key];
         if (value !== "" && value !== null && value !== undefined) {
           if (Array.isArray(value)) {
-            if (key === 'brochures') {
-              const validBrochures = value.filter(b => b.name || b.url);
+            if (key === "brochures") {
+              const validBrochures = value.filter((b) => b.name || b.url);
               if (validBrochures.length > 0) submitData[key] = validBrochures;
-            } else if (key === 'tokenTypes') {
-              const validTokens = value.filter(t => typeof t === 'string' ? t.trim() : t.name);
+            } else if (key === "tokenTypes") {
+              const validTokens = value.filter((t) =>
+                typeof t === "string" ? t.trim() : t.name,
+              );
               if (validTokens.length > 0) submitData[key] = validTokens;
             } else if (value.length > 0) {
               submitData[key] = value;
@@ -651,11 +868,13 @@ export default function NewPropertyPage() {
       });
 
       const response = await propertiesAPI.create(submitData);
-      
+
       if (response.success) {
         router.push(`/admin/properties/${response.data.id}`);
       } else {
-        setError(response.error || response.message || "Failed to create property");
+        setError(
+          response.error || response.message || "Failed to create property",
+        );
       }
     } catch (error) {
       console.error("Error creating property:", error);
@@ -693,43 +912,82 @@ export default function NewPropertyPage() {
                 <select
                   name="propertyType"
                   value={formData.propertyType}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, propertyType: e.target.value, subTypes: [], builtUpArea: [], carpetArea: [] }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      propertyType: e.target.value,
+                      subTypes: [],
+                      builtUpArea: [],
+                      carpetArea: [],
+                    }))
+                  }
                   className="admin-input w-full"
                   required
                 >
                   {PROPERTY_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Property Status</label>
-                <select name="propertyStatus" value={formData.propertyStatus} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Property Status
+                </label>
+                <select
+                  name="propertyStatus"
+                  value={formData.propertyStatus}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   {PROPERTY_STATUSES.map((status) => (
-                    <option key={status} value={status}>{status}</option>
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Listing Type</label>
-                <select name="listingType" value={formData.listingType} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Listing Type
+                </label>
+                <select
+                  name="listingType"
+                  value={formData.listingType}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   {LISTING_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Furnishing</label>
-                <select name="furnishing" value={formData.furnishing} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Furnishing
+                </label>
+                <select
+                  name="furnishing"
+                  value={formData.furnishing}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select Furnishing</option>
                   {FURNISHING_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
               {formData.propertyStatus === "Under Construction" && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Possession Date</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Possession Date
+                  </label>
                   <input
                     type="date"
                     name="possessionDate"
@@ -742,18 +1000,29 @@ export default function NewPropertyPage() {
               )}
               {formData.propertyStatus === "Ready to Move" && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Age of Property</label>
-                  <select name="ageOfProperty" value={formData.ageOfProperty} onChange={handleChange} className="admin-input w-full">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Age of Property
+                  </label>
+                  <select
+                    name="ageOfProperty"
+                    value={formData.ageOfProperty}
+                    onChange={handleChange}
+                    className="admin-input w-full"
+                  >
                     <option value="">Select Age</option>
                     {AGE_OF_PROPERTY_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
                     ))}
                   </select>
                 </div>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Sub Type</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Sub Type
+              </label>
               {(SUB_TYPES_MAP[formData.propertyType] || []).length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {(SUB_TYPES_MAP[formData.propertyType] || []).map((type) => (
@@ -772,7 +1041,9 @@ export default function NewPropertyPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-400 italic">No sub-types available for this property type</p>
+                <p className="text-sm text-gray-400 italic">
+                  No sub-types available for this property type
+                </p>
               )}
             </div>
           </div>
@@ -782,39 +1053,71 @@ export default function NewPropertyPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
-                <input type="text" name="country" value={formData.country} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Country
+                </label>
+                <input
+                  type="text"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">State</label>
-                <input type="text" name="state" value={formData.state} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  State
+                </label>
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   City <span className="text-red-500">*</span>
                 </label>
                 {citiesLoading ? (
-                  <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
+                  <select
+                    disabled
+                    className="admin-input w-full opacity-50 cursor-not-allowed"
+                  >
                     <option>— Loading cities… —</option>
                   </select>
                 ) : (
                   <select
                     name="city"
                     value={formData.city}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value, locality: "" }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        city: e.target.value,
+                        locality: "",
+                      }))
+                    }
                     className="admin-input w-full"
                   >
                     <option value="">— Select City —</option>
                     {allCities.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
                     ))}
                   </select>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Locality</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Locality
+                </label>
                 {!formData.city ? (
-                  <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
+                  <select
+                    disabled
+                    className="admin-input w-full opacity-50 cursor-not-allowed"
+                  >
                     <option>— Select a city first —</option>
                   </select>
                 ) : (localityMap[formData.city] || []).length > 0 ? (
@@ -826,50 +1129,132 @@ export default function NewPropertyPage() {
                   >
                     <option value="">— Select Locality —</option>
                     {(localityMap[formData.city] || []).map((l) => (
-                      <option key={l} value={l}>{l}</option>
+                      <option key={l} value={l}>
+                        {l}
+                      </option>
                     ))}
                   </select>
                 ) : (
-                  <select disabled className="admin-input w-full opacity-50 cursor-not-allowed">
-                    <option>— No localities for {formData.city} — add in Localities admin —</option>
+                  <select
+                    disabled
+                    className="admin-input w-full opacity-50 cursor-not-allowed"
+                  >
+                    <option>
+                      — No localities for {formData.city} — add in Localities
+                      admin —
+                    </option>
                   </select>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Sub Locality</label>
-                <input type="text" name="subLocality" value={formData.subLocality} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Sub Locality
+                </label>
+                <input
+                  type="text"
+                  name="subLocality"
+                  value={formData.subLocality}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Street Name</label>
-                <input type="text" name="streetName" value={formData.streetName} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Street Name
+                </label>
+                <input
+                  type="text"
+                  name="streetName"
+                  value={formData.streetName}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Landmark</label>
-                <input type="text" name="landmark" value={formData.landmark} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Landmark
+                </label>
+                <input
+                  type="text"
+                  name="landmark"
+                  value={formData.landmark}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Pincode</label>
-                <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Pincode
+                </label>
+                <input
+                  type="text"
+                  name="pincode"
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Latitude</label>
-                <input type="number" name="latitude" value={formData.latitude} onChange={handleChange} className="admin-input w-full" step="any" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  name="latitude"
+                  value={formData.latitude}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  step="any"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Longitude</label>
-                <input type="number" name="longitude" value={formData.longitude} onChange={handleChange} className="admin-input w-full" step="any" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  name="longitude"
+                  value={formData.longitude}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  step="any"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nearest Metro Station</label>
-                <input type="text" name="nearestMetroStation" value={formData.nearestMetroStation} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Nearest Metro Station
+                </label>
+                <input
+                  type="text"
+                  name="nearestMetroStation"
+                  value={formData.nearestMetroStation}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nearest Railway Station</label>
-                <input type="text" name="nearestRailwayStation" value={formData.nearestRailwayStation} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Nearest Railway Station
+                </label>
+                <input
+                  type="text"
+                  name="nearestRailwayStation"
+                  value={formData.nearestRailwayStation}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nearest Bus Stop</label>
-                <input type="text" name="nearestBusStop" value={formData.nearestBusStop} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Nearest Bus Stop
+                </label>
+                <input
+                  type="text"
+                  name="nearestBusStop"
+                  value={formData.nearestBusStop}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
             </div>
           </div>
@@ -879,50 +1264,131 @@ export default function NewPropertyPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Price Range Min (₹)</label>
-                <input type="number" name="priceRangeMin" value={formData.priceRangeMin} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 7500000" />
-                {formData.priceRangeMin ? <p className="text-xs text-purple-600 mt-1 font-medium">= ₹{formatLacCr(formData.priceRangeMin)}</p> : null}
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Price Range Min (₹)
+                </label>
+                <input
+                  type="number"
+                  name="priceRangeMin"
+                  value={formData.priceRangeMin}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="0"
+                  placeholder="e.g. 7500000"
+                />
+                {formData.priceRangeMin ? (
+                  <p className="text-xs text-purple-600 mt-1 font-medium">
+                    = ₹{formatLacCr(formData.priceRangeMin)}
+                  </p>
+                ) : null}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Price Range Max (₹)</label>
-                <input type="number" name="priceRangeMax" value={formData.priceRangeMax} onChange={handleChange} className="admin-input w-full" min="0" placeholder="e.g. 30000000" />
-                {formData.priceRangeMax ? <p className="text-xs text-purple-600 mt-1 font-medium">= ₹{formatLacCr(formData.priceRangeMax)}</p> : null}
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Price Range Max (₹)
+                </label>
+                <input
+                  type="number"
+                  name="priceRangeMax"
+                  value={formData.priceRangeMax}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="0"
+                  placeholder="e.g. 30000000"
+                />
+                {formData.priceRangeMax ? (
+                  <p className="text-xs text-purple-600 mt-1 font-medium">
+                    = ₹{formatLacCr(formData.priceRangeMax)}
+                  </p>
+                ) : null}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Maintenance Charges (₹)</label>
-                <input type="number" name="maintenanceCharges" value={formData.maintenanceCharges} onChange={handleChange} className="admin-input w-full" min="0" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Maintenance Charges (₹)
+                </label>
+                <input
+                  type="number"
+                  name="maintenanceCharges"
+                  value={formData.maintenanceCharges}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="0"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Booking Amount (%)</label>
-                <input type="number" name="bookingAmount" value={formData.bookingAmount} onChange={handleChange} className="admin-input w-full" min="0" max="100" placeholder="e.g. 10" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Booking Amount (%)
+                </label>
+                <input
+                  type="number"
+                  name="bookingAmount"
+                  value={formData.bookingAmount}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="0"
+                  max="100"
+                  placeholder="e.g. 10"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Negotiable</label>
-                <select name="negotiable" value={formData.negotiable} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Negotiable
+                </label>
+                <select
+                  name="negotiable"
+                  value={formData.negotiable}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select</option>
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">EMI Available</label>
-                <select name="emiAvailable" value={formData.emiAvailable} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  EMI Available
+                </label>
+                <select
+                  name="emiAvailable"
+                  value={formData.emiAvailable}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select</option>
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Stamp Duty (₹)</label>
-                <input type="number" name="stampDuty" value={formData.stampDuty} onChange={handleChange} className="admin-input w-full" min="0" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Stamp Duty (₹)
+                </label>
+                <input
+                  type="number"
+                  name="stampDuty"
+                  value={formData.stampDuty}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="0"
+                />
               </div>
             </div>
             <div>
               <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-semibold text-gray-700">Token Types</label>
-                <button type="button" onClick={addTokenType} className="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Token Types
+                </label>
+                <button
+                  type="button"
+                  onClick={addTokenType}
+                  className="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1"
+                >
                   <Plus size={14} /> Add Token
                 </button>
               </div>
@@ -937,14 +1403,22 @@ export default function NewPropertyPage() {
                       className="admin-input flex-1"
                     />
                     {(formData.tokenTypes || []).length > 1 && (
-                      <button type="button" onClick={() => removeTokenType(idx)} className="text-red-500 hover:text-red-700 text-xl leading-none">×</button>
+                      <button
+                        type="button"
+                        onClick={() => removeTokenType(idx)}
+                        className="text-red-500 hover:text-red-700 text-xl leading-none"
+                      >
+                        ×
+                      </button>
                     )}
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Property Description</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Property Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -961,15 +1435,33 @@ export default function NewPropertyPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Floors</label>
-                <input type="number" name="totalFloors" value={formData.totalFloors} onChange={handleChange} className="admin-input w-full" min="1" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Total Floors
+                </label>
+                <input
+                  type="number"
+                  name="totalFloors"
+                  value={formData.totalFloors}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="1"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Ownership Type</label>
-                <select name="ownershipType" value={formData.ownershipType} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Ownership Type
+                </label>
+                <select
+                  name="ownershipType"
+                  value={formData.ownershipType}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select Ownership</option>
                   {OWNERSHIP_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -977,7 +1469,11 @@ export default function NewPropertyPage() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Built-up &amp; Carpet Area
-                {formData.subTypes.length > 0 && <span className="text-gray-400 font-normal ml-1">(per configuration)</span>}
+                {formData.subTypes.length > 0 && (
+                  <span className="text-gray-400 font-normal ml-1">
+                    (per configuration)
+                  </span>
+                )}
               </label>
               {formData.subTypes.length > 0 ? (
                 <div className="space-y-2">
@@ -987,16 +1483,33 @@ export default function NewPropertyPage() {
                     <span>Carpet Area (sq ft)</span>
                   </div>
                   {formData.subTypes.map((subType) => {
-                    const builtEntry = (Array.isArray(formData.builtUpArea) ? formData.builtUpArea : []).find(e => e.subType === subType) || { area: "" };
-                    const carpetEntry = (Array.isArray(formData.carpetArea) ? formData.carpetArea : []).find(e => e.subType === subType) || { area: "" };
+                    const builtEntry = (Array.isArray(formData.builtUpArea)
+                      ? formData.builtUpArea
+                      : []
+                    ).find((e) => e.subType === subType) || { area: "" };
+                    const carpetEntry = (Array.isArray(formData.carpetArea)
+                      ? formData.carpetArea
+                      : []
+                    ).find((e) => e.subType === subType) || { area: "" };
                     return (
-                      <div key={subType} className="grid grid-cols-3 gap-3 items-center bg-gray-50 rounded-lg p-3">
-                        <span className="text-sm font-medium text-gray-700">{subType}</span>
+                      <div
+                        key={subType}
+                        className="grid grid-cols-3 gap-3 items-center bg-gray-50 rounded-lg p-3"
+                      >
+                        <span className="text-sm font-medium text-gray-700">
+                          {subType}
+                        </span>
                         <input
                           type="number"
                           placeholder="sq ft"
                           value={builtEntry.area}
-                          onChange={(e) => handleAreaChange("builtUpArea", subType, e.target.value)}
+                          onChange={(e) =>
+                            handleAreaChange(
+                              "builtUpArea",
+                              subType,
+                              e.target.value,
+                            )
+                          }
                           className="admin-input"
                           min="0"
                         />
@@ -1004,7 +1517,13 @@ export default function NewPropertyPage() {
                           type="number"
                           placeholder="sq ft"
                           value={carpetEntry.area}
-                          onChange={(e) => handleAreaChange("carpetArea", subType, e.target.value)}
+                          onChange={(e) =>
+                            handleAreaChange(
+                              "carpetArea",
+                              subType,
+                              e.target.value,
+                            )
+                          }
                           className="admin-input"
                           min="0"
                         />
@@ -1015,28 +1534,48 @@ export default function NewPropertyPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Built-up Area (sq ft)</label>
+                    <label className="block text-sm text-gray-600 mb-1">
+                      Built-up Area (sq ft)
+                    </label>
                     <input
                       type="number"
                       placeholder="sq ft"
-                      value={Array.isArray(formData.builtUpArea) ? (formData.builtUpArea[0]?.area ?? "") : formData.builtUpArea}
+                      value={
+                        Array.isArray(formData.builtUpArea)
+                          ? (formData.builtUpArea[0]?.area ?? "")
+                          : formData.builtUpArea
+                      }
                       onChange={(e) => {
-                        const v = e.target.value === "" ? "" : Number(e.target.value);
-                        setFormData(prev => ({ ...prev, builtUpArea: [{ subType: "", area: v }] }));
+                        const v =
+                          e.target.value === "" ? "" : Number(e.target.value);
+                        setFormData((prev) => ({
+                          ...prev,
+                          builtUpArea: [{ subType: "", area: v }],
+                        }));
                       }}
                       className="admin-input w-full"
                       min="0"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Carpet Area (sq ft)</label>
+                    <label className="block text-sm text-gray-600 mb-1">
+                      Carpet Area (sq ft)
+                    </label>
                     <input
                       type="number"
                       placeholder="sq ft"
-                      value={Array.isArray(formData.carpetArea) ? (formData.carpetArea[0]?.area ?? "") : formData.carpetArea}
+                      value={
+                        Array.isArray(formData.carpetArea)
+                          ? (formData.carpetArea[0]?.area ?? "")
+                          : formData.carpetArea
+                      }
                       onChange={(e) => {
-                        const v = e.target.value === "" ? "" : Number(e.target.value);
-                        setFormData(prev => ({ ...prev, carpetArea: [{ subType: "", area: v }] }));
+                        const v =
+                          e.target.value === "" ? "" : Number(e.target.value);
+                        setFormData((prev) => ({
+                          ...prev,
+                          carpetArea: [{ subType: "", area: v }],
+                        }));
                       }}
                       className="admin-input w-full"
                       min="0"
@@ -1046,25 +1585,42 @@ export default function NewPropertyPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Amenities</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Amenities
+              </label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={amenityInput}
                   onChange={(e) => setAmenityInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addAmenity())}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addAmenity())
+                  }
                   className="admin-input flex-1"
                   placeholder="Add amenity (e.g., Swimming Pool, Gym)"
                 />
-                <button type="button" onClick={addAmenity} className="admin-btn-primary px-4">
+                <button
+                  type="button"
+                  onClick={addAmenity}
+                  className="admin-btn-primary px-4"
+                >
                   Add
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
                 {formData.amenities.map((amenity, idx) => (
-                  <span key={idx} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                  <span
+                    key={idx}
+                    className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                  >
                     {amenity}
-                    <button type="button" onClick={() => removeAmenity(amenity)} className="hover:text-red-600">×</button>
+                    <button
+                      type="button"
+                      onClick={() => removeAmenity(amenity)}
+                      className="hover:text-red-600"
+                    >
+                      ×
+                    </button>
                   </span>
                 ))}
               </div>
@@ -1076,83 +1632,192 @@ export default function NewPropertyPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Project Name</label>
-                <input type="text" name="projectName" value={formData.projectName} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Project Name
+                </label>
+                <input
+                  type="text"
+                  name="projectName"
+                  value={formData.projectName}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Builder / Developer</label>
-                <select name="builderName" value={formData.builderName} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Builder / Developer
+                </label>
+                <select
+                  name="builderName"
+                  value={formData.builderName}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select Developer</option>
                   {developers.map((d) => (
-                    <option key={d.id} value={d.name}>{d.name}</option>
+                    <option key={d.id} value={d.name}>
+                      {d.name}
+                    </option>
                   ))}
                 </select>
-                {formData.builderName && !developers.find((d) => d.name === formData.builderName) && (
-                  <p className="text-xs text-amber-600 mt-1">Current value: "{formData.builderName}" — not in developers list</p>
-                )}
+                {formData.builderName &&
+                  !developers.find((d) => d.name === formData.builderName) && (
+                    <p className="text-xs text-amber-600 mt-1">
+                      Current value: "{formData.builderName}" — not in
+                      developers list
+                    </p>
+                  )}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">RERA Registration Number</label>
-                <input type="text" name="reraRegistrationNumber" value={formData.reraRegistrationNumber} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  RERA Registration Number
+                </label>
+                <input
+                  type="text"
+                  name="reraRegistrationNumber"
+                  value={formData.reraRegistrationNumber}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Units in Project</label>
-                <input type="number" name="totalUnitsInProject" value={formData.totalUnitsInProject} onChange={handleChange} className="admin-input w-full" min="1" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Total Units in Project
+                </label>
+                <input
+                  type="number"
+                  name="totalUnitsInProject"
+                  value={formData.totalUnitsInProject}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="1"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Towers</label>
-                <input type="number" name="numberOfTowers" value={formData.numberOfTowers} onChange={handleChange} className="admin-input w-full" min="1" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Number of Towers
+                </label>
+                <input
+                  type="number"
+                  name="numberOfTowers"
+                  value={formData.numberOfTowers}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="1"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Lifts</label>
-                <input type="number" name="numberOfLifts" value={formData.numberOfLifts} onChange={handleChange} className="admin-input w-full" min="0" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Number of Lifts
+                </label>
+                <input
+                  type="number"
+                  name="numberOfLifts"
+                  value={formData.numberOfLifts}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                  min="0"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Power Backup</label>
-                <select name="powerBackup" value={formData.powerBackup} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Power Backup
+                </label>
+                <select
+                  name="powerBackup"
+                  value={formData.powerBackup}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select</option>
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Water Supply Type</label>
-                <input type="text" name="waterSupplyType" value={formData.waterSupplyType} onChange={handleChange} className="admin-input w-full" />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Water Supply Type
+                </label>
+                <input
+                  type="text"
+                  name="waterSupplyType"
+                  value={formData.waterSupplyType}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Gated Community</label>
-                <select name="gatedCommunity" value={formData.gatedCommunity} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Gated Community
+                </label>
+                <select
+                  name="gatedCommunity"
+                  value={formData.gatedCommunity}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select</option>
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Fire Safety System</label>
-                <select name="fireSafetySystem" value={formData.fireSafetySystem} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Fire Safety System
+                </label>
+                <select
+                  name="fireSafetySystem"
+                  value={formData.fireSafetySystem}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select</option>
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">CCTV</label>
-                <select name="cctv" value={formData.cctv} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  CCTV
+                </label>
+                <select
+                  name="cctv"
+                  value={formData.cctv}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select</option>
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">24x7 Security</label>
-                <select name="security24x7" value={formData.security24x7} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  24x7 Security
+                </label>
+                <select
+                  name="security24x7"
+                  value={formData.security24x7}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   <option value="">Select</option>
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -1163,35 +1828,50 @@ export default function NewPropertyPage() {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Main Property Image</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Main Property Image
+              </label>
               <div className="flex flex-col gap-2">
                 {formData.mainPropertyImage && (
-                  <img src={formData.mainPropertyImage} alt="Main" className="h-40 w-auto object-cover rounded border" />
+                  <img
+                    src={formData.mainPropertyImage}
+                    alt="Main"
+                    className="h-40 w-auto object-cover rounded border"
+                  />
                 )}
                 <div className="flex items-center gap-2">
-                    <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={(e) => {
-                            e.stopPropagation();
-                            if(e.target.files && e.target.files[0]) {
-                                handleFileUpload(e.target.files[0], "mainPropertyImage");
-                            }
-                        }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                        onMouseDown={(e) => {
-                            e.stopPropagation();
-                        }}
-                        className="admin-input w-full"
-                    />
-                    {uploading["mainPropertyImage"] && <span className="text-blue-600 animate-pulse">Uploading...</span>}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      if (e.target.files && e.target.files[0]) {
+                        handleFileUpload(
+                          e.target.files[0],
+                          "mainPropertyImage",
+                        );
+                      }
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    className="admin-input w-full"
+                  />
+                  {uploading["mainPropertyImage"] && (
+                    <span className="text-blue-600 animate-pulse">
+                      Uploading...
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Image Gallery</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Image Gallery
+              </label>
               <input
                 ref={imageGalleryInputRef}
                 type="file"
@@ -1214,18 +1894,34 @@ export default function NewPropertyPage() {
                 <Plus size={26} />
                 <span className="text-xs mt-1">Add Images</span>
               </button>
-              {uploading["imageGallery"] && <span className="text-blue-600 animate-pulse text-sm">Uploading...</span>}
+              {uploading["imageGallery"] && (
+                <span className="text-blue-600 animate-pulse text-sm">
+                  Uploading...
+                </span>
+              )}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                 {formData.imageGallery.map((url, idx) => (
                   <div key={idx} className="relative group">
-                    <img src={url} alt={`Gallery ${idx}`} className="h-24 w-full object-cover rounded border" />
-                    <button type="button" onClick={() => removeImageUrl(url)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                    <img
+                      src={url}
+                      alt={`Gallery ${idx}`}
+                      className="h-24 w-full object-cover rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImageUrl(url)}
+                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Floor Plans</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Floor Plans
+              </label>
               <button
                 type="button"
                 onClick={() => setShowFloorPlanModal(true)}
@@ -1236,12 +1932,27 @@ export default function NewPropertyPage() {
               </button>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 {formData.floorPlans.map((plan, idx) => (
-                  <div key={`${plan.image}-${idx}`} className="border rounded-lg p-3 bg-white">
-                    <img src={plan.image} alt={plan.name || `Floor Plan ${idx + 1}`} className="h-28 w-full object-cover rounded border mb-2" />
-                    <p className="text-sm font-semibold text-gray-800">{plan.name}</p>
-                    <p className="text-xs text-gray-600">Carpet: {plan.carpetArea} sq ft</p>
+                  <div
+                    key={`${plan.image}-${idx}`}
+                    className="border rounded-lg p-3 bg-white"
+                  >
+                    <img
+                      src={plan.image}
+                      alt={plan.name || `Floor Plan ${idx + 1}`}
+                      className="h-28 w-full object-cover rounded border mb-2"
+                    />
+                    <p className="text-sm font-semibold text-gray-800">
+                      {plan.name}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Carpet: {plan.carpetArea} sq ft
+                    </p>
                     <p className="text-xs text-gray-600">Price: {plan.price}</p>
-                    <button type="button" onClick={() => removeFloorPlan(idx)} className="mt-2 text-xs text-red-600 hover:text-red-700">
+                    <button
+                      type="button"
+                      onClick={() => removeFloorPlan(idx)}
+                      className="mt-2 text-xs text-red-600 hover:text-red-700"
+                    >
                       Remove
                     </button>
                   </div>
@@ -1249,44 +1960,55 @@ export default function NewPropertyPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Video Walkthrough URL</label>
-              <input 
-                type="url" 
-                name="videoWalkthrough" 
-                value={formData.videoWalkthrough} 
-                onChange={handleChange} 
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Video Walkthrough URL
+              </label>
+              <input
+                type="url"
+                name="videoWalkthrough"
+                value={formData.videoWalkthrough}
+                onChange={handleChange}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
                     e.stopPropagation();
                   }
                 }}
-                className="admin-input w-full" 
+                className="admin-input w-full"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Virtual Tour 360 URL</label>
-              <input 
-                type="url" 
-                name="virtualTour360" 
-                value={formData.virtualTour360} 
-                onChange={handleChange} 
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Virtual Tour 360 URL
+              </label>
+              <input
+                type="url"
+                name="virtualTour360"
+                value={formData.virtualTour360}
+                onChange={handleChange}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
                     e.stopPropagation();
                   }
                 }}
-                className="admin-input w-full" 
+                className="admin-input w-full"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Property Brochures</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Property Brochures
+              </label>
               <div className="space-y-4">
                 {formData.brochures.map((brochure, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                  <div
+                    key={index}
+                    className="border border-gray-200 rounded-lg p-4 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium text-gray-700">Brochure {index + 1}</h4>
+                      <h4 className="text-sm font-medium text-gray-700">
+                        Brochure {index + 1}
+                      </h4>
                       {formData.brochures.length > 1 && (
                         <button
                           type="button"
@@ -1298,17 +2020,23 @@ export default function NewPropertyPage() {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Brochure Name</label>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Brochure Name
+                      </label>
                       <input
                         type="text"
                         value={brochure.name}
-                        onChange={(e) => handleBrochureNameChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handleBrochureNameChange(index, e.target.value)
+                        }
                         placeholder="e.g., Main Brochure, Floor Plans, Amenities Guide"
                         className="admin-input w-full"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Upload PDF</label>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Upload PDF
+                      </label>
                       <div className="flex items-center gap-2">
                         <input
                           type="file"
@@ -1325,13 +2053,23 @@ export default function NewPropertyPage() {
                           className="admin-input flex-1"
                         />
                         {uploading[`brochure-${index}`] && (
-                          <span className="text-blue-600 animate-pulse text-sm">Uploading...</span>
+                          <span className="text-blue-600 animate-pulse text-sm">
+                            Uploading...
+                          </span>
                         )}
                       </div>
                       {brochure.url && (
                         <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
                           <p className="text-sm text-green-700">
-                            ✓ PDF uploaded: <a href={brochure.url} target="_blank" rel="noopener noreferrer" className="underline">View PDF</a>
+                            ✓ PDF uploaded:{" "}
+                            <a
+                              href={brochure.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline"
+                            >
+                              View PDF
+                            </a>
                           </p>
                         </div>
                       )}
@@ -1349,42 +2087,71 @@ export default function NewPropertyPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Listing Date</label>
-                <input 
-                  type="date" 
-                  name="listingDate" 
-                  value={formData.listingDate} 
-                  onChange={handleChange} 
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Listing Date
+                </label>
+                <input
+                  type="date"
+                  name="listingDate"
+                  value={formData.listingDate}
+                  onChange={handleChange}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
                       e.stopPropagation();
                     }
                   }}
-                  className="admin-input w-full" 
+                  className="admin-input w-full"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Featured Listing</label>
-                <select name="featuredListing" value={formData.featuredListing} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Featured Listing
+                </label>
+                <select
+                  name="featuredListing"
+                  value={formData.featuredListing}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Premium Listing</label>
-                <select name="premiumListing" value={formData.premiumListing} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Premium Listing
+                </label>
+                <select
+                  name="premiumListing"
+                  value={formData.premiumListing}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Active Status</label>
-                <select name="activeStatus" value={formData.activeStatus} onChange={handleChange} className="admin-input w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Active Status
+                </label>
+                <select
+                  name="activeStatus"
+                  value={formData.activeStatus}
+                  onChange={handleChange}
+                  className="admin-input w-full"
+                >
                   {YES_NO.map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -1392,7 +2159,10 @@ export default function NewPropertyPage() {
 
             <div className="pt-4 border-t border-gray-200">
               <h3 className="font-semibold text-gray-700 mb-1">SEO</h3>
-              <p className="text-xs text-gray-400 mb-4">Search engine settings for this property page. Updates reflect on the live page automatically.</p>
+              <p className="text-xs text-gray-400 mb-4">
+                Search engine settings for this property page. Updates reflect
+                on the live page automatically.
+              </p>
               <SeoFieldsSection values={formData} onChange={handleChange} />
             </div>
           </div>
@@ -1409,17 +2179,26 @@ export default function NewPropertyPage() {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 space-y-4">
             <h3 className="text-lg font-bold text-gray-800">Add Floor Plan</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name
+              </label>
               <input
                 type="text"
                 value={floorPlanDraft.name}
-                onChange={(e) => setFloorPlanDraft((prev) => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFloorPlanDraft((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
                 className="admin-input w-full"
                 placeholder="e.g., 2 BHK Premium"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Image
+              </label>
               <input
                 type="file"
                 accept="image/*"
@@ -1431,27 +2210,49 @@ export default function NewPropertyPage() {
                 }}
                 className="admin-input w-full"
               />
-              {uploading.floorPlanDraftImage && <p className="text-xs text-blue-600 mt-1">Uploading...</p>}
-              {floorPlanDraft.image && <img src={floorPlanDraft.image} alt="Floor plan draft" className="h-24 w-full object-cover rounded border mt-2" />}
+              {uploading.floorPlanDraftImage && (
+                <p className="text-xs text-blue-600 mt-1">Uploading...</p>
+              )}
+              {floorPlanDraft.image && (
+                <img
+                  src={floorPlanDraft.image}
+                  alt="Floor plan draft"
+                  className="h-24 w-full object-cover rounded border mt-2"
+                />
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Carpet Area (sq ft)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Carpet Area (sq ft)
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={floorPlanDraft.carpetArea}
-                  onChange={(e) => setFloorPlanDraft((prev) => ({ ...prev, carpetArea: e.target.value }))}
+                  onChange={(e) =>
+                    setFloorPlanDraft((prev) => ({
+                      ...prev,
+                      carpetArea: e.target.value,
+                    }))
+                  }
                   className="admin-input w-full"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price (₹)
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={floorPlanDraft.price}
-                  onChange={(e) => setFloorPlanDraft((prev) => ({ ...prev, price: e.target.value }))}
+                  onChange={(e) =>
+                    setFloorPlanDraft((prev) => ({
+                      ...prev,
+                      price: e.target.value,
+                    }))
+                  }
                   className="admin-input w-full"
                 />
               </div>
@@ -1467,7 +2268,11 @@ export default function NewPropertyPage() {
               >
                 Cancel
               </button>
-              <button type="button" className="admin-btn-primary" onClick={addFloorPlan}>
+              <button
+                type="button"
+                className="admin-btn-primary"
+                onClick={addFloorPlan}
+              >
                 Add Floor Plan
               </button>
             </div>
@@ -1477,12 +2282,17 @@ export default function NewPropertyPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Link href="/admin/properties" className="inline-flex items-center text-gray-600 hover:text-gray-800 mb-2">
+          <Link
+            href="/admin/properties"
+            className="inline-flex items-center text-gray-600 hover:text-gray-800 mb-2"
+          >
             <ArrowLeft size={18} className="mr-2" />
             Back to Properties
           </Link>
           <h1 className="text-2xl font-bold text-gray-800">Add New Property</h1>
-          <p className="text-sm text-gray-500">Fill in the property details step by step</p>
+          <p className="text-sm text-gray-500">
+            Fill in the property details step by step
+          </p>
         </div>
       </div>
 
@@ -1503,18 +2313,22 @@ export default function NewPropertyPage() {
                       isActive
                         ? "bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-lg scale-110"
                         : isCompleted
-                        ? "bg-green-500 text-white hover:bg-green-600"
-                        : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                          ? "bg-green-500 text-white hover:bg-green-600"
+                          : "bg-gray-200 text-gray-500 hover:bg-gray-300"
                     }`}
                   >
                     {isCompleted ? <Check size={20} /> : <Icon size={20} />}
                   </button>
-                  <span className={`text-xs mt-2 font-medium ${isActive ? "text-purple-600" : "text-gray-500"}`}>
+                  <span
+                    className={`text-xs mt-2 font-medium ${isActive ? "text-purple-600" : "text-gray-500"}`}
+                  >
                     {step.title}
                   </span>
                 </div>
                 {index < STEPS.length - 1 && (
-                  <div className={`flex-1 h-1 mx-2 ${isCompleted ? "bg-green-500" : "bg-gray-200"}`} />
+                  <div
+                    className={`flex-1 h-1 mx-2 ${isCompleted ? "bg-green-500" : "bg-gray-200"}`}
+                  />
                 )}
               </div>
             );
@@ -1523,13 +2337,16 @@ export default function NewPropertyPage() {
       </div>
 
       {/* Form */}
-      <form 
+      <form
         onSubmit={(e) => {
           // Extra safety check - prevent submission if not on last step
           if (currentStep !== STEPS.length) {
             e.preventDefault();
             e.stopPropagation();
-            console.warn("Form submission prevented - not on last step. Current step:", currentStep);
+            console.warn(
+              "Form submission prevented - not on last step. Current step:",
+              currentStep,
+            );
             setError("Please complete all steps before submitting.");
             return false;
           }
@@ -1549,7 +2366,10 @@ export default function NewPropertyPage() {
           if (e.key === "Enter") {
             const target = e.target;
             // Only allow Enter on submit button
-            if (target.type === "submit" || (target.tagName === "BUTTON" && target.type === "submit")) {
+            if (
+              target.type === "submit" ||
+              (target.tagName === "BUTTON" && target.type === "submit")
+            ) {
               // Double check we're on the last step
               if (currentStep !== STEPS.length) {
                 e.preventDefault();
@@ -1593,7 +2413,9 @@ export default function NewPropertyPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <h2 className="text-xl font-bold text-gray-800 mb-4">{STEPS[currentStep - 1].title}</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                {STEPS[currentStep - 1].title}
+              </h2>
               {renderStepContent()}
             </motion.div>
           </AnimatePresence>
@@ -1630,7 +2452,9 @@ export default function NewPropertyPage() {
             ) : (
               <button
                 type="submit"
-                disabled={loading || isSubmitting || currentStep !== STEPS.length}
+                disabled={
+                  loading || isSubmitting || currentStep !== STEPS.length
+                }
                 onClick={(e) => {
                   // Ensure we're on the last step before allowing submission
                   if (currentStep !== STEPS.length) {

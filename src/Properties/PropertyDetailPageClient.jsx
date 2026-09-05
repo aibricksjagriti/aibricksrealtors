@@ -228,8 +228,8 @@ function HighlightStrip({ property }) {
 /* ================= OVERVIEW ================= */
 
 function OverviewCard({ property }) {
-  const overviewTitle = property.builderName
-    ? `${property.builderName} Overview`
+  const overviewTitle = property.propertyTitle
+    ? `${property.propertyTitle} Overview`
     : "Overview";
 
   const items = [
@@ -369,7 +369,7 @@ function VideoSection({ property }) {
 
 /* ================= AMENITIES ================= */
 
-function AmenitiesGrid({ amenities = [], property }) {
+function AmenitiesGrid({ amenities = [], propertyName, property }) {
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
 
   const handleEnquire = () => {
@@ -382,7 +382,7 @@ function AmenitiesGrid({ amenities = [], property }) {
 
   return (
     <>
-      <Card title={`${property?.propertyTitle || ""} Amenities`}>
+      <Card title={`${propertyName} Amenities`}>
         {/* Header */}
         <div className="flex items-center justify-between gap-4 mb-5">
           <p className="text-sm text-gray-600">
@@ -462,7 +462,7 @@ function MasterPlan({ property }) {
 
   return (
     <>
-      <Card title={`Master & Floor Plan`}>
+      <Card title={`${property.propertyTitle} Master & Floor Plan`}>
         {floorPlans.length === 0 ? (
           <div className="text-gray-500">Floor Plan Not Available</div>
         ) : (
@@ -679,7 +679,7 @@ function PricingCard({ property }) {
 
   return (
     <>
-      <Card title="Pricing">
+      <Card title={`${property.propertyTitle} Pricing`}>
         {/* Price + Enquiry Button */}
         <div className="flex items-center justify-between gap-4 mb-6">
           {priceRange && (
@@ -792,7 +792,7 @@ function LegalDetails({ property }) {
   ].filter(Boolean);
 
   return (
-    <Card title="Legal Details">
+    <Card title={`${property.propertyTitle} Legal Details`}>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(([l, v], i) => (
           <Detail key={i} label={l} value={v} />
@@ -839,7 +839,7 @@ function DocumentsSection({ property }) {
 
   return (
     <>
-      <Card title="Documents">
+      <Card title={`${property.propertyTitle} Documents`}>
         {brochures.length === 0 ? (
           <p className="text-gray-600">No documents available</p>
         ) : (
