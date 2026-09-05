@@ -202,16 +202,31 @@ function formatAreaDisplay(area) {
   return "—";
 }
 
+// Returns true only when the area value actually has a usable, filled-in number
+function hasAreaValue(area) {
+  if (Array.isArray(area)) {
+    return area.some((e) => {
+      const n = Number(e?.area);
+      return !isNaN(n) && n > 0;
+    });
+  }
+  if (area == null || area === "" || area === 0) return false;
+  const n = Number(area);
+  return isNaN(n) ? Boolean(area) : n > 0;
+}
+
 function HighlightStrip({ property }) {
   const isUnderConstruction = property.propertyStatus === "Under Construction";
   const items = [
     ["Built-up", formatAreaDisplay(property.builtUpArea)],
-    ["Carpet", formatAreaDisplay(property.carpetArea)],
+    hasAreaValue(property.carpetArea)
+      ? ["Carpet", formatAreaDisplay(property.carpetArea)]
+      : null,
     ["Furnishing", property.furnishing],
     isUnderConstruction
       ? ["Possession", property.possessionDate || "—"]
       : ["Ownership", property.ownershipType],
-  ];
+  ].filter(Boolean);
 
   return (
     <div className="bg-white border rounded-xl p-5 grid grid-cols-2 md:grid-cols-4 text-center">
@@ -439,6 +454,14 @@ function AmenitiesGrid({ amenities = [], propertyName, property }) {
 
 /* ================= MASTER PLAN ================= */
 
+// Treat missing, empty, "-" or non-positive carpet area values as "not filled"
+function hasFloorPlanCarpetArea(carpetArea) {
+  if (carpetArea == null || carpetArea === "" || carpetArea === "-")
+    return false;
+  const n = Number(carpetArea);
+  return !isNaN(n) && n > 0;
+}
+
 function MasterPlan({ property }) {
   const floorPlans = Array.isArray(property?.floorPlans)
     ? property.floorPlans
@@ -497,10 +520,11 @@ function MasterPlan({ property }) {
                   </div>
                 </button>
                 <div className="px-3 pb-3 pt-2">
-                  <p className="text-xs text-gray-500">
-                    Carpet Area:{" "}
-                    {plan.carpetArea ? `${plan.carpetArea} sq ft` : "-"}
-                  </p>
+                  {hasFloorPlanCarpetArea(plan.carpetArea) && (
+                    <p className="text-xs text-gray-500">
+                      Carpet Area: {plan.carpetArea} sq ft
+                    </p>
+                  )}
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {formatPlanPrice(plan.price)}
                   </p>
@@ -531,10 +555,12 @@ function MasterPlan({ property }) {
                 className="w-full max-h-80 object-contain rounded border mb-4"
               />
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <Detail
-                  label="Carpet Area"
-                  value={`${selectedFloorPlan.carpetArea || "-"} sq ft`}
-                />
+                {hasFloorPlanCarpetArea(selectedFloorPlan.carpetArea) && (
+                  <Detail
+                    label="Carpet Area"
+                    value={`${selectedFloorPlan.carpetArea} sq ft`}
+                  />
+                )}
                 <Detail
                   label="Price"
                   value={formatPlanPrice(selectedFloorPlan.price)}
@@ -592,6 +618,14 @@ function ConfigurationsCard({ property }) {
     Array.isArray(builtUp) && builtUp.some((e) => e.subType);
   if (!hasSubTypeData) return null;
 
+  // Only show the Carpet Area column if at least one entry actually has a filled-in value
+  const hasCarpetData =
+    Array.isArray(carpet) &&
+    carpet.some((e) => {
+      const n = Number(e?.area);
+      return !isNaN(n) && n > 0;
+    });
+
   return (
     <Card title={`${property.propertyTitle} Configurations`}>
       <div className="overflow-x-auto">
@@ -600,7 +634,9 @@ function ConfigurationsCard({ property }) {
             <tr className="border-b text-gray-500">
               <th className="text-left py-2 pr-4 font-medium">Type</th>
               <th className="text-left py-2 pr-4 font-medium">Built-up Area</th>
-              <th className="text-left py-2 font-medium">Carpet Area</th>
+              {hasCarpetData && (
+                <th className="text-left py-2 font-medium">Carpet Area</th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -616,9 +652,11 @@ function ConfigurationsCard({ property }) {
                   <td className="py-3 pr-4 text-gray-700">
                     {entry.area ? `${entry.area} sq.ft` : "—"}
                   </td>
-                  <td className="py-3 text-gray-700">
-                    {carpetEntry?.area ? `${carpetEntry.area} sq.ft` : "—"}
-                  </td>
+                  {hasCarpetData && (
+                    <td className="py-3 text-gray-700">
+                      {carpetEntry?.area ? `${carpetEntry.area} sq.ft` : "—"}
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -1138,142 +1176,6 @@ function GallerySlider({ property }) {
     </>
   );
 }
-
-// function GallerySlider({ property }) {
-//   const galleryImages = [
-//     property?.mainPropertyImage,
-//     ...(Array.isArray(property?.imageGallery) ? property.imageGallery : []),
-//   ].filter(Boolean);
-
-//   const [activeImage, setActiveImage] = useState(null);
-//   const [showDownloadLead, setShowDownloadLead] = useState(false);
-//   const scrollContainer = useRef(null);
-
-//   const galleryDownloadSlug =
-//     (property?.propertyTitle || property?.title || property?.id || "property")
-//       .toString()
-//       .replace(/[^a-zA-Z0-9]+/g, "-")
-//       .replace(/^-|-$/g, "") || "gallery";
-
-//   const galleryLeadPrefix = `[Gallery download] Property: ${property?.propertyTitle || property?.title || "Listing"} (id: ${property?.id || "unknown"})`;
-
-//   const slideBy = (direction) => {
-//     if (!scrollContainer.current) return;
-//     const cardWidth = 260;
-//     scrollContainer.current.scrollBy({
-//       left: direction * cardWidth,
-//       behavior: "smooth",
-//     });
-//   };
-
-//   if (galleryImages.length === 0) {
-//     return (
-//       <Card title="Gallery">
-//         <p className="text-gray-500">No gallery images available</p>
-//       </Card>
-//     );
-//   }
-
-//   return (
-//     <>
-//       <Card title={`${property.propertyTitle} Gallery`}>
-//         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-//           <p className="text-sm text-gray-600">
-//             Swipe or use arrows to browse images.
-//           </p>
-//           <button
-//             type="button"
-//             onClick={() => setShowDownloadLead(true)}
-//             className="shrink-0 inline-flex items-center justify-center rounded-lg bg-brickred px-4 py-2 text-sm font-semibold text-white hover:bg-ochre transition"
-//           >
-//             Download Gallery
-//           </button>
-//         </div>
-//         <div className="relative">
-//           <button
-//             type="button"
-//             onClick={() => slideBy(-1)}
-//             className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
-//             aria-label="Scroll left"
-//           >
-//             <ChevronLeft size={20} />
-//           </button>
-
-//           <div
-//             ref={scrollContainer}
-//             className="overflow-x-auto scroll-smooth hide-scrollbar px-12"
-//           >
-//             <div className="flex gap-4 w-max">
-//               {galleryImages.map((image, index) => (
-//                 <button
-//                   type="button"
-//                   key={`${image}-${index}`}
-//                   onClick={() => setActiveImage(image)}
-//                   className="w-60 h-42.5 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm hover:shadow-md transition-shadow"
-//                 >
-//                   <img
-//                     src={image}
-//                     alt={`Gallery ${index + 1}`}
-//                     className="w-full h-full object-cover"
-//                   />
-//                 </button>
-//               ))}
-//             </div>
-//           </div>
-
-//           <button
-//             type="button"
-//             onClick={() => slideBy(1)}
-//             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center hover:bg-gray-50"
-//             aria-label="Scroll right"
-//           >
-//             <ChevronRight size={20} />
-//           </button>
-//         </div>
-//       </Card>
-
-//       <LeadCaptureModal
-//         open={showDownloadLead}
-//         onClose={() => setShowDownloadLead(false)}
-//         title="Download property gallery"
-//         subtitle="Submit the interested form to download the gallery images."
-//         messagePrefix={galleryLeadPrefix}
-//         submitLabel="Submit & download"
-//         propertyId={property?.id ?? null}
-//         propertyTitle={property?.propertyTitle || property?.title || null}
-//         propertyName={property?.propertyTitle || property?.title || null}
-//         propertyLocation={
-//           [property?.locality, property?.city].filter(Boolean).join(", ") ||
-//           null
-//         }
-//         onSuccess={() => {
-//           downloadGalleryImages(galleryImages, galleryDownloadSlug);
-//         }}
-//       />
-
-//       {activeImage && (
-//         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-//           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-4">
-//             <img
-//               src={activeImage}
-//               alt="Gallery preview"
-//               className="w-full max-h-[75vh] object-contain rounded-lg border"
-//             />
-//             <div className="flex justify-end mt-3">
-//               <button
-//                 type="button"
-//                 onClick={() => setActiveImage(null)}
-//                 className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
-//               >
-//                 Close
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// }
 
 /* ================= BUILDER ================= */
 
