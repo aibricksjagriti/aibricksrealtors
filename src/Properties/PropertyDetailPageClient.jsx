@@ -154,32 +154,108 @@ export default function PropertyDetailPageClient() {
 
 /* ================= HERO GALLERY ================= */
 
-function HeroGallery({ property }) {
-  const mainImg = property.mainPropertyImage || property.imageGallery?.[0];
-  // If mainPropertyImage is absent, imageGallery[0] is used as main → shift right slots by 1
-  const galleryOffset = property.mainPropertyImage ? 0 : 1;
+// Main image first, then the gallery, de-duplicated so the hero and the
+// Gallery section below always agree on which images exist.
+function collectPropertyImages(property) {
+  const all = [
+    property?.mainPropertyImage,
+    ...(Array.isArray(property?.imageGallery) ? property.imageGallery : []),
+  ].filter(Boolean);
+  return [...new Set(all)];
+}
 
+function HeroGallery({ property }) {
+  // Same source list as the Gallery section below, so both show the same images
+  const images = collectPropertyImages(property);
+  const count = images.length;
+
+  if (count === 0) {
+    return (
+      <div className="bg-white border rounded-xl p-3">
+        <div className="bg-gray-200 rounded-lg flex items-center justify-center aspect-[16/9]">
+          <span className="text-gray-500">No Image Available</span>
+        </div>
+      </div>
+    );
+  }
+
+  // One image: full width, no stretching — a fixed frame with object-cover
+  if (count === 1) {
+    return (
+      <div className="bg-white border rounded-xl p-3">
+        <GalleryItem src={images[0]} className="aspect-[16/9]" />
+      </div>
+    );
+  }
+
+  // Two images: equal halves
+  if (count === 2) {
+    return (
+      <div className="bg-white border rounded-xl p-3">
+        <div className="grid grid-cols-2 gap-3">
+          {images.map((src, i) => (
+            <GalleryItem key={`${src}-${i}`} src={src} className="aspect-[4/3]" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Three images: big left + two stacked right, all inside one fixed-height frame
+  if (count === 3) {
+    return (
+      <div className="bg-white border rounded-xl p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 gap-3 sm:aspect-[16/9]">
+          <GalleryItem
+            src={images[0]}
+            className="aspect-[4/3] sm:aspect-auto sm:row-span-2 sm:h-full"
+          />
+          <GalleryItem src={images[1]} className="aspect-[4/3] sm:aspect-auto sm:h-full" />
+          <GalleryItem src={images[2]} className="aspect-[4/3] sm:aspect-auto sm:h-full" />
+        </div>
+      </div>
+    );
+  }
+
+  // Four images: even 2x2 grid — nothing dropped, nothing stretched
+  if (count === 4) {
+    return (
+      <div className="bg-white border rounded-xl p-3">
+        <div className="grid grid-cols-2 gap-3">
+          {images.map((src, i) => (
+            <GalleryItem key={`${src}-${i}`} src={src} className="aspect-[4/3]" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Five or more: big left + a 2x2 block of four, with "+N more" on the last tile
+  const remaining = count - 5;
   return (
     <div className="bg-white border rounded-xl p-3">
-      <div className="grid grid-cols-2 gap-3">
-        {/* LEFT BIG IMAGE */}
-        <div
-          className="row-span-2 bg-gray-200 rounded-lg flex items-center justify-center"
-          style={!mainImg ? { height: 420 } : undefined}
-        >
-          {mainImg ? (
-            <img
-              src={mainImg}
-              className="w-full h-auto object-cover rounded-lg"
-            />
-          ) : (
-            <span className="text-gray-500">No Image Available</span>
-          )}
-        </div>
-
-        {/* RIGHT SIDE IMAGES */}
-        <GalleryItem src={property.imageGallery?.[galleryOffset]} />
-        <GalleryItem src={property.imageGallery?.[galleryOffset + 1]} />
+      <div className="grid grid-cols-2 sm:grid-cols-4 sm:grid-rows-2 gap-3 sm:aspect-[16/9]">
+        <GalleryItem
+          src={images[0]}
+          className="col-span-2 aspect-[4/3] sm:aspect-auto sm:row-span-2 sm:h-full"
+        />
+        {images.slice(1, 5).map((src, i) => (
+          <GalleryItem
+            key={`${src}-${i}`}
+            src={src}
+            className="aspect-[4/3] sm:aspect-auto sm:h-full"
+            overlay={
+              i === 3 && remaining > 0 ? (
+                <a
+                  href="#gallery"
+                  className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 text-white text-lg font-semibold hover:bg-black/60 transition"
+                >
+                  +{remaining} more
+                </a>
+              ) : null
+            }
+          />
+        ))}
       </div>
     </div>
   );
@@ -910,10 +986,7 @@ function DocumentsSection({ property }) {
 /* ================= GALLERY SLIDER ================= */
 
 function GallerySlider({ property }) {
-  const galleryImages = [
-    property?.mainPropertyImage,
-    ...(Array.isArray(property?.imageGallery) ? property.imageGallery : []),
-  ].filter(Boolean);
+  const galleryImages = collectPropertyImages(property);
 
   const [activeImage, setActiveImage] = useState(null);
   const [showDownloadLead, setShowDownloadLead] = useState(false);
@@ -1267,14 +1340,17 @@ function Detail({ label, value }) {
   );
 }
 
-function GalleryItem({ src }) {
+function GalleryItem({ src, className = "", alt = "", overlay = null }) {
   return (
-    <div className="bg-gray-200 rounded-lg flex items-center justify-center">
+    <div
+      className={`relative overflow-hidden bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 ${className}`}
+    >
       {src ? (
-        <img src={src} className="w-full h-full object-cover rounded-lg" />
+        <img src={src} alt={alt} className="w-full h-full object-cover" />
       ) : (
         "No Image"
       )}
+      {overlay}
     </div>
   );
 }
