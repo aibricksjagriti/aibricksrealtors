@@ -8,11 +8,21 @@ import SeoFieldsSection from "@/src/admin/components/SeoFieldsSection";
 import Link from "next/link";
 import "@/src/admin/styles/admin.css";
 
-const PROPERTY_TYPES = ["Apartment", "Villa", "Townhouse", "Penthouse", "Mansion", "Plot", "Commercial", "Office", "Office Space", "Duplex", "Shop", "Warehouse", "Industrial"];
+const PROPERTY_TYPES = ["Apartment", "Villa", "Townhouse", "Penthouse", "Mansion", "Plot", "Commercial", "Office", "Office Space", "Duplex", "Shop", "Warehouse", "Industrial", "SkyVilla", "RowHouse", "Simplex"];
 const SUB_TYPES_MAP = {
-  Apartment: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Penthouse"],
+  Apartment: [
+    "1 BHK", "2 BHK", "2.5 BHK", "3 BHK", "3.5 BHK", "4 BHK", "4.5 BHK", "5 BHK", "5.5 BHK", "Penthouse",
+    "Duplex 2 BHK", "Duplex 2.5 BHK", "Duplex 3 BHK", "Duplex 3.5 BHK", "Duplex 4 BHK", "Duplex 4.5 BHK", "Duplex 5 BHK",
+    "SkyVilla 2 BHK", "SkyVilla 2.5 BHK", "SkyVilla 3 BHK", "SkyVilla 3.5 BHK", "SkyVilla 4 BHK", "SkyVilla 4.5 BHK", "SkyVilla 5 BHK", "SkyVilla 5.5 BHK", "SkyVilla 6 BHK",
+    "Simplex 2 BHK", "Simplex 2.5 BHK", "Simplex 3 BHK", "Simplex 3.5 BHK", "Simplex 4 BHK", "Simplex 4.5 BHK", "Simplex 5 BHK",
+    "Penthouse 2 BHK", "Penthouse 2.5 BHK", "Penthouse 3 BHK", "Penthouse 3.5 BHK", "Penthouse 4 BHK", "Penthouse 4.5 BHK", "Penthouse 5 BHK",
+  ],
+  Penthouse: ["2 BHK", "2.5 BHK", "3 BHK", "3.5 BHK", "4 BHK", "4.5 BHK", "5 BHK"],
+  SkyVilla: ["2 BHK", "2.5 BHK", "3 BHK", "3.5 BHK", "4 BHK", "4.5 BHK", "5 BHK", "5.5 BHK", "6 BHK"],
+  Duplex: ["2 BHK Duplex", "2.5 BHK Duplex", "3 BHK Duplex", "3.5 BHK Duplex", "4 BHK Duplex", "4.5 BHK Duplex", "5 BHK Duplex", "Luxury Duplex"],
+  Simplex: ["2 BHK", "2.5 BHK", "3 BHK", "3.5 BHK", "4 BHK", "4.5 BHK", "5 BHK"],
+  RowHouse: ["2 BHK", "2.5 BHK", "3 BHK", "3.5 BHK", "4 BHK", "4.5 BHK", "5 BHK"],
   "Office Space": ["Small Office", "Medium Office", "Large Office", "Co-working", "Commercial Office"],
-  Duplex: ["2 BHK Duplex", "3 BHK Duplex", "4 BHK Duplex", "Luxury Duplex"],
   Shop: ["Retail Shop", "Corner Shop", "Food Shop", "Commercial Shop", "Showroom"],
 };
 const AGE_OF_PROPERTY_OPTIONS = ["New Property", "0–1 Year", "1–3 Years", "3–5 Years", "5–10 Years", "10+ Years"];
