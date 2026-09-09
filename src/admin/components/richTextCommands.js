@@ -136,10 +136,101 @@ function stripFontSize(el) {
   });
 }
 
+// Range comparison modes used when clipping a selection to one block.
+const START_TO_START = 0;
+const END_TO_END = 2;
+
+/** The part of `range` that falls inside `block` (collapsed if none does). */
+function clipToBlock(range, block, doc) {
+  const clip = doc.createRange();
+  clip.selectNodeContents(block);
+
+  const startsInside = range.compareBoundaryPoints(START_TO_START, clip) > 0;
+  const endsInside = range.compareBoundaryPoints(END_TO_END, clip) < 0;
+
+  if (endsInside) clip.setEnd(range.endContainer, range.endOffset);
+  if (startsInside) clip.setStart(range.startContainer, range.startOffset);
+
+  return clip;
+}
+
+const hasContent = (node) =>
+  Boolean(node.textContent.trim()) || Boolean(node.querySelector?.("img"));
+
+// Inline wrappers that a split can leave behind with nothing in them.
+const PRUNABLE_INLINE =
+  "b, i, u, em, strong, span, a, font, s, strike, sub, sup, code, small";
+
+/** Drop inline wrappers a split emptied out (an <b></b> with no text left). */
+function pruneEmptyInline(el) {
+  Array.from(el.querySelectorAll(PRUNABLE_INLINE)).forEach((node) => {
+    if (node.textContent !== "") return;
+    if (node.querySelector("img, br")) return;
+    node.parentNode?.removeChild(node);
+  });
+}
+
 /**
- * Turn the block(s) touched by the current selection into `tag`
- * ("h2", "<h2>", "p", …). Clicking the tag a block already has turns it back
- * into a paragraph. Returns true when the document changed.
+ * Move everything in `block` outside [start, end] into sibling blocks of the
+ * same tag, so only the selected run is left behind for the caller to convert.
+ * Splitting the tail first keeps the head's boundary offsets valid.
+ */
+function isolate(block, clip, doc) {
+  // The browser's own line wrapper (<div>) has no spacing of its own — the
+  // leftovers read better as real paragraphs.
+  const tag = block.tagName === "DIV" ? "p" : block.tagName.toLowerCase();
+
+  const cut = (setup, insertBefore) => {
+    const part = doc.createRange();
+    try {
+      setup(part);
+    } catch {
+      return;
+    }
+    if (part.collapsed) return;
+
+    const el = doc.createElement(tag);
+    el.appendChild(part.extractContents());
+    pruneEmptyInline(el);
+    // Whitespace-only leftovers would just show up as a blank line.
+    if (!hasContent(el)) return;
+    block.parentNode.insertBefore(el, insertBefore);
+  };
+
+  // Tail: everything after the selection.
+  cut((part) => {
+    part.setStart(clip.endContainer, clip.endOffset);
+    part.setEnd(block, block.childNodes.length);
+  }, block.nextSibling);
+
+  // Head: everything before the selection.
+  cut((part) => {
+    part.setStart(block, 0);
+    part.setEnd(clip.startContainer, clip.startOffset);
+  }, block);
+}
+
+/** Swap `block` for a new `tag` element holding the same children. */
+function convertBlock(block, tag, doc) {
+  const el = doc.createElement(tag.toLowerCase());
+  while (block.firstChild) el.appendChild(block.firstChild);
+  if (HEADINGS.includes(tag)) stripFontSize(el);
+  if (!el.firstChild) el.appendChild(doc.createElement("br"));
+  block.parentNode.replaceChild(el, block);
+  return el;
+}
+
+/**
+ * Apply `tag` ("h2", "<h2>", "p", …) to the current selection.
+ *
+ * Headings are block-level, so the unit is a line, not a character run:
+ *  - with text selected, only the selected run becomes a heading — the rest of
+ *    the line stays as it was, split off into its own paragraph(s);
+ *  - with a plain caret, the whole line the caret sits on is converted;
+ *  - a selection covering several lines converts each of them;
+ *  - when every affected line already has the tag, it toggles back to <p>.
+ *
+ * Returns true when the document changed.
  */
 export function applyBlockFormat(root, tag, win) {
   const view = win || (typeof window !== "undefined" ? window : null);
@@ -154,8 +245,6 @@ export function applyBlockFormat(root, tag, win) {
   const selection = view.getSelection?.();
   if (!selection) return false;
 
-  // Remember the caret by node + offset. Everything below *moves* nodes rather
-  // than cloning them, so these anchors stay valid and the caret survives.
   const live = selection.rangeCount ? selection.getRangeAt(0) : null;
   const anchor =
     live && root.contains(live.startContainer) && root.contains(live.endContainer)
@@ -185,8 +274,6 @@ export function applyBlockFormat(root, tag, win) {
     range.selectNodeContents(root);
   }
 
-  // A plain caret formats exactly the line it sits on; a real selection formats
-  // every block it touches.
   const caretBlock = range.collapsed
     ? blockContaining(root, range.startContainer, range.startOffset)
     : null;
@@ -208,23 +295,52 @@ export function applyBlockFormat(root, tag, win) {
     return true;
   }
 
-  const replaced = new Map();
+  // Toggling is all-or-nothing: only fall back to <p> when every affected line
+  // already carries the tag being applied.
+  const finalTag =
+    target !== "P" && blocks.every((block) => block.tagName === target)
+      ? "P"
+      : target;
 
-  blocks.forEach((block) => {
-    // Toggle: clicking H2 on an existing H2 returns it to a paragraph.
-    const finalTag =
-      block.tagName === target && target !== "P" ? "P" : target;
+  if (caretBlock) {
+    if (caretBlock.tagName === finalTag) return false;
+    const replaced = new Map([
+      [caretBlock, convertBlock(caretBlock, finalTag, doc)],
+    ]);
+    restoreSelection(selection, doc, root, anchor, replaced);
+    return true;
+  }
 
-    const el = doc.createElement(finalTag.toLowerCase());
-    while (block.firstChild) el.appendChild(block.firstChild);
-    if (HEADINGS.includes(finalTag)) stripFontSize(el);
-    if (!el.firstChild) el.appendChild(doc.createElement("br"));
+  // Ranges are live, so every clip is measured before anything moves.
+  const clips = blocks.map((block) => clipToBlock(range, block, doc));
+  const converted = [];
 
-    block.parentNode.replaceChild(el, block);
-    replaced.set(block, el);
+  let changed = false;
+
+  blocks.forEach((block, i) => {
+    const clip = clips[i];
+    // The selection only grazed this block's boundary — leave it alone.
+    if (clip.collapsed) return;
+    // Already the right tag: no need to split it out of its own line.
+    if (block.tagName === finalTag) {
+      converted.push(block);
+      return;
+    }
+    isolate(block, clip, doc);
+    pruneEmptyInline(block);
+    converted.push(convertBlock(block, finalTag, doc));
+    changed = true;
   });
 
-  restoreSelection(selection, doc, root, anchor, replaced);
+  if (!changed) return false;
+
+  const out = doc.createRange();
+  out.setStartBefore(converted[0].firstChild || converted[0]);
+  const lastEl = converted[converted.length - 1];
+  out.setEndAfter(lastEl.lastChild || lastEl);
+  selection.removeAllRanges();
+  selection.addRange(out);
+
   return true;
 }
 

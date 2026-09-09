@@ -36,6 +36,18 @@ function caretIn(node, offset = 0) {
   sel.addRange(range);
 }
 
+/** Select characters [from, to) of the first text node inside `node`. */
+function selectChars(node, from, to) {
+  const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+  const text = walker.nextNode();
+  const range = document.createRange();
+  range.setStart(text, from);
+  range.setEnd(text, to);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
 function selectAll(node) {
   const range = document.createRange();
   range.selectNodeContents(node);
@@ -158,6 +170,46 @@ describe("RichTextEditor — heading buttons", () => {
       "formatBlock",
       expect.anything(),
       expect.anything(),
+    );
+  });
+
+  it("only turns the selected words into a heading", () => {
+    const onChange = jest.fn();
+    render(<Host initial="<p>Some longer sentence</p>" onChange={onChange} />);
+
+    selectChars(editorEl().querySelector("p"), 5, 11);
+    fireEvent.click(button("Heading 2"));
+
+    expect(editorEl().innerHTML).toBe(
+      "<p>Some </p><h2>longer</h2><p> sentence</p>",
+    );
+    expect(onChange).toHaveBeenCalledWith(
+      "<p>Some </p><h2>longer</h2><p> sentence</p>",
+    );
+  });
+
+  it("leaves the other paragraphs untouched", () => {
+    render(
+      <Host initial="<p>Intro</p><p>Some longer sentence</p><p>Outro</p>" />,
+    );
+
+    selectChars(editorEl().querySelectorAll("p")[1], 5, 11);
+    fireEvent.click(button("Heading 2"));
+
+    expect(editorEl().innerHTML).toBe(
+      "<p>Intro</p><p>Some </p><h2>longer</h2><p> sentence</p><p>Outro</p>",
+    );
+  });
+
+  it("keeps the new heading selected so a second click undoes it", () => {
+    render(<Host initial="<p>Some longer sentence</p>" />);
+
+    selectChars(editorEl().querySelector("p"), 5, 11);
+    fireEvent.click(button("Heading 2"));
+    fireEvent.click(button("Heading 2"));
+
+    expect(editorEl().innerHTML).toBe(
+      "<p>Some </p><p>longer</p><p> sentence</p>",
     );
   });
 

@@ -40,6 +40,18 @@ function selectAcross(from, to = from) {
   return range;
 }
 
+/** Select characters [from, to) of the first text node inside `node`. */
+function selectChars(node, from, to) {
+  const text = firstText(node);
+  const range = document.createRange();
+  range.setStart(text, from);
+  range.setEnd(text, to);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  return range;
+}
+
 const firstText = (node) => {
   if (node.nodeType === 3) return node;
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
@@ -137,19 +149,12 @@ describe("applyBlockFormat — headings", () => {
 
   it("never nests a heading inside a paragraph", () => {
     const el = makeEditor("<p>Some longer sentence</p>");
-    const p = el.querySelector("p");
-    const text = firstText(p);
-    const range = document.createRange();
-    range.setStart(text, 5);
-    range.setEnd(text, 11);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
+    selectChars(el.querySelector("p"), 5, 11);
 
     applyBlockFormat(el, "h2", window);
 
-    expect(el.innerHTML).toBe("<h2>Some longer sentence</h2>");
     expect(el.querySelector("p h2")).toBeNull();
+    expect(el.querySelector("h2").parentNode).toBe(el);
   });
 
   it("converts every block the selection touches", () => {
@@ -319,6 +324,176 @@ describe("applyBlockFormat — caret survives", () => {
 
     const range = window.getSelection().getRangeAt(0);
     expect(range.toString()).toBe("OneTwo");
+  });
+});
+
+describe("applyBlockFormat — only the selected text changes", () => {
+  it("lifts a phrase out of the middle of a paragraph", () => {
+    const el = makeEditor("<p>Some longer sentence</p>");
+    selectChars(el.querySelector("p"), 5, 11);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe(
+      "<p>Some </p><h2>longer</h2><p> sentence</p>",
+    );
+  });
+
+  it("keeps the rest of the line when the selection starts the line", () => {
+    const el = makeEditor("<p>Heading then body</p>");
+    selectChars(el.querySelector("p"), 0, 7);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe("<h2>Heading</h2><p> then body</p>");
+  });
+
+  it("keeps the rest of the line when the selection ends the line", () => {
+    const el = makeEditor("<p>Body then heading</p>");
+    selectChars(el.querySelector("p"), 10, 17);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe("<p>Body then </p><h2>heading</h2>");
+  });
+
+  it("leaves untouched paragraphs completely alone", () => {
+    const el = makeEditor("<p>Before</p><p>Some longer sentence</p><p>After</p>");
+    selectChars(el.querySelectorAll("p")[1], 5, 11);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe(
+      "<p>Before</p><p>Some </p><h2>longer</h2><p> sentence</p><p>After</p>",
+    );
+  });
+
+  it("splits both ends when the selection runs across two paragraphs", () => {
+    const el = makeEditor("<p>One two</p><p>three four</p>");
+    const paragraphs = el.querySelectorAll("p");
+    const range = document.createRange();
+    range.setStart(firstText(paragraphs[0]), 4);
+    range.setEnd(firstText(paragraphs[1]), 5);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe(
+      "<p>One </p><h2>two</h2><h2>three</h2><p> four</p>",
+    );
+  });
+
+  it("carries inline formatting into the heading it splits out", () => {
+    const el = makeEditor("<p>plain <b>bold tail</b></p>");
+    const bold = el.querySelector("b");
+    const range = document.createRange();
+    range.setStart(firstText(bold), 0);
+    range.setEnd(firstText(bold), 4);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe(
+      "<p>plain </p><h2><b>bold</b></h2><p><b> tail</b></p>",
+    );
+  });
+
+  it("does not split when the whole line is selected", () => {
+    const el = makeEditor("<p>Whole line</p>");
+    selectAcross(el.querySelector("p"));
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe("<h2>Whole line</h2>");
+  });
+
+  it("drops a whitespace-only leftover instead of leaving a blank line", () => {
+    const el = makeEditor("<p>  Heading</p>");
+    selectChars(el.querySelector("p"), 2, 9);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe("<h2>Heading</h2>");
+  });
+
+  it("keeps the split-out heading selected", () => {
+    const el = makeEditor("<p>Some longer sentence</p>");
+    selectChars(el.querySelector("p"), 5, 11);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(window.getSelection().toString()).toBe("longer");
+  });
+
+  it("toggles a split-out heading back without touching its neighbours", () => {
+    const el = makeEditor("<p>Some </p><h2>longer</h2><p> sentence</p>");
+    selectAcross(el.querySelector("h2"));
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe("<p>Some </p><p>longer</p><p> sentence</p>");
+  });
+
+  it("promotes a mixed selection to the heading rather than toggling", () => {
+    const el = makeEditor("<h2>Already</h2><p>Not yet</p>");
+    const range = document.createRange();
+    range.setStart(firstText(el.querySelector("h2")), 0);
+    range.setEnd(lastText(el.querySelector("p")), 7);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe("<h2>Already</h2><h2>Not yet</h2>");
+  });
+
+  it("splits a browser <div> line into real paragraphs", () => {
+    const el = makeEditor("First line<div>Second line here</div>");
+    selectChars(el.querySelector("div"), 7, 11);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe(
+      "<p>First line</p><p>Second </p><h2>line</h2><p> here</p>",
+    );
+  });
+
+  it("does not re-split a line that already has the tag", () => {
+    const el = makeEditor("<h2>Title</h2><p>Some longer sentence</p>");
+    const range = document.createRange();
+    range.setStart(firstText(el.querySelector("h2")), 0);
+    range.setEnd(firstText(el.querySelector("p")), 4);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe(
+      "<h2>Title</h2><h2>Some</h2><p> longer sentence</p>",
+    );
+  });
+
+  it("does nothing when the selected line is already a paragraph", () => {
+    const el = makeEditor("<p>Some longer sentence</p>");
+    selectChars(el.querySelector("p"), 5, 11);
+
+    expect(applyBlockFormat(el, "p", window)).toBe(false);
+    expect(el.innerHTML).toBe("<p>Some longer sentence</p>");
+  });
+
+  it("a caret still formats the whole line it sits on", () => {
+    const el = makeEditor("<p>Some longer sentence</p>");
+    caretIn(el.querySelector("p"), 8);
+
+    applyBlockFormat(el, "h2", window);
+
+    expect(el.innerHTML).toBe("<h2>Some longer sentence</h2>");
   });
 });
 
