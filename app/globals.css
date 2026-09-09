@@ -230,19 +230,32 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .rich-text h1 {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.25;
   margin: 1.2rem 0 0.5rem;
 }
 .rich-text h2 {
-  font-size: 1.75rem;
-  font-weight: 600;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.3;
   margin: 1rem 0 0.5rem;
 }
 .rich-text h3 {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.35;
   margin: 0.875rem 0 0.5rem;
+}
+/*
+ * A heading's size comes from the heading, full stop. Content saved by the old
+ * editor can carry an inline font-size on a span inside the heading, and an
+ * inline style beats a stylesheet — which made an H2 render at body size.
+ */
+.rich-text h1 [style*="font-size"],
+.rich-text h2 [style*="font-size"],
+.rich-text h3 [style*="font-size"] {
+  font-size: inherit !important;
 }
 .rich-text p {
   font-size: 1rem;

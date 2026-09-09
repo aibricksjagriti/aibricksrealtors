@@ -192,6 +192,42 @@ describe("headings", () => {
     expect(editor().getHTML()).toBe("<p>Body copy</p>");
   });
 
+  it("clears an inline font size that would fight the heading size", async () => {
+    const { editor } = await setup({
+      initial: '<p><span style="font-size: 12px">Small text</span></p>',
+    });
+
+    caretInBlock(editor(), 0);
+    click("Heading 2");
+
+    // No leftover span: the heading's own size from .rich-text applies.
+    expect(editor().getHTML()).toBe("<h2>Small text</h2>");
+  });
+
+  it("clears inline sizes across every line the selection covers", async () => {
+    const { editor } = await setup({
+      initial:
+        '<p><span style="font-size: 12px">One</span></p>' +
+        '<p><span style="font-size: 12px">Two</span></p>',
+    });
+
+    act(() => {
+      editor().commands.selectAll();
+    });
+    click("Heading 2");
+
+    expect(editor().getHTML()).toBe("<h2>One</h2><h2>Two</h2>");
+  });
+
+  it("keeps the text intact when a heading is toggled back off", async () => {
+    const { editor } = await setup({ initial: "<h2>Heading text</h2>" });
+
+    caretInBlock(editor(), 0);
+    click("Heading 2");
+
+    expect(editor().getHTML()).toBe("<p>Heading text</p>");
+  });
+
   it("marks the active heading button as pressed", async () => {
     const { editor } = await setup({ initial: "<h2>Heading</h2>" });
 
@@ -305,6 +341,20 @@ describe("font size", () => {
     });
 
     expect(editor().getHTML()).toBe("<p>Big</p>");
+  });
+
+  it("is disabled inside a heading, which owns its own size", async () => {
+    const { editor } = await setup({ initial: "<h2>Heading</h2><p>Body</p>" });
+
+    caretInBlock(editor(), 0);
+    await waitFor(() =>
+      expect(screen.getByLabelText("Font size")).toBeDisabled(),
+    );
+
+    caretInBlock(editor(), 1);
+    await waitFor(() =>
+      expect(screen.getByLabelText("Font size")).toBeEnabled(),
+    );
   });
 
   it("shows the size of the text the caret is in", async () => {

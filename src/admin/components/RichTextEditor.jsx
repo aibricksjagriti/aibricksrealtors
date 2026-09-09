@@ -133,10 +133,39 @@ export default function RichTextEditor({
     }),
   });
 
+  const inHeading = Boolean(state?.h1 || state?.h2 || state?.h3);
+
   const run = useCallback(
     (fn) => {
       if (!editor) return;
       fn(editor.chain().focus()).run();
+    },
+    [editor],
+  );
+
+  const toggleHeading = useCallback(
+    (level) => {
+      if (!editor) return;
+
+      // Turning the heading off — leave the text exactly as it is.
+      if (editor.isActive("heading", { level })) {
+        editor.chain().focus().toggleHeading({ level }).run();
+        return;
+      }
+
+      const { from, to, $from, $to } = editor.state.selection;
+
+      editor
+        .chain()
+        .focus()
+        // An inline font-size left on the line (often from content written in
+        // the old editor) would override the heading's own size, so the
+        // heading would come out looking like body text. Clear it first.
+        .setTextSelection({ from: $from.start(), to: $to.end() })
+        .unsetFontSize()
+        .setTextSelection({ from, to })
+        .toggleHeading({ level })
+        .run();
     },
     [editor],
   );
@@ -227,12 +256,16 @@ export default function RichTextEditor({
 
         <select
           aria-label="Font size"
+          // A heading's size comes from the heading level, so sizing text
+          // inside one is disabled rather than silently ignored.
+          disabled={inHeading}
+          title={inHeading ? "Headings use their own size" : "Font size"}
           value={state?.fontSize || ""}
           onChange={(e) => {
             const size = e.target.value;
             run((c) => (size ? c.setFontSize(size) : c.unsetFontSize()));
           }}
-          className="border border-gray-300 rounded px-2 py-1 text-sm text-gray-700"
+          className="border border-gray-300 rounded px-2 py-1 text-sm text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <option value="">Font size</option>
           {FONT_SIZES.map((size) => (
@@ -247,21 +280,21 @@ export default function RichTextEditor({
         <Btn
           title="Heading 1"
           active={state?.h1}
-          onClick={() => run((c) => c.toggleHeading({ level: 1 }))}
+          onClick={() => toggleHeading(1)}
         >
           <Heading1 size={16} />
         </Btn>
         <Btn
           title="Heading 2"
           active={state?.h2}
-          onClick={() => run((c) => c.toggleHeading({ level: 2 }))}
+          onClick={() => toggleHeading(2)}
         >
           <Heading2 size={16} />
         </Btn>
         <Btn
           title="Heading 3"
           active={state?.h3}
-          onClick={() => run((c) => c.toggleHeading({ level: 3 }))}
+          onClick={() => toggleHeading(3)}
         >
           <Heading3 size={16} />
         </Btn>
