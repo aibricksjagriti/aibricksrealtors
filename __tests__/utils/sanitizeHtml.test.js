@@ -11,23 +11,31 @@ describe("sanitizeHtml — keeps the editor's formatting", () => {
   });
 
   it("keeps a full page of editor output intact", () => {
+    // Exactly the shape TipTap emits.
     const html =
       "<h2>About the builder</h2>" +
-      "<p>Founded in <b>1985</b>, with <i>landmark</i> projects.</p>" +
-      "<ul><li>Residential</li><li>Commercial</li></ul>" +
-      '<p><a href="https://example.com">Read more</a></p>';
+      "<p>Founded in <strong>1985</strong>, with <em>landmark</em> projects.</p>" +
+      "<p><u>Underlined</u> and <s>struck</s>.</p>" +
+      "<ul><li><p>Residential</p></li><li><p>Commercial</p></li></ul>" +
+      "<ol><li><p>First</p></li></ol>" +
+      "<blockquote><p>A quote</p></blockquote>";
 
+    expect(sanitizeHtml(html)).toBe(html);
+  });
+
+  it("keeps the editor's links, target and rel included", () => {
+    const html =
+      '<p><a target="_blank" rel="noopener noreferrer" href="https://example.com">Read more</a></p>';
     expect(sanitizeHtml(html)).toBe(html);
   });
 
   it("keeps inline font sizes set from the toolbar", () => {
-    const html = '<p><span style="font-size: 24px;">Big line</span></p>';
+    const html = '<p><span style="font-size: 24px">Big line</span></p>';
     expect(sanitizeHtml(html)).toBe(html);
   });
 
   it("keeps uploaded images", () => {
-    const html =
-      '<p style="margin:16px 0"><img src="https://cdn.test/pic.jpg" alt="" style="max-width:100%;height:auto;border-radius:8px;" /></p>';
+    const html = '<img src="https://cdn.test/pic.jpg" alt="">';
     expect(sanitizeHtml(html)).toBe(html);
   });
 });

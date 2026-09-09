@@ -5,10 +5,12 @@
 import { render, screen } from "@testing-library/react";
 import AboutDeveloper from "@/src/Developers/AboutDeveloper";
 
+// The exact HTML the admin editor (TipTap) saves.
 const EDITOR_HTML =
   "<h2>Landmark projects</h2>" +
-  "<p>Founded in <b>1985</b>.</p>" +
-  "<ul><li>Residential</li></ul>";
+  "<p>Founded in <strong>1985</strong>.</p>" +
+  "<ul><li><p>Residential</p></li></ul>" +
+  '<p><span style="font-size: 24px">Big line</span></p>';
 
 describe("AboutDeveloper — renders editor output", () => {
   it("renders headings from an about block", () => {
@@ -22,7 +24,8 @@ describe("AboutDeveloper — renders editor output", () => {
     const heading = screen.getByText("Landmark projects");
     expect(heading.tagName).toBe("H2");
     expect(heading.closest(".rich-text")).not.toBeNull();
-    expect(screen.getByText("Residential").tagName).toBe("LI");
+    expect(screen.getByText("Residential").closest("li")).not.toBeNull();
+    expect(screen.getByText("Big line")).toHaveStyle({ fontSize: "24px" });
   });
 
   it("renders headings from the legacy single about field", () => {
