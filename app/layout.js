@@ -19,7 +19,7 @@ const lato = Lato({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://aibricksrealtors.com"),
+  metadataBase: new URL("https://www.aibricksrealtors.com"),
   title: {
     default: "AI Bricks Realtors | India's First AI-Driven Real Estate Platform",
     template: "%s",
@@ -48,6 +48,23 @@ new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-WTJDZXW8');`,
+          }}
+        />
+        {/* Google tag (gtag.js) */}
+        <Script
+          id="ga4-src"
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-R36MTXRGKK"
+        />
+        <Script
+          id="ga4-config"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-R36MTXRGKK');`,
           }}
         />
       </head>
