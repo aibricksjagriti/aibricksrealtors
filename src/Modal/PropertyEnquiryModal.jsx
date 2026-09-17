@@ -9,6 +9,10 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
     name: "",
     email: "",
     phone: "",
+    preferredLocation: property?.locality || property?.location || "",
+    propertyType: property?.propertyType || property?.type || "",
+    budgetRange: "",
+    purchaseTimeline: "",
     message: "",
   });
 
@@ -59,6 +63,10 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
           name: formData.name || null,
           email: formData.email || null,
           phone: formData.phone || null,
+          preferredLocation: formData.preferredLocation || null,
+          propertyType: formData.propertyType || null,
+          budgetRange: formData.budgetRange,
+          purchaseTimeline: formData.purchaseTimeline || null,
           message: formData.message || null,
 
           propertyId: property?.id || null,
@@ -79,6 +87,10 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
         name: "",
         email: "",
         phone: "",
+        preferredLocation: "",
+        propertyType: "",
+        budgetRange: "",
+        purchaseTimeline: "",
         message: "",
       });
 
@@ -99,6 +111,10 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
       name: "",
       email: "",
       phone: "",
+      preferredLocation: "",
+      propertyType: "",
+      budgetRange: "",
+      purchaseTimeline: "",
       message: "",
     });
     setError("");
@@ -120,7 +136,7 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="relative w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl border shadow-xl p-6"
+          className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white/95 backdrop-blur-xl border shadow-xl p-6"
         >
           <button
             onClick={handleClose}
@@ -169,7 +185,6 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
               placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
-              required
               disabled={loading || success}
               className="w-full rounded-md border px-3 py-2 bg-white focus:ring-2 focus:ring-brickred outline-none"
             />
@@ -196,10 +211,23 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
               className="w-full rounded-md border px-3 py-2 bg-gray-200 text-gray-700"
             />
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input name="preferredLocation" placeholder="Preferred Location" value={formData.preferredLocation} onChange={handleChange} disabled={loading || success} className="w-full rounded-md border px-3 py-2 bg-white" />
+              <select name="propertyType" value={formData.propertyType} onChange={handleChange} disabled={loading || success} className="w-full rounded-md border px-3 py-2 bg-white">
+                <option value="">Property Type</option><option>Apartment</option><option>Villa</option><option>Plot</option><option>Commercial</option>
+              </select>
+              <select aria-label="Budget Range" name="budgetRange" value={formData.budgetRange} onChange={handleChange} required disabled={loading || success} className="w-full rounded-md border px-3 py-2 bg-white">
+                <option value="">Budget Range *</option><option>Under ₹50 Lakhs</option><option>₹50 Lakhs - ₹1 Crore</option><option>₹1 - 2 Crores</option><option>₹2 - 4 Crores</option><option>Above ₹4 Crores</option>
+              </select>
+              <select name="purchaseTimeline" value={formData.purchaseTimeline} onChange={handleChange} disabled={loading || success} className="w-full rounded-md border px-3 py-2 bg-white">
+                <option value="">Purchase Timeline</option><option>Immediately</option><option>Within 3 months</option><option>3 - 6 months</option><option>6 - 12 months</option><option>Just exploring</option>
+              </select>
+            </div>
+
             <textarea
               name="message"
               rows="3"
-              placeholder="Your Message"
+              placeholder="Requirement / Message"
               value={formData.message}
               onChange={handleChange}
               disabled={loading || success}

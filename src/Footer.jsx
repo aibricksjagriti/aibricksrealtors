@@ -215,7 +215,8 @@ export default function Footer() {
           target="_blank"
           rel="noopener noreferrer"
           // className="fixed bottom-5 right-5 bg-green-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
-          className="fixed bottom-20 md:bottom-5 right-5 bg-green-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform "
+          aria-label="Chat with AI Bricks Realtors on WhatsApp"
+          className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] md:left-auto md:right-5 md:bottom-5 z-40 grid h-13 w-13 md:h-14 md:w-14 place-items-center bg-green-500 text-white rounded-full shadow-[0_6px_20px_rgba(15,30,62,0.32)] transition hover:scale-110"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

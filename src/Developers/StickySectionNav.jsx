@@ -95,17 +95,17 @@ export default function StickySectionNav() {
     <>
       {/* NAVBAR */}
       <nav className="fixed top-0 left-0 w-full bg-[var(--color-lightblue)] shadow-md z-50">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-4 md:py-6 flex justify-between items-center">
           {/* LOGO */}
-          <div className="flex items-center gap-3 text-xl font-bold text-[var(--color-darkgray)]">
+          <div className="flex min-w-0 max-w-[calc(100%-3.5rem)] items-center gap-3 text-base sm:text-lg md:text-xl font-bold text-[var(--color-darkgray)]">
             {developerLogo ? (
               <img
                 src={developerLogo}
                 alt={developerName}
-                className="h-16 w-[80px] object-contain"
+                className="h-10 w-24 sm:h-12 sm:w-28 md:h-16 md:w-32 object-contain"
               />
             ) : (
-              <span>{developerName}</span>
+              <span className="truncate">{developerName}</span>
             )}
           </div>
 
@@ -128,8 +128,10 @@ export default function StickySectionNav() {
 
           {/* MOBILE MENU BUTTON */}
           <button
+            type="button"
+            aria-label="Open developer navigation menu"
             onClick={() => setIsOpen(true)}
-            className="md:hidden text-white"
+            className="md:hidden grid h-10 w-10 shrink-0 place-items-center rounded-lg text-brickred hover:bg-white/50"
           >
             <Menu size={26} />
           </button>

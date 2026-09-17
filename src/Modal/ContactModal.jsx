@@ -10,8 +10,9 @@ export default function ContactModal() {
 
   useEffect(() => {
     const hasSeen = localStorage.getItem("enquiryPopupSeen");
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
-    if (hasSeen) {
+    if (hasSeen || isMobile) {
       return;
     }
 
@@ -47,9 +48,12 @@ export default function ContactModal() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-40 md:hidden rounded-full bg-brickred px-4 py-3 text-lightcream shadow-2xl cursor-pointer"
+        aria-label="Open enquiry form"
+        title="Enquiry"
+        className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-40 grid h-13 w-13 place-items-center rounded-full bg-ochre text-brickred shadow-[0_6px_20px_rgba(15,30,62,0.32)] transition hover:scale-105 active:scale-95 md:hidden"
       >
-        Enquiry
+        <MessageSquareMore size={23} aria-hidden="true" />
+        <span className="sr-only">Enquiry</span>
       </button>
 
       <LeadCaptureModal

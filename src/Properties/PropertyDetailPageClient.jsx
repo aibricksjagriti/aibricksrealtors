@@ -22,6 +22,8 @@ import { PropertyDetailSkeleton } from "@/src/skeletons/PropertyDetailSkeleton";
 import { LocationMapWithLoading } from "@/src/skeletons/LocationMapWithLoading";
 import toast from "react-hot-toast";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
+import Link from "next/link";
+import Image from "next/image";
 
 /* ================= UTIL ================= */
 
@@ -147,8 +149,36 @@ export default function PropertyDetailPageClient() {
             </div>
           </div>
         </div>
+        <RelatedProjects property={property} />
       </div>
     </div>
+  );
+}
+
+function RelatedProjects({ property }) {
+  const { data: projects = [] } = useQuery({
+    queryKey: ["related-properties", property.id],
+    queryFn: async () => {
+      const response = await fetch(`/api/v1/properties/${property.id}/related`);
+      if (!response.ok) return [];
+      const json = await response.json();
+      return json.data || [];
+    },
+  });
+  if (!projects.length) return null;
+  return (
+    <section className="mt-14" aria-labelledby="related-projects-heading">
+      <p className="text-sm font-bold uppercase tracking-[0.18em] text-ochre">Recommended for you</p>
+      <h2 id="related-projects-heading" className="mt-1 text-2xl md:text-3xl font-bold">You may also like</h2>
+      <div className="mt-6 flex snap-x gap-5 overflow-x-auto pb-4 no-scrollbar">
+        {projects.map((item) => (
+          <Link key={item.id} href={`/properties/${item.id}`} className="min-w-[82%] snap-start overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[45%] lg:min-w-[30%]">
+            <div className="relative h-44"><Image src={item.mainPropertyImage || item.imageGallery?.[0] || "/home/ajman.webp"} alt={item.propertyTitle || item.projectName || "Project"} fill className="object-cover" /></div>
+            <div className="p-4"><h3 className="font-bold">{item.projectName || item.propertyTitle}</h3><p className="mt-1 text-sm text-gray-500">{[item.locality, item.city].filter(Boolean).join(", ")}</p><p className="mt-3 font-semibold text-brickred">{item.priceRangeMin || item.totalPrice ? `From ₹ ${formatPrice(item.priceRangeMin || item.totalPrice)}` : "Price on request"}</p></div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 

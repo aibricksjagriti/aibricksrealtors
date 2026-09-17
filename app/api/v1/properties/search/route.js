@@ -13,34 +13,8 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
     
-    // If only 'q' is provided and no other filters, use simple search for backward compatibility
-    const hasFilters = searchParams.get('propertyType') || searchParams.get('city') || 
-                      searchParams.get('locality') || searchParams.get('state') || 
-                      searchParams.get('developer') || searchParams.get('builder') || searchParams.get('minPrice') || 
-                      searchParams.get('maxPrice') || searchParams.get('handover') || 
-                      searchParams.get('propertyStatus') || searchParams.get('sortBy') || 
-                      searchParams.get('page') || searchParams.get('limit');
-    
-    if (q && !hasFilters) {
-      // Simple text search (backward compatible)
-      if (q.trim().length === 0) {
-        return NextResponse.json({
-          success: false,
-          error: 'Search query is required'
-        }, { status: 400 });
-      }
-      
-      const properties = await propertyModel.searchByTitle(q.trim());
-
-      // Convert Firestore timestamps to ISO strings
-      const propertiesWithConvertedDates = properties.map(property => convertTimestamps(property));
-
-      return NextResponse.json({
-        success: true,
-        count: propertiesWithConvertedDates.length,
-        data: propertiesWithConvertedDates
-      });
-    }
+    // Text-only queries intentionally use advancedSearch too, so a term can
+    // match project name, title, location, developer, configuration or landmark.
 
     // Advanced search with filters
     const filters = {
@@ -127,4 +101,3 @@ export async function GET(req) {
     );
   }
 }
-

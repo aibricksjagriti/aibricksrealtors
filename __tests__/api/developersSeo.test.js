@@ -19,6 +19,7 @@ jest.mock('next/server', () => ({
     json: (data, init) => ({ data, init }),
   },
 }));
+jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }));
 
 const Developer = require('@/lib/models/Developer');
 const { POST } = require('@/app/api/v1/developers/route');

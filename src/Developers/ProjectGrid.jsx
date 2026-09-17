@@ -44,7 +44,7 @@ const PropertyCard = memo(function PropertyCard({ property, onEnquire }) {
         />
 
         {/* BUILDER */}
-        <div className="absolute top-3 left-0 bg-[#e8c13f] px-3 py-1 rounded-tr-xl rounded-br-xl text-sm font-semibold">
+        <div className="absolute top-3 left-0 max-w-[85%] truncate bg-[#e8c13f] px-3 py-1 rounded-tr-xl rounded-br-xl text-sm font-semibold">
           {property.developer}
         </div>
 
@@ -75,15 +75,15 @@ const PropertyCard = memo(function PropertyCard({ property, onEnquire }) {
         </div>
 
         {/* FOOTER */}
-        <div className="border-t mt-4 pt-4 flex justify-between items-center">
-          <span className="font-bold text-brickred">{property.price}</span>
+        <div className="border-t mt-4 pt-4 flex flex-wrap justify-between items-center gap-3">
+          <span className="min-w-0 text-sm sm:text-base font-bold text-brickred">{property.price}</span>
 
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEnquire(property);
             }}
-            className="bg-brickred text-white px-4 py-2 rounded-md text-sm hover:bg-ochre"
+            className="shrink-0 bg-brickred text-white px-4 py-2 rounded-md text-sm hover:bg-ochre"
           >
             Enquire Now
           </button>
@@ -156,12 +156,15 @@ export default function ProjectGrid({ projects, builderName }) {
         </h2>
 
         {/* TABS */}
-        <div className="flex gap-3 mb-8 flex-wrap mb-10">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-10 w-full" role="tablist" aria-label="Project categories">
           {tabs.map((tab) => (
             <button
               key={tab}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-8 py-4 rounded-md text-lg font-medium w-[32%] ${
+              className={`relative min-w-0 px-1.5 sm:px-4 py-3 sm:py-4 rounded-md text-xs min-[360px]:text-sm sm:text-base md:text-lg font-semibold break-words ${
                 activeTab === tab ? "bg-ochre text-darkgray" : "bg-gray-200"
               }`}
             >
@@ -186,7 +189,7 @@ export default function ProjectGrid({ projects, builderName }) {
             ))}
           </div>
         ) : (
-          <div className="h-[300px] max-h-[500px] flex flex-col justify-center items-center bg-white rounded-xl shadow">
+          <div className="min-h-[240px] px-4 flex flex-col justify-center items-center text-center bg-white rounded-xl shadow">
             <h3 className="text-lg font-semibold">No Properties Available</h3>
             <p className="text-gray-500">No {activeTab} properties found</p>
           </div>

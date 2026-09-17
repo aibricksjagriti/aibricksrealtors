@@ -8,8 +8,7 @@ import { MapPin, Bed, Ruler, Calendar, Building2, Flame } from "lucide-react";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
 
 /* ---------------- CONSTANTS ---------------- */
-const API_URL =
-  "/api/v1/properties?activeStatus=Yes&limit=9&includeTotal=false";
+const API_URL = "/api/v1/properties/trending?limit=9";
 const FALLBACK_IMAGE = "/home/ajman.webp";
 
 /* ---------------- PRICE FORMATTER ---------------- */
@@ -168,11 +167,13 @@ export default function TrendingProjects() {
   }, []);
 
   return (
-    <section className="bg-[#f8f8f8] py-16 px-4">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#0F1E3E] via-[#172b51] to-[#f8f8f8] pt-10 pb-16 px-4 md:pt-16">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <Building2 size={40} className="mx-auto text-[var(--color-ochre)]" />
-          <h2 className="text-4xl font-serif font-bold uppercase">Trending</h2>
+        <div className="text-center mb-12 text-white">
+          <span className="inline-flex items-center gap-2 rounded-full bg-ochre px-4 py-2 text-sm font-bold uppercase tracking-[0.18em] text-brickred shadow-lg"><Flame size={18} /> Popular now</span>
+          <Building2 size={40} className="mx-auto mt-5 text-[var(--color-ochre)]" />
+          <h2 className="text-4xl font-serif font-bold uppercase">Trending Projects</h2>
+          <p className="mt-2 text-white/75">The projects buyers are exploring right now</p>
         </div>
 
         <motion.div

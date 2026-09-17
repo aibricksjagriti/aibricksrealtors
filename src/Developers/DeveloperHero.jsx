@@ -70,7 +70,7 @@ export default function DeveloperHero({ builderName, projects, developer }) {
 
   return (
     <>
-      <section className="relative h-auto overflow-hidden pt-12 md:pt-20 xl:pt-30 pb-0 md:pb-10 xl:pb-10">
+      <section className="relative min-h-[600px] overflow-hidden pt-20 pb-8 sm:min-h-[630px] md:min-h-[680px] md:pt-28 md:pb-16">
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
@@ -87,32 +87,31 @@ export default function DeveloperHero({ builderName, projects, developer }) {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-5 lg:px-10 min-h-[85vh] flex items-center ">
-          <div className="max-w-4xl ml-20">
+        <div className="relative z-10 container mx-auto flex min-h-[492px] items-center px-4 sm:min-h-[520px] sm:px-6 md:min-h-[540px] lg:px-10">
+          <div className="mx-auto max-w-4xl text-center md:mx-0 md:text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/40 bg-white/10 backdrop-blur-md px-4 py-2 text-sm text-[#D4AF37] mb-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/40 bg-white/10 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-[#D4AF37] mb-4 md:mb-6">
               ✦ Premium Developer
             </div>
 
-            {/* Logo */}
-            {/* {developer?.logo && (
-              <div className="mb-8">
-                <div className="inline-flex bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-2xl">
+            {developer?.logo && (
+              <div className="mb-4 md:mb-6">
+                <div className="inline-flex h-16 w-32 sm:h-20 sm:w-40 md:h-24 md:w-56 items-center justify-center bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl p-2.5 md:p-4 shadow-2xl overflow-hidden">
                   <img
                     src={developer.logo}
                     alt={builderName}
-                    className="h-10 md:h-10 object-contain"
+                    className="block max-h-full max-w-full object-contain"
                   />
                 </div>
               </div>
-            )} */}
+            )}
 
             {/* Heading */}
-            <h1 className="text-white font-serif text-2xl md:text-3xl xl:text-5xl leading-tight font-bold">
+            <h1 className="break-words text-white font-serif text-3xl md:text-4xl xl:text-5xl leading-tight font-bold">
               {tagline}
             </h1>
 
-            <p className="mt-6 max-w-2xl text-gray-300 text-base md:text-lg leading-relaxed">
+            <p className="mx-auto mt-3 sm:mt-4 md:mt-5 max-w-2xl text-gray-200 text-sm sm:text-base md:mx-0 md:text-lg leading-relaxed">
               Explore premium residences crafted by{" "}
               <span className="text-[#D4AF37] font-semibold">
                 {builderName}
@@ -122,9 +121,9 @@ export default function DeveloperHero({ builderName, projects, developer }) {
             </p>
 
             {/* Stats */}
-            <div className="mt-4 flex flex-wrap gap-4">
-              <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 px-6 py-4">
-                <p className="text-3xl font-bold text-[#D4AF37]">
+            <div className="mt-4 md:mt-5 flex flex-wrap justify-center gap-4 md:justify-start">
+              <div className="rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 px-5 py-3 md:px-6 md:py-4">
+                <p className="text-2xl md:text-3xl font-bold text-[#D4AF37]">
                   {projectCount}
                 </p>
                 <p className="text-sm text-gray-300">Active Projects</p>
@@ -132,17 +131,17 @@ export default function DeveloperHero({ builderName, projects, developer }) {
             </div>
 
             {/* Buttons */}
-            <div className="mt-4 flex flex-wrap gap-4">
+            <div className="mt-4 md:mt-5 flex flex-col justify-center gap-2.5 sm:flex-row md:justify-start">
               <a
                 href="#projects"
-                className="bg-[#D4AF37] hover:bg-[#c29e2f] text-black font-semibold px-8 py-4 rounded-xl transition"
+                className="w-full bg-[#D4AF37] hover:bg-[#c29e2f] text-center text-black font-semibold px-6 py-3 rounded-xl transition sm:w-auto"
               >
                 Explore Projects
               </a>
 
               <button
                 onClick={() => setOpen(true)}
-                className="border border-white/30 bg-white/10 backdrop-blur-md text-white px-8 py-4 rounded-xl hover:bg-white/20 transition cursor-pointer"
+                className="w-full border border-white/30 bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-xl hover:bg-white/20 transition cursor-pointer sm:w-auto"
               >
                 Get Details
               </button>

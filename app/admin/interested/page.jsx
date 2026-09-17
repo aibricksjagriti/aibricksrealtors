@@ -64,7 +64,11 @@ export default function InterestedPage() {
       item.phone?.includes(searchTerm) ||
       item.propertyTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.propertyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.propertyLocation?.toLowerCase().includes(searchTerm.toLowerCase())
+      item.propertyLocation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.preferredLocation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.propertyType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.budgetRange?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.purchaseTimeline?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (date) => {
@@ -156,6 +160,7 @@ export default function InterestedPage() {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Property</th>
+                  <th>Budget</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -179,7 +184,7 @@ export default function InterestedPage() {
                     <td>
                       <div className="flex items-center text-gray-600">
                         <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                        {item.email}
+                        {item.email || "N/A"}
                       </div>
                     </td>
                     <td>
@@ -196,6 +201,7 @@ export default function InterestedPage() {
                         </span>
                       </div>
                     </td>
+                    <td className="text-gray-600 whitespace-nowrap">{item.budgetRange || "N/A"}</td>
                     <td className="text-gray-500 text-sm">{formatDate(item.createdAt)}</td>
                     <td>
                       <button
@@ -241,7 +247,23 @@ export default function InterestedPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Email</p>
-                  <p className="text-gray-700">{selectedItem.email}</p>
+                  <p className="text-gray-700">{selectedItem.email || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Preferred Location</p>
+                  <p className="text-gray-700">{selectedItem.preferredLocation || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Property Type / Configuration</p>
+                  <p className="text-gray-700">{selectedItem.propertyType || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Budget Range</p>
+                  <p className="font-semibold text-gray-700">{selectedItem.budgetRange || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Purchase Timeline</p>
+                  <p className="text-gray-700">{selectedItem.purchaseTimeline || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Phone</p>

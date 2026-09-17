@@ -58,54 +58,31 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function HeroVideo() {
   const videoRef = useRef(null);
-  const [showVideo, setShowVideo] = useState(false);
 
-  // Delay loading video for better LCP
   useEffect(() => {
-    const t = setTimeout(() => {
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
-      const isSmallScreen = window.matchMedia("(max-width: 767px)").matches;
-
-      const saveData =
-        navigator.connection?.saveData ||
-        navigator.mozConnection?.saveData ||
-        navigator.webkitConnection?.saveData;
-
-      if (prefersReducedMotion || isSmallScreen || saveData) return;
-
-      setShowVideo(true);
-    }, 1500);
-
-    return () => clearTimeout(t);
-  }, []);
-
-  // Play video when it becomes visible
-  useEffect(() => {
-    if (!showVideo || !videoRef.current) return;
-
+    if (!videoRef.current) return;
+    videoRef.current.muted = true;
     videoRef.current.play().catch(() => {});
-  }, [showVideo]);
-
-  if (!showVideo) return null;
+  }, []);
 
   return (
     <video
       ref={videoRef}
-      className="absolute inset-0 w-full h-full object-cover mt-20"
+      className="absolute inset-0 h-full w-full object-cover object-center"
       muted
       autoPlay
       loop
       playsInline
       preload="metadata"
+      poster="/home/hero-banner-home.png"
+      disablePictureInPicture
+      aria-hidden="true"
     >
-      <source src="/home/home-hero-video.mp4" type="video/mp4" />
+      <source src="/home/home-hero-video-web.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
   );
