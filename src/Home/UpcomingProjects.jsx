@@ -1,12 +1,14 @@
 "use client";
 
-import { Building2 } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import CtaModal from "../Modal/CtaModal";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function UpcomingProjects() {
   const [open, setOpen] = useState(false);
+  const trackRef = useRef(null);
+  const scroll = (direction) => trackRef.current?.scrollBy({ left: direction * Math.min(trackRef.current.clientWidth, 390), behavior: "smooth" });
 
   const projects = [
     {
@@ -57,11 +59,13 @@ export default function UpcomingProjects() {
         <p className="text-gray-600 mt-2 text-xl">New upcoming developments</p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="relative max-w-7xl mx-auto px-4 py-10">
+        <button aria-label="Previous upcoming projects" onClick={() => scroll(-1)} className="hidden md:grid absolute left-0 top-1/2 z-10 h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white shadow-lg text-brickred"><ChevronLeft /></button>
+        <div ref={trackRef} data-testid="upcoming-track" className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-4 no-scrollbar">
         {projects.map((project) => (
           <div
             key={project.name}
-            className="group bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 text-left hover:-translate-y-1 hover:shadow-2xl transition-all duration-300"
+            className="group min-w-[86%] sm:min-w-[48%] lg:min-w-[calc(33.333%-1rem)] snap-start bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 text-left hover:-translate-y-1 hover:shadow-2xl transition-all duration-300"
           >
             <div className="relative h-72 overflow-hidden">
               <Image
@@ -100,6 +104,8 @@ export default function UpcomingProjects() {
             </div>
           </div>
         ))}
+        </div>
+        <button aria-label="Next upcoming projects" onClick={() => scroll(1)} className="hidden md:grid absolute right-0 top-1/2 z-10 h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white shadow-lg text-brickred"><ChevronRight /></button>
       </div>
 
       <CtaModal open={open} onClose={() => setOpen(false)} />

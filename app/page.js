@@ -188,8 +188,8 @@ export default function Home() {
 
       <main className="bg-background">
         <HeroSection />
-        <UpcomingProjects />
         <TrendingProjectsClient />
+        <UpcomingProjects />
         <PropertyTypeSlider />
         <LogoSlider />
         <DemandSection />

@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom';
+import { TextDecoder, TextEncoder } from 'util';
+
+global.TextEncoder ??= TextEncoder;
+global.TextDecoder ??= TextDecoder;
 
 // ProseMirror (TipTap) measures the DOM; jsdom has no layout, so give it the
 // few geometry/scroll APIs it calls into.

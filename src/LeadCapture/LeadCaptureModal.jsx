@@ -25,6 +25,10 @@ export default function LeadCaptureModal({
     name: "",
     email: "",
     phone: "",
+    preferredLocation: propertyLocation || "",
+    propertyType: "",
+    budgetRange: "",
+    purchaseTimeline: "",
     message: "",
   });
   const [submitting, setSubmitting] = useState(false);
@@ -43,8 +47,8 @@ export default function LeadCaptureModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name?.trim() || !form.email?.trim() || !form.phone?.trim()) {
-      toast.error("Please fill in name, email, and phone");
+    if (!form.name?.trim() || !form.phone?.trim() || !form.budgetRange) {
+      toast.error("Please fill in name, phone, and budget");
       return;
     }
     if (!/^\d{10}$/.test(form.phone)) {
@@ -61,6 +65,10 @@ export default function LeadCaptureModal({
           name: form.name.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
+          preferredLocation: form.preferredLocation.trim() || null,
+          propertyType: form.propertyType || null,
+          budgetRange: form.budgetRange,
+          purchaseTimeline: form.purchaseTimeline || null,
           message: combinedMessage || null,
           propertyId: propertyId || null,
           propertyTitle: propertyTitle || null,
@@ -73,7 +81,7 @@ export default function LeadCaptureModal({
         throw new Error(data.error || "Submission failed");
       }
       toast.success("Thank you! Your enquiry has been submitted.");
-      setForm({ name: "", email: "", phone: "", message: "" });
+      setForm({ name: "", email: "", phone: "", preferredLocation: "", propertyType: "", budgetRange: "", purchaseTimeline: "", message: "" });
       onSuccess?.();
       onClose();
     } catch (err) {
@@ -112,15 +120,20 @@ export default function LeadCaptureModal({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Email *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Email (optional)</label>
             <input
               name="email"
               type="email"
               value={form.email}
               onChange={handleChange}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              required
             />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input aria-label="Preferred Location" name="preferredLocation" placeholder="Preferred Location" value={form.preferredLocation} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+            <select aria-label="Property Type" name="propertyType" value={form.propertyType} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">Property Type</option><option>Apartment</option><option>Villa</option><option>Plot</option><option>Commercial</option></select>
+            <select aria-label="Budget Range" name="budgetRange" value={form.budgetRange} onChange={handleChange} required className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">Budget Range *</option><option>Under ₹50 Lakhs</option><option>₹50 Lakhs - ₹1 Crore</option><option>₹1 - 2 Crores</option><option>₹2 - 4 Crores</option><option>Above ₹4 Crores</option></select>
+            <select aria-label="Purchase Timeline" name="purchaseTimeline" value={form.purchaseTimeline} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">Purchase Timeline</option><option>Immediately</option><option>Within 3 months</option><option>3 - 6 months</option><option>6 - 12 months</option><option>Just exploring</option></select>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Phone (10 digits) *</label>

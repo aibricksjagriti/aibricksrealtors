@@ -9,9 +9,11 @@ import { convertTimestamps } from '@/lib/utils/timestampConverter';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { name, phone, email, propertyId, propertyTitle, propertyName, propertyLocation, location, message } = body;
+    const { name, phone, email, propertyId, propertyTitle, propertyName, propertyLocation, location, preferredLocation, propertyType, budgetRange, purchaseTimeline, message } = body;
 
-    // All fields are optional - no validation required
+    if (!name?.trim() || !/^\d{10}$/.test(String(phone || "")) || !budgetRange?.trim()) {
+      return NextResponse.json({ success: false, error: 'Name, valid 10-digit phone, and budget are required.' }, { status: 400 });
+    }
 
     const interested = await interestedModel.create({
       name: name || null,
@@ -21,6 +23,10 @@ export async function POST(req) {
       propertyTitle: propertyTitle || null,
       propertyName: propertyName || null,
       propertyLocation: propertyLocation || location || null,
+      preferredLocation: preferredLocation || null,
+      propertyType: propertyType || null,
+      budgetRange,
+      purchaseTimeline: purchaseTimeline || null,
       message: message || null
     });
 
@@ -106,4 +112,3 @@ export async function GET(req) {
     );
   }
 }
-

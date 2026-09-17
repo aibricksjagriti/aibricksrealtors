@@ -31,8 +31,8 @@ export default function Navbar({
   return (
     <>
       <nav className="fixed top-0 left-0 w-full bg-[var(--color-lightblue)] shadow-md z-50">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <div className="text-2xl font-bold text-ochre w-[100px]">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-4 md:py-6 flex justify-between items-center">
+          <div className="text-2xl font-bold text-ochre w-[76px] sm:w-[90px] md:w-[100px]">
             <Link href="/" className="cursor-pointer">
               {/* AI BRICKS */}
               <img src="/aibricks-logo-2.png" alt="logo" />
@@ -119,8 +119,10 @@ export default function Navbar({
           </div>
 
           <button
+            type="button"
+            aria-label="Open navigation menu"
             onClick={() => setIsOpen(true)}
-            className="md:hidden text-brickred cursor-pointer"
+            className="md:hidden grid h-10 w-10 shrink-0 place-items-center rounded-lg text-brickred hover:bg-white/50 cursor-pointer"
           >
             <Menu size={26} />
           </button>
