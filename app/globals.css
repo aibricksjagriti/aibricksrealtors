@@ -178,6 +178,27 @@ h1, h2, h3, h4, h5, h6 {
   animation: routeProgress 1.15s ease-in-out infinite;
 }
 
+.developer-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ochre) rgba(15, 30, 62, 0.12);
+}
+
+.developer-scroll::-webkit-scrollbar { height: 8px; }
+.developer-scroll::-webkit-scrollbar-track { background: rgba(15, 30, 62, 0.12); }
+.developer-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-ochre);
+  border-radius: 999px;
+}
+
+.header-menu-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: var(--color-ochre) #e5e7eb;
+}
+.header-menu-scroll::-webkit-scrollbar { width: 9px; }
+.header-menu-scroll::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 999px; }
+.header-menu-scroll::-webkit-scrollbar-thumb { background: var(--color-ochre); border-radius: 999px; border: 2px solid #e5e7eb; }
+
+
 @layer utilities {
   @keyframes gradientShift {
     0% {

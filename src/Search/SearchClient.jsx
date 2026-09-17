@@ -10,6 +10,7 @@ import ContactSidebar from "../Properties/ContactSidebar";
 import BookSiteVisitCard from "../Properties/BookSiteVisitCard";
 import LeadCaptureModal from "../LeadCapture/LeadCaptureModal";
 import Image from "next/image";
+import { formatPropertyPrice } from "../../lib/utils/formatPropertyPrice";
 
 export default function SearchClient() {
   const searchParams = useSearchParams();
@@ -21,6 +22,7 @@ export default function SearchClient() {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showDeveloperLead, setShowDeveloperLead] = useState(false);
   const [filters, setFilters] = useState(() => ({
+    q: searchParams.get("q") || searchParams.get("search") || "",
     city: searchParams.get("city") || "",
     propertyType: searchParams.get("propertyType") || "",
     developer:
@@ -64,6 +66,7 @@ export default function SearchClient() {
 
   useEffect(() => {
     setFilters({
+      q: searchParams.get("q") || searchParams.get("search") || "",
       city: searchParams.get("city") || "",
       propertyType: searchParams.get("propertyType") || "",
       developer:
@@ -105,6 +108,7 @@ export default function SearchClient() {
     isError: error,
   } = useQuery({
     queryKey: ["properties", searchParams.toString()],
+    placeholderData: (previousData) => previousData,
     queryFn: async () => {
       const res = await fetch(
         `/api/v1/properties/search?${searchParams.toString()}`,
@@ -119,6 +123,7 @@ export default function SearchClient() {
 
   const clearFilters = useCallback(() => {
     setFilters({
+      q: "",
       city: "",
       propertyType: "",
       developer: "",
@@ -131,6 +136,7 @@ export default function SearchClient() {
   useEffect(() => {
     const params = new URLSearchParams();
 
+    if (filters.q.trim()) params.set("q", filters.q.trim());
     if (filters.city) params.set("city", filters.city);
     if (filters.propertyType) params.set("propertyType", filters.propertyType);
     if (filters.developer) params.set("developer", filters.developer);
@@ -146,7 +152,7 @@ export default function SearchClient() {
   }, [filters, router, searchParams]);
 
   const filterPanel = (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm mt-24">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-darkgray">Refine results</p>
@@ -208,7 +214,7 @@ export default function SearchClient() {
         </select>
 
         <select
-          value={filters.minPrice}
+          value={filters.minPrice || filters.maxPrice ? `${filters.minPrice}-${filters.maxPrice}` : ""}
           onChange={(e) => {
             const [min, max] = e.target.value.split("-");
             setFilters((current) => ({
@@ -263,7 +269,7 @@ export default function SearchClient() {
             onGetDetails={openDeveloperLead}
           />
         ) : null}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 space-y-4">
             <div className="bg-white border rounded-xl shadow-sm p-5 space-y-4">
               <div className="h-6 w-2/3 rounded-full bg-gray-200 animate-pulse" />
@@ -276,10 +282,7 @@ export default function SearchClient() {
                 key={index}
                 className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-4 shadow-sm"
               >
-                <div
-                  className="relative w-full rounded-lg overflow-hidden bg-gray-200 animate-pulse"
-                  style={{ width: 260, height: 180 }}
-                />
+                <div className="relative h-48 w-full shrink-0 rounded-lg overflow-hidden bg-gray-200 animate-pulse md:h-[180px] md:w-[260px]" />
                 <div className="flex-1 space-y-4">
                   <div className="h-6 w-3/4 rounded-full bg-gray-200 animate-pulse" />
                   <div className="h-4 w-1/3 rounded-full bg-gray-200 animate-pulse" />
@@ -429,10 +432,7 @@ export default function SearchClient() {
             {/* <div className="w-full md:w-56 h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
               Image Coming Soon
             </div> */}
-            <div
-              className="relative w-full rounded-lg overflow-hidden bg-gray-200"
-              style={{ width: 260, height: 180 }}
-            >
+            <div className="relative h-48 w-full shrink-0 rounded-lg overflow-hidden bg-gray-200 md:h-[180px] md:w-[260px]">
               <Image
                 src={
                   item.mainPropertyImage ||
@@ -531,9 +531,7 @@ export default function SearchClient() {
             {/* ACTIONS */}
             <div className="md:w-52 flex flex-col justify-between">
               <p className="text-xl font-semibold text-brickred text-right mb-4">
-                {item.totalPrice < 10000000
-                  ? `₹ ${(item.totalPrice / 100000).toFixed(0)} Lakhs`
-                  : `₹ ${(item.totalPrice / 10000000).toFixed(2)} Cr`}
+                {formatPropertyPrice(item)}
               </p>
 
               <div className="flex md:flex-col gap-2 ">

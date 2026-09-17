@@ -33,6 +33,7 @@ export default function LogoSlider() {
   const trackRef = useRef(null);
   const [selected, setSelected] = useState("");
   const scroll = (direction) => trackRef.current?.scrollBy({ left: direction * 320, behavior: "smooth" });
+
   return (
     <section className="w-full py-16 px-4">
       <div className="mx-auto mb-7 max-w-7xl text-center"><p className="text-sm font-bold uppercase tracking-[0.2em] text-ochre">Trusted brands</p><h2 className="mt-2 text-3xl md:text-4xl font-bold">Explore Developers</h2></div>
@@ -42,7 +43,7 @@ export default function LogoSlider() {
 
         {/* Moving track */}
         <button aria-label="Previous developers" onClick={() => scroll(-1)} className="absolute left-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white shadow"><ChevronLeft /></button>
-        <div ref={trackRef} className="relative flex snap-x gap-5 overflow-x-auto scroll-smooth py-7 px-16 no-scrollbar">
+        <div ref={trackRef} className="developer-scroll relative flex snap-x gap-5 overflow-x-auto scroll-smooth pt-7 pb-5 px-16">
           {logos.map((logo) => (
             <Link
               href={logo.href}
@@ -62,6 +63,7 @@ export default function LogoSlider() {
         </div>
         <button aria-label="Next developers" onClick={() => scroll(1)} className="absolute right-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white shadow"><ChevronRight /></button>
       </div>
+
     </section>
   );
 }

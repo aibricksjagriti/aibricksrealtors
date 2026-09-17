@@ -66,9 +66,8 @@ export default function HeroSection({ searchBasePath = "/search" } = {}) {
                 <option value="Apartment">Apartments</option>
                 <option value="Villa">Villas</option>
                 <option value="Penthouse">Penthouses</option>
-                <option value="Commercials">Commercials</option>
-                <option value="Plots">Plots</option>
-                <option value="Investments">Investments</option>
+                <option value="Commercial">Commercials</option>
+                <option value="Plot">Plots</option>
               </select>
 
               {/* City */}
@@ -113,6 +112,7 @@ export default function HeroSection({ searchBasePath = "/search" } = {}) {
               {/* Price */}
               <div className="sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row gap-4">
                 <select
+                  value={minPrice || maxPrice ? `${minPrice}-${maxPrice}` : ""}
                   onChange={(e) => {
                     const [min, max] = e.target.value.split("-");
                     setMinPrice(min || "");

@@ -6,7 +6,8 @@ export default function HeroSection() {
   return (
     <>
       {/* HERO BANNER */}
-      <section data-home-hero className="relative h-[430px] sm:h-[480px] md:h-[700px] w-full overflow-hidden">
+      <section data-home-hero className="relative z-30 h-[430px] sm:h-[480px] md:h-[700px] w-full">
+        <div className="absolute inset-0 overflow-hidden">
         {/* LCP IMAGE */}
         <Image
           src="/home/hero-banner-home.png"
@@ -25,6 +26,7 @@ export default function HeroSection() {
 
         {/* Keep text legible over both the poster and video. */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/45" />
+        </div>
 
         {/* HERO CONTENT */}
         <div className="absolute inset-0 z-10 flex w-full flex-col items-center justify-center px-4 pt-16 text-white md:justify-end md:pb-10">
@@ -33,7 +35,7 @@ export default function HeroSection() {
           </h1>
 
           {/* ✅ Desktop Search (inside banner) */}
-          <div className="hidden md:block">
+          <div className="hidden w-full max-w-6xl md:block">
             <HeroSearch />
           </div>
         </div>

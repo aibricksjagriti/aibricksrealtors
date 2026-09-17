@@ -74,7 +74,7 @@ export default function PropertySectionNav() {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 w-full bg-[var(--color-brickred)] shadow-md z-50">
+      <nav className="sticky top-0 left-0 w-full shrink-0 bg-[var(--color-brickred)] shadow-md z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center gap-4">
           {/* ✅ BACK BUTTON + PROPERTY NAME */}
           <div className="flex items-center gap-3 min-w-0">

@@ -70,12 +70,13 @@ export default function HeroSearch() {
   }, [filters.q]);
 
   return (
-    <div className="mx-auto max-w-6xl bg-white/15 backdrop-blur-xl border border-white/35 md:border-brickred rounded-2xl p-3 sm:p-4 md:p-6 shadow-[0_18px_50px_rgba(15,30,62,0.28)] ring-1 ring-black/5">
+    <div className="relative z-[60] mx-auto w-full max-w-6xl bg-white/15 backdrop-blur-xl border border-white/35 md:border-brickred rounded-2xl p-3 sm:p-4 md:p-6 shadow-[0_18px_50px_rgba(15,30,62,0.28)] ring-1 ring-black/5">
       <form
         className="grid grid-cols-[1fr_auto] lg:grid-cols-5 gap-2 md:gap-4 mb-3 md:mb-4"
         onSubmit={(event) => { event.preventDefault(); handleSearch(); }}
       >
         <div ref={searchBoxRef} className="relative lg:col-span-4">
+        <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-gray-400" size={18} />
         <input
           aria-label="Search by project, location or developer"
           placeholder="Project, location or developer"
@@ -86,16 +87,16 @@ export default function HeroSearch() {
             handleChange("q", e.target.value);
             setSuggestionsOpen(e.target.value.trim().length >= 2);
           }}
-          className="w-full p-3 rounded-lg border border-gray-200 bg-white text-black"
+          className="w-full rounded-lg border border-gray-200 bg-white py-3 pl-10 pr-3 text-black"
         />
         {suggestionsOpen && filters.q.trim().length >= 2 && (
-          <div className="absolute z-30 left-0 right-0 top-full mt-2 overflow-hidden rounded-xl bg-white text-left text-gray-900 shadow-2xl">
+          <div className="absolute z-[100] left-0 right-0 top-full mt-2 max-h-80 overflow-y-auto overscroll-contain rounded-xl border border-gray-100 bg-white text-left text-gray-900 shadow-2xl">
             {suggesting ? (
               <p className="px-4 py-3 text-sm text-gray-500">Finding projects…</p>
             ) : suggestions.length ? suggestions.map((item) => (
-              <button type="button" key={item.id} onClick={() => { setSuggestionsOpen(false); router.push(`/properties/${item.id}`); }} className="flex w-full min-w-0 items-start gap-3 border-b border-gray-100 px-4 py-3 hover:bg-blue-50 last:border-0">
+              <button type="button" key={item.id} onClick={() => { setSuggestionsOpen(false); router.push(`/properties/${item.id}`); }} className="flex w-full min-w-0 items-start gap-3 border-b border-gray-100 px-4 py-3 text-left hover:bg-blue-50 last:border-0">
                 <Building2 className="mt-0.5 shrink-0 text-ochre" size={18} />
-                <span className="min-w-0 flex-1"><span className="block truncate font-semibold">{item.projectName || item.propertyTitle}</span><span className="flex min-w-0 items-center gap-1 text-xs text-gray-500"><MapPin className="shrink-0" size={12} /><span className="truncate">{[item.locality, item.city, item.builderName].filter(Boolean).join(" · ")}</span></span></span>
+                <span className="min-w-0 flex-1 text-left"><span className="block truncate text-left font-semibold">{item.projectName || item.propertyTitle}</span><span className="flex min-w-0 items-center justify-start gap-1 text-left text-xs text-gray-500"><MapPin className="shrink-0" size={12} /><span className="truncate text-left">{[item.locality, item.city, item.builderName].filter(Boolean).join(" · ")}</span></span></span>
               </button>
             )) : <p className="px-4 py-3 text-sm text-gray-600">No projects found</p>}
           </div>
@@ -106,6 +107,7 @@ export default function HeroSearch() {
 
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
         <select
+          value={filters.propertyType}
           onChange={(e) => handleChange("propertyType", e.target.value)}
           className="min-w-0 p-2.5 md:p-3 rounded-lg border border-gray-200 bg-white text-sm md:text-base text-black"
         >
@@ -113,12 +115,12 @@ export default function HeroSearch() {
           <option value="Apartment">Apartments</option>
           <option value="Villa">Villas</option>
           <option value="Penthouse">Penthouses</option>
-          <option value="Commercials">Commercials</option>
-          <option value="Plots">Plots</option>
-          <option value="Investments">Investments</option>
+          <option value="Commercial">Commercials</option>
+          <option value="Plot">Plots</option>
         </select>
 
         <select
+          value={filters.city}
           onChange={(e) => handleChange("city", e.target.value)}
           className="min-w-0 p-2.5 md:p-3 rounded-lg border border-gray-200 bg-white text-sm md:text-base text-black"
         >
@@ -129,6 +131,7 @@ export default function HeroSearch() {
         </select>
 
         <select
+          value={filters.developer}
           onChange={(e) => handleChange("developer", e.target.value)}
           className="min-w-0 p-2.5 md:p-3 rounded-lg border border-gray-200 bg-white text-sm md:text-base text-black"
         >
@@ -148,6 +151,7 @@ export default function HeroSearch() {
         </select>
 
         <select
+          value={filters.minPrice || filters.maxPrice ? `${filters.minPrice}-${filters.maxPrice}` : ""}
           onChange={(e) => {
             const [min, max] = e.target.value.split("-");
             handleChange("minPrice", min);
