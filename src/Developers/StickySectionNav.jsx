@@ -94,7 +94,7 @@ export default function StickySectionNav() {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 w-full bg-[var(--color-lightblue)] shadow-md z-50">
+      <nav className="sticky top-0 left-0 w-full shrink-0 bg-[var(--color-lightblue)] shadow-md z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-4 md:py-6 flex justify-between items-center">
           {/* LOGO */}
           <div className="flex min-w-0 max-w-[calc(100%-3.5rem)] items-center gap-3 text-base sm:text-lg md:text-xl font-bold text-[var(--color-darkgray)]">
