@@ -330,7 +330,7 @@ function HighlightStrip({ property }) {
       : null,
     ["Furnishing", property.furnishing],
     isUnderConstruction
-      ? ["Possession", property.possessionDate || "—"]
+      ? ["RERA Possession Date", property.possessionDate || "—"]
       : ["Ownership", property.ownershipType],
   ].filter(Boolean);
 
@@ -928,7 +928,7 @@ function LegalDetails({ property }) {
     ["Property Status", property.propertyStatus],
     ["Furnishing", property.furnishing],
     property.propertyStatus === "Under Construction" && property.possessionDate
-      ? ["Possession Date", property.possessionDate]
+      ? ["RERA Possession Date", property.possessionDate]
       : null,
     property.propertyStatus === "Ready to Move" && property.ageOfProperty
       ? ["Age of Property", property.ageOfProperty]
