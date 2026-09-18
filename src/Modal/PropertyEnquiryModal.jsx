@@ -214,7 +214,7 @@ export default function PropertyEnquiryModal({ isOpen, onClose, property }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input name="preferredLocation" placeholder="Preferred Location" value={formData.preferredLocation} onChange={handleChange} disabled={loading || success} className="w-full rounded-md border px-3 py-2 bg-white" />
               <select name="propertyType" value={formData.propertyType} onChange={handleChange} disabled={loading || success} className="w-full rounded-md border px-3 py-2 bg-white">
-                <option value="">Property Type</option><option>Apartment</option><option>Villa</option><option>Plot</option><option>Commercial</option>
+                <option value="">Configuration</option><option>Apartment</option><option>Villa</option><option>Plot</option><option>Commercial</option>
               </select>
               <select aria-label="Budget Range" name="budgetRange" value={formData.budgetRange} onChange={handleChange} required disabled={loading || success} className="w-full rounded-md border px-3 py-2 bg-white">
                 <option value="">Budget Range *</option><option>Under ₹50 Lakhs</option><option>₹50 Lakhs - ₹1 Crore</option><option>₹1 - 2 Crores</option><option>₹2 - 4 Crores</option><option>Above ₹4 Crores</option>

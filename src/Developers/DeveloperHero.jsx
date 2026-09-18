@@ -94,18 +94,6 @@ export default function DeveloperHero({ builderName, projects, developer }) {
               ✦ Premium Developer
             </div>
 
-            {developer?.logo && (
-              <div className="mb-4 md:mb-6">
-                <div className="inline-flex h-16 w-32 sm:h-20 sm:w-40 md:h-24 md:w-56 items-center justify-center bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl p-2.5 md:p-4 shadow-2xl overflow-hidden">
-                  <img
-                    src={developer.logo}
-                    alt={builderName}
-                    className="block max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-            )}
-
             {/* Heading */}
             <h1 className="break-words text-white font-serif text-3xl md:text-4xl xl:text-5xl leading-tight font-bold">
               {tagline}
