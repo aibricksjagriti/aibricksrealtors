@@ -917,7 +917,7 @@ export default function EditPropertyPage() {
               </div>
               {formData.propertyStatus === "Under Construction" && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Possession Date</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">RERA Possession Date</label>
                   <input
                     type="date"
                     name="possessionDate"

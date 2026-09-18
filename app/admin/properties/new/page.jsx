@@ -1025,7 +1025,7 @@ export default function NewPropertyPage() {
               {formData.propertyStatus === "Under Construction" && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Possession Date
+                    RERA Possession Date
                   </label>
                   <input
                     type="date"
