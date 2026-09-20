@@ -3,6 +3,7 @@
 import { Search, MapPin, Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 export default function HeroSearch() {
   const router = useRouter();
@@ -94,7 +95,7 @@ export default function HeroSearch() {
             {suggesting ? (
               <p className="px-4 py-3 text-sm text-gray-500">Finding projects…</p>
             ) : suggestions.length ? suggestions.map((item) => (
-              <button type="button" key={item.id} onClick={() => { setSuggestionsOpen(false); router.push(`/properties/${item.id}`); }} className="flex w-full min-w-0 items-start gap-3 border-b border-gray-100 px-4 py-3 text-left hover:bg-blue-50 last:border-0">
+              <button type="button" key={item.id} onClick={() => { setSuggestionsOpen(false); router.push(getPropertyPath(item)); }} className="flex w-full min-w-0 items-start gap-3 border-b border-gray-100 px-4 py-3 text-left hover:bg-blue-50 last:border-0">
                 <Building2 className="mt-0.5 shrink-0 text-ochre" size={18} />
                 <span className="min-w-0 flex-1 text-left"><span className="block truncate text-left font-semibold">{item.projectName || item.propertyTitle}</span><span className="flex min-w-0 items-center justify-start gap-1 text-left text-xs text-gray-500"><MapPin className="shrink-0" size={12} /><span className="truncate text-left">{[item.locality, item.city, item.builderName].filter(Boolean).join(" · ")}</span></span></span>
               </button>

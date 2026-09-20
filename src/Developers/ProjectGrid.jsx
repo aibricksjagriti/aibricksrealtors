@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MapPin, Bed, Ruler, Calendar, Flame } from "lucide-react";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 /* ---------------- CONSTANTS ---------------- */
 const FALLBACK_IMAGE = "/home/ajman.webp";
@@ -29,7 +30,7 @@ const PropertyCard = memo(function PropertyCard({ property, onEnquire }) {
 
   return (
     <div
-      onClick={() => router.push(`/properties/${property.id}`)}
+      onClick={() => router.push(getPropertyPath(property))}
       className="relative bg-white rounded-3xl overflow-hidden shadow-lg w-full max-w-[370px]
       cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
     >

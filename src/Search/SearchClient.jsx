@@ -11,6 +11,7 @@ import BookSiteVisitCard from "../Properties/BookSiteVisitCard";
 import LeadCaptureModal from "../LeadCapture/LeadCaptureModal";
 import Image from "next/image";
 import { formatPropertyPrice } from "../../lib/utils/formatPropertyPrice";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 export default function SearchClient() {
   const searchParams = useSearchParams();
@@ -536,7 +537,7 @@ export default function SearchClient() {
 
               <div className="flex md:flex-col gap-2 ">
                 <button
-                  onClick={() => router.push(`/properties/${item.id}`)}
+                  onClick={() => router.push(getPropertyPath(item))}
                   className="w-full border border-brickred text-brickred rounded-lg py-2 text-md font-semibold hover:bg-brickred hover:text-white transition"
                 >
                   View Details

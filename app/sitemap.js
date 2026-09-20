@@ -2,6 +2,7 @@ import { SITE_URL } from "@/lib/utils/seo";
 import Developer from "@/lib/models/Developer";
 import LocationPage from "@/lib/models/LocationPage";
 import { getCachedProperties } from "@/lib/data/properties";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 export const revalidate = 3600;
 
@@ -34,7 +35,7 @@ export default async function sitemap() {
     propertyRoutes = properties
       .filter((p) => p?.id)
       .map((p) => ({
-        url: `${SITE_URL}/properties/${p.id}`,
+        url: `${SITE_URL}${getPropertyPath(p)}`,
         lastModified: toDate(p.updatedAt || p.createdAt),
         changeFrequency: "weekly",
         priority: 0.8,

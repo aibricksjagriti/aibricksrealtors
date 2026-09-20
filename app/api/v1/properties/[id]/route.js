@@ -11,7 +11,7 @@ import { normalizeFloorPlansFromBody } from '@/lib/utils/floorPlans';
 export async function GET(req, { params }) {
   try {
     const { id } = await params;
-    const property = await propertyModel.getById(id);
+    const property = await propertyModel.getByIdentifier(id);
 
     if (!property) {
       return NextResponse.json(
@@ -160,4 +160,3 @@ export async function DELETE(req, { params }) {
     );
   }
 }
-

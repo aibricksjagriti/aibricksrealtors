@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import BookSiteVisitModal from "./BookSiteVisitModal";
 import { useState } from "react";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 export default function PropertyCard({ property }) {
   const [openTour, setOpenTour] = useState(false);
@@ -126,7 +127,7 @@ export default function PropertyCard({ property }) {
               />
 
               <Link
-                href={`/properties/${property.id}`}
+                href={getPropertyPath(property)}
                 className="flex items-center gap-1 bg-brickred text-white px-2 py-2 rounded-lg text-md hover:bg-ochre transition"
               >
                 View Details
