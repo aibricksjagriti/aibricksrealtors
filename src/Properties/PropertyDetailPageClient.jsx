@@ -24,6 +24,7 @@ import toast from "react-hot-toast";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
 import Link from "next/link";
 import Image from "next/image";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 /* ================= UTIL ================= */
 
@@ -67,7 +68,7 @@ export default function PropertyDetailPageClient() {
 
   return (
     <div className="bg-[#f4f6f9]">
-      <div className="max-w-7xl mx-auto px-4 pt-28 pb-16">
+      <div className="max-w-7xl mx-auto px-4 pt-5 sm:pt-7 lg:pt-8 pb-16">
         {/* ================= TITLE ROW ================= */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
           <div>
@@ -172,7 +173,7 @@ function RelatedProjects({ property }) {
       <h2 id="related-projects-heading" className="mt-1 text-2xl md:text-3xl font-bold">You may also like</h2>
       <div className="mt-6 flex snap-x gap-5 overflow-x-auto pb-4 no-scrollbar">
         {projects.map((item) => (
-          <Link key={item.id} href={`/properties/${item.id}`} className="min-w-[82%] snap-start overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[45%] lg:min-w-[30%]">
+          <Link key={item.id} href={getPropertyPath(item)} className="min-w-[82%] snap-start overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-w-[45%] lg:min-w-[30%]">
             <div className="relative h-44"><Image src={item.mainPropertyImage || item.imageGallery?.[0] || "/home/ajman.webp"} alt={item.propertyTitle || item.projectName || "Project"} fill className="object-cover" /></div>
             <div className="p-4"><h3 className="font-bold">{item.projectName || item.propertyTitle}</h3><p className="mt-1 text-sm text-gray-500">{[item.locality, item.city].filter(Boolean).join(", ")}</p><p className="mt-3 font-semibold text-brickred">{item.priceRangeMin || item.totalPrice ? `From ₹ ${formatPrice(item.priceRangeMin || item.totalPrice)}` : "Price on request"}</p></div>
           </Link>

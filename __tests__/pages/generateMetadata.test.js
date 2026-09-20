@@ -167,7 +167,7 @@ describe('/properties/[id] metadata', () => {
     const meta = await propertyMetadata(params({ id: 'abc123' }));
     expect(meta.title).toBe('Green Villa in Baner, Pune | AI Bricks Realtors');
     expect(meta.description.length).toBeLessThanOrEqual(160);
-    expect(meta.alternates.canonical).toBe(`${SITE_URL}/properties/abc123`);
+    expect(meta.alternates.canonical).toBe(`${SITE_URL}/properties/green-villa`);
   });
 
   test('does not crash when property is missing', async () => {

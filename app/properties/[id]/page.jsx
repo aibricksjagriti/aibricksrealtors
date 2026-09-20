@@ -1,6 +1,8 @@
 import PropertyDetailPageClient from "@/src/Properties/PropertyDetailPageClient";
 import propertyModel from "@/lib/models/Property";
 import { buildMetadata } from "@/lib/utils/seo";
+import { getPropertySlug } from "@/lib/utils/propertySlug";
+import { permanentRedirect } from "next/navigation";
 
 export const revalidate = 300;
 
@@ -22,7 +24,9 @@ export async function generateMetadata({ params }) {
 
   let property = null;
   try {
-    property = await propertyModel.getById(id);
+    property = propertyModel.getByIdentifier
+      ? await propertyModel.getByIdentifier(id)
+      : await propertyModel.getById(id);
   } catch {}
 
   if (!property) {
@@ -43,11 +47,18 @@ export async function generateMetadata({ params }) {
       `View details, price, floor plans and photos of ${property.propertyTitle || "this property"}${locationText ? ` in ${locationText}` : ""}.`,
     keywords: property.metaKeywords,
     canonicalUrl: property.canonicalUrl,
-    path: `/properties/${id}`,
+    path: `/properties/${getPropertySlug(property)}`,
     image: property.mainPropertyImage,
   });
 }
 
-export default function PropertyDetailPage() {
+export default async function PropertyDetailPage({ params }) {
+  const { id } = await params;
+  const property = propertyModel.getByIdentifier
+    ? await propertyModel.getByIdentifier(id)
+    : await propertyModel.getById(id);
+  if (property && id !== getPropertySlug(property)) {
+    permanentRedirect(`/properties/${getPropertySlug(property)}`);
+  }
   return <PropertyDetailPageClient />;
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown, MapPin, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 export default function Navbar({
   initialBuilders = [],
@@ -113,7 +114,7 @@ export default function Navbar({
                         ) : builderProjects[hoveredBuilder]?.length ? (
                           <div className="mt-4 space-y-2">
                             {builderProjects[hoveredBuilder].map((property) => (
-                              <Link key={property.id} href={`/properties/${property.id}`} className="group flex items-center justify-between gap-3 rounded-xl border border-gray-100 p-3 hover:border-ochre hover:bg-amber-50/50">
+                              <Link key={property.id} href={getPropertyPath(property)} className="group flex items-center justify-between gap-3 rounded-xl border border-gray-100 p-3 hover:border-ochre hover:bg-amber-50/50">
                                 <span className="min-w-0"><span className="block truncate font-bold">{property.projectName || property.propertyTitle}</span><span className="mt-1 flex items-center gap-1 truncate text-xs text-gray-500"><MapPin size={12} />{[property.locality, property.city].filter(Boolean).join(", ")}</span></span>
                                 <ArrowRight size={16} className="shrink-0 text-ochre transition group-hover:translate-x-1" />
                               </Link>

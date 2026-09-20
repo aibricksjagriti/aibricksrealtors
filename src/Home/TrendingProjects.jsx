@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { MapPin, Bed, Ruler, Calendar, Building2, Flame } from "lucide-react";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 
 /* ---------------- CONSTANTS ---------------- */
 const API_URL = "/api/v1/properties/trending?limit=9";
@@ -32,7 +33,7 @@ const PropertyCard = memo(function PropertyCard({ property, onEnquire }) {
   const [imgSrc, setImgSrc] = useState(property.image || FALLBACK_IMAGE);
 
   const handleCardClick = () => {
-    router.push(`/properties/${property.id}`);
+    router.push(getPropertyPath(property));
   };
 
   return (
@@ -123,6 +124,7 @@ export default function TrendingProjects() {
 
         const formatted = json.data.map((p) => ({
           id: p.id,
+          slug: p.slug,
           name: p.projectName || p.propertyTitle,
           developer: p.builderName,
           type: p.propertyType,
