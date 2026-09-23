@@ -214,7 +214,7 @@ export default function NewDeveloperPage() {
             <SeoFieldsSection
               values={form}
               onChange={handleChange}
-              pageUrl={`https://aibricksrealtors.com/developers/${form.slug || "..."}`}
+              pageUrl={`https://www.aibricksrealtors.com/developers/${form.slug || "..."}`}
             />
           </section>
         </div>

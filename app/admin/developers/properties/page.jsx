@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Building2, MapPin, ExternalLink, Globe } from "lucide-react";
 import { propertiesAPI } from "@/src/admin/utils/api";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 import "@/src/admin/styles/admin.css";
 
 const formatPrice = (p) => {
@@ -137,7 +138,7 @@ export default function DeveloperPropertiesPage() {
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link href={`/admin/properties/${p.id}/edit`} className="text-xs px-3 py-1.5 border border-gray-200 rounded hover:bg-gray-50 text-gray-600">Edit</Link>
-                      <a href={`/properties/${p.id}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-500 hover:text-purple-600">
+                      <a href={getPropertyPath(p)} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-500 hover:text-purple-600">
                         <ExternalLink size={14} />
                       </a>
                     </div>

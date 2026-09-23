@@ -89,6 +89,14 @@ export default function DeveloperHero({ builderName, projects, developer }) {
         {/* Content */}
         <div className="relative z-10 container mx-auto flex min-h-[492px] items-center px-4 sm:min-h-[520px] sm:px-6 md:min-h-[540px] lg:px-10">
           <div className="mx-auto max-w-4xl text-center md:mx-0 md:text-left">
+            {developer?.logo && (
+              <img
+                src={developer.logo}
+                alt={builderName}
+                className="mx-auto mb-4 h-16 w-auto max-w-[180px] rounded-lg bg-white/90 p-2 object-contain md:mx-0 md:mb-5 md:h-20"
+              />
+            )}
+
             {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/40 bg-white/10 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-[#D4AF37] mb-4 md:mb-6">
               ✦ Premium Developer
