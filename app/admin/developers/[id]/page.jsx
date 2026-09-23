@@ -6,6 +6,7 @@ import {
   ArrowLeft, Plus, Edit, Globe, Building2, MapPin, ExternalLink
 } from "lucide-react";
 import { developersAPI, propertiesAPI } from "@/src/admin/utils/api";
+import { getPropertyPath } from "@/lib/utils/propertySlug";
 import "@/src/admin/styles/admin.css";
 
 const formatPrice = (p) => {
@@ -216,7 +217,7 @@ export default function DeveloperDetailPage() {
                         Edit
                       </Link>
                       <a
-                        href={`/properties/${p.id}`}
+                        href={getPropertyPath(p)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-1.5 text-gray-500 hover:text-purple-600"

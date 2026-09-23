@@ -158,7 +158,7 @@ export default function NewLocationPage() {
           <SeoFieldsSection
             values={form}
             onChange={handleChange}
-            pageUrl={`https://aibricksrealtors.com/locations/${form.slug || "..."}`}
+            pageUrl={`https://www.aibricksrealtors.com/locations/${form.slug || "..."}`}
           />
         </div>
 

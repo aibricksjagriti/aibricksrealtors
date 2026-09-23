@@ -105,6 +105,11 @@ export default function ProjectGrid({ projects, builderName }) {
   /* ---------- FORMAT API DATA ---------- */
   const formattedProjects = projects.map((p) => ({
     id: p.id,
+    // Keep the persisted slug. Rebuilding it from the display name can point
+    // at a different property when duplicate titles receive suffixed slugs.
+    slug: p.slug,
+    propertyTitle: p.propertyTitle,
+    projectName: p.projectName,
     name: p.projectName || p.propertyTitle,
     developer: p.builderName,
     type: p.propertyType,
