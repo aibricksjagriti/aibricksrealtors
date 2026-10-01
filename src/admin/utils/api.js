@@ -294,6 +294,17 @@ export const citiesAPI = {
   delete: async (id) => await apiRequest(`/v1/cities?id=${id}`, { method: 'DELETE' }),
 };
 
+export const upcomingProjectsAPI = {
+  getAll: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return await apiRequest(`/v1/upcoming-projects${queryString ? '?' + queryString : ''}`);
+  },
+  getById: async (id) => await apiRequest(`/v1/upcoming-projects/${id}`),
+  create: async (data) => await apiRequest('/v1/upcoming-projects', { method: 'POST', body: JSON.stringify(data) }),
+  update: async (id, data) => await apiRequest(`/v1/upcoming-projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: async (id) => await apiRequest(`/v1/upcoming-projects/${id}`, { method: 'DELETE' }),
+};
+
 // Health check
 export const healthAPI = {
   check: async () => {

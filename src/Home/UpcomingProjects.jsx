@@ -3,45 +3,31 @@
 import { Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import CtaModal from "../Modal/CtaModal";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const initialProjects = [
+  { name: "Sobha Kharadi", city: "Pune", image: "/home/upcoming/sobha-kharadi.webp", projectLabel: "Upcoming project", launchStatus: "Ready for launch" },
+  { name: "Godrej Hillside", city: "Pune", image: "/home/upcoming/godrej-hillside.jpg", projectLabel: "Upcoming project", launchStatus: "Ready for launch" },
+  { name: "Emaar Creek Harbour", city: "Dubai", image: "/home/upcoming/dubai-creek-harbour.png", projectLabel: "Upcoming project", launchStatus: "Ready for launch" },
+  { name: "DAMAC Lagoons", city: "Dubai", image: "/home/upcoming/DAMAC-Lagoons.jpg", projectLabel: "Upcoming project", launchStatus: "Ready for launch" },
+  { name: "Sobha Hartland", city: "Dubai", image: "/home/upcoming/Sobha-Hartland.jpeg", projectLabel: "Upcoming project", launchStatus: "Ready for launch" },
+  { name: "L&T Hinjewadi", city: "Pune", image: "/home/upcoming/L&T-Hinjewadi.jpg", projectLabel: "Upcoming project", launchStatus: "Ready for launch" },
+];
 
 export default function UpcomingProjects() {
   const [open, setOpen] = useState(false);
+  const [projects, setProjects] = useState(initialProjects);
   const trackRef = useRef(null);
   const scroll = (direction) => trackRef.current?.scrollBy({ left: direction * Math.min(trackRef.current.clientWidth, 390), behavior: "smooth" });
 
-  const projects = [
-    {
-      name: "Sobha Kharadi",
-      city: "Pune",
-      image: "/home/upcoming/sobha-kharadi.webp",
-    },
-    {
-      name: "Godrej Hillside",
-      city: "Pune",
-      image: "/home/upcoming/godrej-hillside.jpg",
-    },
-    {
-      name: "Emaar Creek Harbour",
-      city: "Dubai",
-      image: "/home/upcoming/dubai-creek-harbour.png",
-    },
-    {
-      name: "DAMAC Lagoons",
-      city: "Dubai",
-      image: "/home/upcoming/DAMAC-Lagoons.jpg",
-    },
-    {
-      name: "Sobha Hartland",
-      city: "Dubai",
-      image: "/home/upcoming/Sobha-Hartland.jpeg",
-    },
-    {
-      name: "L&T Hinjewadi",
-      city: "Pune",
-      image: "/home/upcoming/L&T-Hinjewadi.jpg",
-    },
-  ];
+  useEffect(() => {
+    fetch('/api/v1/upcoming-projects?activeOnly=true')
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((result) => {
+        if (Array.isArray(result.data) && result.data.length > 0) setProjects(result.data);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section className="pt-16 bg-[#f8f8f8] text-center w-full">
@@ -91,8 +77,8 @@ export default function UpcomingProjects() {
 
             <div className="p-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm text-gray-500">Upcoming project</p>
-                <p className="font-semibold text-darkgray">Ready for launch</p>
+                <p className="text-sm text-gray-500">{project.projectLabel || "Upcoming project"}</p>
+                <p className="font-semibold text-darkgray">{project.launchStatus || "Ready for launch"}</p>
               </div>
 
               <button

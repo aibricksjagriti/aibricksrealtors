@@ -15,6 +15,7 @@ import {
   Phone,
   HardHat,
   MapPin,
+  Clock3,
 } from "lucide-react";
 import { authAPI } from "../utils/api";
 import "../styles/admin.css";
@@ -29,6 +30,11 @@ const menuItems = [
     name: "Properties",
     href: "/admin/properties",
     icon: Building2,
+  },
+  {
+    name: "Upcoming Projects",
+    href: "/admin/upcoming-projects",
+    icon: Clock3,
   },
   {
     name: "Developers",
