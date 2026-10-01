@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react"; // ✅ Arrow icons
+import Image from "next/image";
 import CtaModal from "../Modal/CtaModal";
 
 const ProjectSlider = () => {
@@ -125,9 +126,11 @@ const ProjectSlider = () => {
               height: "480px",
             }}
           >
-            <img
+            <Image
               src={project.image}
               alt={project.name}
+              fill
+              sizes="(max-width: 768px) 92vw, 480px"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col items-center justify-end pb-6">

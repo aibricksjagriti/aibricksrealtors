@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   MapPin,
@@ -18,7 +17,6 @@ import SellerContactActions from "@/src/Properties/SellerContactActions";
 import LoginModal from "@/src/Auth/LoginModal";
 import LeadCaptureModal from "@/src/LeadCapture/LeadCaptureModal";
 import { downloadGalleryImages } from "@/src/utils/downloadGalleryImages";
-import { PropertyDetailSkeleton } from "@/src/skeletons/PropertyDetailSkeleton";
 import { LocationMapWithLoading } from "@/src/skeletons/LocationMapWithLoading";
 import toast from "react-hot-toast";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
@@ -44,26 +42,9 @@ const formatPrice = (price) => {
 
 /* ================= PAGE ================= */
 
-export default function PropertyDetailPageClient() {
-  const { id } = useParams();
+export default function PropertyDetailPageClient({ initialProperty }) {
+  const property = initialProperty;
 
-  /* ✅ FETCH MAIN PROPERTY */
-  const {
-    data: property,
-    isLoading: loading,
-    isError: propertyError,
-  } = useQuery({
-    queryKey: ["property", id],
-    queryFn: async () => {
-      const res = await fetch(`/api/v1/properties/${id}`);
-      if (!res.ok) throw new Error("Failed to fetch property");
-      const data = await res.json();
-      return data?.data || null;
-    },
-    enabled: !!id,
-  });
-
-  if (loading) return <PropertyDetailSkeleton />;
   if (!property) return <CenterMsg msg="Property not found" />;
 
   return (
@@ -213,8 +194,8 @@ function HeroGallery({ property }) {
   // One image: full width, no stretching — a fixed frame with object-cover
   if (count === 1) {
     return (
-      <div className="bg-white border rounded-xl p-3">
-        <GalleryItem src={images[0]} className="aspect-[16/9]" />
+        <div className="bg-white border rounded-xl p-3">
+          <GalleryItem src={images[0]} className="aspect-[16/9]" priority />
       </div>
     );
   }
@@ -225,7 +206,7 @@ function HeroGallery({ property }) {
       <div className="bg-white border rounded-xl p-3">
         <div className="grid grid-cols-2 gap-3">
           {images.map((src, i) => (
-            <GalleryItem key={`${src}-${i}`} src={src} className="aspect-[4/3]" />
+            <GalleryItem key={`${src}-${i}`} src={src} className="aspect-[4/3]" priority={i === 0} />
           ))}
         </div>
       </div>
@@ -240,6 +221,7 @@ function HeroGallery({ property }) {
           <GalleryItem
             src={images[0]}
             className="aspect-[4/3] sm:aspect-auto sm:row-span-2 sm:h-full"
+            priority
           />
           <GalleryItem src={images[1]} className="aspect-[4/3] sm:aspect-auto sm:h-full" />
           <GalleryItem src={images[2]} className="aspect-[4/3] sm:aspect-auto sm:h-full" />
@@ -269,6 +251,7 @@ function HeroGallery({ property }) {
         <GalleryItem
           src={images[0]}
           className="col-span-2 aspect-[4/3] sm:aspect-auto sm:row-span-2 sm:h-full"
+            priority
         />
         {images.slice(1, 5).map((src, i) => (
           <GalleryItem
@@ -1371,13 +1354,21 @@ function Detail({ label, value }) {
   );
 }
 
-function GalleryItem({ src, className = "", alt = "", overlay = null }) {
+function GalleryItem({ src, className = "", alt = "", overlay = null, priority = false }) {
   return (
     <div
       className={`relative overflow-hidden bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 ${className}`}
     >
       {src ? (
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+          sizes="(max-width: 1024px) 100vw, 66vw"
+          className="object-cover"
+        />
       ) : (
         "No Image"
       )}

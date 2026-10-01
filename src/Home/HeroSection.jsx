@@ -6,11 +6,11 @@ export default function HeroSection() {
   return (
     <>
       {/* HERO BANNER */}
-      <section data-home-hero className="relative z-30 h-[430px] sm:h-[480px] md:h-[700px] w-full">
+      <section data-home-hero className="relative z-30 h-[360px] sm:h-[420px] md:h-[700px] w-full">
         <div className="absolute inset-0 overflow-hidden">
         {/* LCP IMAGE */}
         <Image
-          src="/home/hero-banner-home.png"
+          src="/home/hero-banner-home.webp"
           alt="Luxury Properties"
           fill
           priority
@@ -42,7 +42,7 @@ export default function HeroSection() {
       </section>
 
       {/* ✅ Mobile Search (below banner) */}
-      <div data-home-search className="block md:hidden px-3 -mt-8 relative z-20">
+      <div data-home-search className="relative z-[70] block px-3 -mt-14 md:hidden">
         <HeroSearch />
       </div>
 

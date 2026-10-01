@@ -305,6 +305,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const propertyTypes = [
@@ -444,9 +445,11 @@ export default function PropertyTypeSlider() {
                   tabIndex={0}
                   className="relative cursor-pointer rounded-3xl overflow-hidden shadow-lg h-full"
                 >
-                  <img
+                  <Image
                     src={type.image}
                     alt={type.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="w-full h-[360px] sm:h-[360px] md:h-[400px] object-cover"
                   />
 
