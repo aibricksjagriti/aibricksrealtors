@@ -3,6 +3,7 @@ import propertyModel from "@/lib/models/Property";
 import { buildMetadata } from "@/lib/utils/seo";
 import { getPropertySlug } from "@/lib/utils/propertySlug";
 import { permanentRedirect } from "next/navigation";
+import { cache } from "react";
 
 export const revalidate = 300;
 
@@ -12,6 +13,12 @@ export const revalidate = 300;
 export async function generateStaticParams() {
   return [];
 }
+
+const getPropertyByIdentifier = cache(async (identifier) => (
+  propertyModel.getByIdentifier
+    ? propertyModel.getByIdentifier(identifier)
+    : propertyModel.getById(identifier)
+));
 
 const truncate = (text, max = 160) => {
   if (!text) return undefined;
@@ -24,9 +31,7 @@ export async function generateMetadata({ params }) {
 
   let property = null;
   try {
-    property = propertyModel.getByIdentifier
-      ? await propertyModel.getByIdentifier(id)
-      : await propertyModel.getById(id);
+    property = await getPropertyByIdentifier(id);
   } catch {}
 
   if (!property) {
@@ -54,11 +59,9 @@ export async function generateMetadata({ params }) {
 
 export default async function PropertyDetailPage({ params }) {
   const { id } = await params;
-  const property = propertyModel.getByIdentifier
-    ? await propertyModel.getByIdentifier(id)
-    : await propertyModel.getById(id);
+  const property = await getPropertyByIdentifier(id);
   if (property && id !== getPropertySlug(property)) {
     permanentRedirect(`/properties/${getPropertySlug(property)}`);
   }
-  return <PropertyDetailPageClient />;
+  return <PropertyDetailPageClient initialProperty={property} />;
 }

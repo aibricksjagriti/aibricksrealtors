@@ -26,10 +26,17 @@ export async function GET(req, { params }) {
     // Convert Firestore timestamps to ISO strings for proper JSON serialization
     const propertyWithConvertedDates = convertTimestamps(property);
 
-    return NextResponse.json({
-      success: true,
-      data: propertyWithConvertedDates
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: propertyWithConvertedDates
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+        }
+      }
+    );
   } catch (error) {
     logger.error('Error getting property:', error);
     return NextResponse.json(

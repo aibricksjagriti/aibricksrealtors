@@ -53,11 +53,11 @@ export default function LocationNav() {
       </nav>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setIsOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 z-[100]" onClick={() => setIsOpen(false)} />
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-white z-50 transition-transform ${
+        className={`fixed top-0 right-0 h-full w-64 bg-white z-[110] transition-transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

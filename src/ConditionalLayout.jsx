@@ -30,12 +30,17 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import Navbar from "@/src/Home/Navbar";
 import Footer from "@/src/Footer";
 import ClientLayout from "@/src/ClientLayout";
-import ContactModal from "@/src/Modal/ContactModal";
 import StickySectionNav from "./Developers/StickySectionNav";
 import PropertySectionNav from "./Properties/PropertySectionNav";
+
+const ContactModal = dynamic(() => import("@/src/Modal/ContactModal"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function ConditionalLayout({ children, navBuilders = [], navLocations = [] }) {
   const pathname = usePathname();

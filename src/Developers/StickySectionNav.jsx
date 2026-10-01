@@ -141,14 +141,14 @@ export default function StickySectionNav() {
       {/* MOBILE OVERLAY */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40"
+          className="fixed inset-0 bg-black/40 z-[100]"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* MOBILE DRAWER */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-white z-50 transition-transform ${
+        className={`fixed top-0 right-0 h-full w-64 bg-white z-[110] transition-transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
