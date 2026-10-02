@@ -77,10 +77,12 @@ export default function Navbar({
             <Link href="/" className="cursor-pointer">
               {/* AI BRICKS */}
               <img
-                src="/aibricks-logo-2.png"
+                src="/aibricks-logo.webp"
                 alt="logo"
                 width="554"
                 height="148"
+                decoding="async"
+                fetchPriority="low"
                 className="h-auto w-full"
               />
             </Link>

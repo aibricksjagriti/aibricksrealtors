@@ -61,9 +61,19 @@
 // }
 
 import React from "react";
+import { preload } from "react-dom";
 import dynamic from "next/dynamic";
 import HeroSection from "@/src/Home/HeroSection";
 import { homeFaqs } from "@/data/faq";
+
+preload("/home/hero-banner-home-mobile.webp", {
+  as: "image",
+  type: "image/webp",
+  fetchPriority: "high",
+  imageSrcSet:
+    "/home/hero-banner-home-mobile.webp 828w, /home/hero-banner-home.webp 1600w",
+  imageSizes: "100vw",
+});
 
 const TrendingProjectsClient = dynamic(() => import("@/src/Home/TrendingProjectsClient"));
 const UpcomingProjects = dynamic(() => import("@/src/Home/UpcomingProjects"));

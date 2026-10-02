@@ -1,4 +1,3 @@
-import Image from "next/image";
 import HeroVideo from "./Hero/HeroVideo";
 import HeroSearch from "./Hero/HeroSearch";
 
@@ -8,16 +7,18 @@ export default function HeroSection() {
       {/* HERO BANNER */}
       <section data-home-hero className="relative z-30 h-[360px] sm:h-[420px] md:h-[700px] w-full">
         <div className="absolute inset-0 overflow-hidden bg-[#172b51]">
-        {/* LCP IMAGE */}
-        <Image
-          src="/home/hero-banner-home.webp"
-          alt="Luxury Properties"
+        {/* LCP IMAGE: static files, not /_next/image — PSI mobile otherwise waits forever (NO_LCP). */}
+        <img
+          src="/home/hero-banner-home-mobile.webp"
+          srcSet="/home/hero-banner-home-mobile.webp 828w, /home/hero-banner-home.webp 1600w"
+          sizes="100vw"
           width={1600}
           height={792}
-          priority
+          alt="Luxury Properties"
           fetchPriority="high"
-          sizes="(max-width: 767px) 412px, (max-width: 1280px) 100vw, 1600px"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover"
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
 
         {/* Overlay */}

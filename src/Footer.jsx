@@ -81,10 +81,12 @@ export default function Footer() {
             <div>
               {/* <h2 className="text-2xl font-semibold mb-4">AI BRICKS</h2> */}
               <img
-                src="/aibricks-logo-2.png"
+                src="/aibricks-logo.webp"
                 alt="logo"
                 width="554"
                 height="148"
+                decoding="async"
+                fetchPriority="low"
                 className="w-[150px]"
               />
             </div>

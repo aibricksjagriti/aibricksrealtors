@@ -12,7 +12,7 @@ describe('Site branding (logo)', () => {
     render(<Navbar />);
     const logos = screen.getAllByAltText('logo');
     expect(logos.length).toBeGreaterThanOrEqual(1);
-    expect(logos[0]).toHaveAttribute('src', '/aibricks-logo-2.png');
+    expect(logos[0]).toHaveAttribute('src', '/aibricks-logo.webp');
   });
 
   test('Navbar logo links to the homepage', () => {
@@ -25,7 +25,7 @@ describe('Site branding (logo)', () => {
     render(<Footer />);
     const logos = screen.getAllByAltText('logo');
     expect(logos.length).toBeGreaterThanOrEqual(1);
-    expect(logos[0]).toHaveAttribute('src', '/aibricks-logo-2.png');
+    expect(logos[0]).toHaveAttribute('src', '/aibricks-logo.webp');
   });
 
   test('Navbar still renders all primary navigation links', () => {
