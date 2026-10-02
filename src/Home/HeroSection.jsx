@@ -7,16 +7,17 @@ export default function HeroSection() {
     <>
       {/* HERO BANNER */}
       <section data-home-hero className="relative z-30 h-[360px] sm:h-[420px] md:h-[700px] w-full">
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden bg-[#172b51]">
         {/* LCP IMAGE */}
         <Image
           src="/home/hero-banner-home.webp"
           alt="Luxury Properties"
-          fill
+          width={1600}
+          height={792}
           priority
           fetchPriority="high"
-          sizes="100vw"
-          className="object-cover"
+          sizes="(max-width: 767px) 412px, (max-width: 1280px) 100vw, 1600px"
+          className="absolute inset-0 h-full w-full object-cover"
         />
 
         {/* Overlay */}
