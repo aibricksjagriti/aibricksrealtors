@@ -71,7 +71,7 @@ export default function HeroSearch() {
   }, [filters.q]);
 
   return (
-    <div className="relative z-[60] mx-auto w-full max-w-6xl bg-white/15 backdrop-blur-xl border border-white/35 md:border-brickred rounded-2xl p-3 sm:p-4 md:p-6 shadow-[0_18px_50px_rgba(15,30,62,0.28)] ring-1 ring-black/5">
+    <div className="relative z-[60] mx-auto w-full max-w-6xl bg-white md:bg-white/15 md:backdrop-blur-xl border border-gray-200 md:border-white/35 md:border-brickred rounded-2xl p-3 sm:p-4 md:p-6 shadow-[0_18px_50px_rgba(15,30,62,0.28)] ring-1 ring-black/5">
       <form
         className="grid grid-cols-[1fr_auto] lg:grid-cols-5 gap-2 md:gap-4 mb-3 md:mb-4"
         onSubmit={(event) => { event.preventDefault(); handleSearch(); }}
