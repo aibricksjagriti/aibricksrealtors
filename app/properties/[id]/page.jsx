@@ -2,7 +2,6 @@ import PropertyDetailPageClient from "@/src/Properties/PropertyDetailPageClient"
 import propertyModel from "@/lib/models/Property";
 import { buildMetadata } from "@/lib/utils/seo";
 import { getPropertySlug } from "@/lib/utils/propertySlug";
-import { permanentRedirect } from "next/navigation";
 import { cache } from "react";
 
 export const revalidate = 300;
@@ -58,10 +57,5 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function PropertyDetailPage({ params }) {
-  const { id } = await params;
-  const property = await getPropertyByIdentifier(id);
-  if (property && id !== getPropertySlug(property)) {
-    permanentRedirect(`/properties/${getPropertySlug(property)}`);
-  }
-  return <PropertyDetailPageClient initialProperty={property} />;
+  return <PropertyDetailPageClient />;
 }
