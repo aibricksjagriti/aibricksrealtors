@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   MapPin,
@@ -17,6 +18,7 @@ import SellerContactActions from "@/src/Properties/SellerContactActions";
 import LoginModal from "@/src/Auth/LoginModal";
 import LeadCaptureModal from "@/src/LeadCapture/LeadCaptureModal";
 import { downloadGalleryImages } from "@/src/utils/downloadGalleryImages";
+import { PropertyDetailSkeleton } from "@/src/skeletons/PropertyDetailSkeleton";
 import { LocationMapWithLoading } from "@/src/skeletons/LocationMapWithLoading";
 import toast from "react-hot-toast";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
@@ -42,9 +44,24 @@ const formatPrice = (price) => {
 
 /* ================= PAGE ================= */
 
-export default function PropertyDetailPageClient({ initialProperty }) {
-  const property = initialProperty;
+export default function PropertyDetailPageClient() {
+  const { id } = useParams();
 
+  const {
+    data: property,
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ["property", id],
+    queryFn: async () => {
+      const response = await fetch(`/api/v1/properties/${id}`);
+      if (!response.ok) throw new Error("Failed to fetch property");
+      const data = await response.json();
+      return data?.data || null;
+    },
+    enabled: !!id,
+  });
+
+  if (loading) return <PropertyDetailSkeleton />;
   if (!property) return <CenterMsg msg="Property not found" />;
 
   return (
