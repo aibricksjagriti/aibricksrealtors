@@ -24,6 +24,10 @@ export async function GET(req) {
       success: true,
       count: propertiesWithConvertedDates.length,
       data: propertiesWithConvertedDates
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
     });
   } catch (error) {
     logger.error('Error getting trending projects:', error);

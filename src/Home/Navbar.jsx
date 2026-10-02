@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown, MapPin, Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getPropertyPath } from "@/lib/utils/propertySlug";
 
@@ -21,13 +20,32 @@ export default function Navbar({
   const [builderProjects, setBuilderProjects] = useState({});
   const [projectsLoading, setProjectsLoading] = useState(false);
 
-  const router = useRouter();
-
   useEffect(() => {
-    ["/", "/about", "/properties", "/contact", "/locations"].forEach((href) => {
-      router.prefetch(href);
-    });
-  }, [router]);
+    if (
+      initialBuilders.length ||
+      initialLocations.length ||
+      typeof window === "undefined" ||
+      typeof window.fetch !== "function"
+    ) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    window.fetch("/api/v1/navigation", { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((data) => {
+        setBuilders(Array.isArray(data.builders) ? data.builders : []);
+        setLocations(Array.isArray(data.locations) ? data.locations : []);
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          setBuilders([]);
+          setLocations([]);
+        }
+      });
+
+    return () => controller.abort();
+  }, [initialBuilders.length, initialLocations.length]);
 
   const toSlug = (name) => name.toLowerCase().replace(/\s+/g, "-");
   const cityToSlug = (name) => name.toLowerCase().replace(/\s+/g, "-");
@@ -58,7 +76,13 @@ export default function Navbar({
           <div className="text-2xl font-bold text-ochre w-[76px] sm:w-[90px] md:w-[100px]">
             <Link href="/" className="cursor-pointer">
               {/* AI BRICKS */}
-              <img src="/aibricks-logo-2.png" alt="logo" />
+              <img
+                src="/aibricks-logo-2.png"
+                alt="logo"
+                width="554"
+                height="148"
+                className="h-auto w-full"
+              />
             </Link>
           </div>
 

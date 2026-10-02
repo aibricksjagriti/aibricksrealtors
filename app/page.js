@@ -61,17 +61,19 @@
 // }
 
 import React from "react";
-import DemandSection from "@/src/Home/DemandSection";
+import dynamic from "next/dynamic";
 import HeroSection from "@/src/Home/HeroSection";
-import LogoSlider from "@/src/Home/LogoSlider";
-import PropertyTypeSlider from "@/src/Home/PropertyTypeSlider";
-import UpcomingProjects from "@/src/Home/UpcomingProjects";
-import Cta from "@/src/Home/Cta";
-import EasyForYou from "@/src/Home/EasyForYou";
-import StatsSection from "@/src/Home/StatsSection";
-import TrendingProjectsClient from "@/src/Home/TrendingProjectsClient";
-import FAQSection from "@/src/FAQSection";
 import { homeFaqs } from "@/data/faq";
+
+const TrendingProjectsClient = dynamic(() => import("@/src/Home/TrendingProjectsClient"));
+const UpcomingProjects = dynamic(() => import("@/src/Home/UpcomingProjects"));
+const PropertyTypeSlider = dynamic(() => import("@/src/Home/PropertyTypeSlider"));
+const LogoSlider = dynamic(() => import("@/src/Home/LogoSlider"));
+const DemandSection = dynamic(() => import("@/src/Home/DemandSection"));
+const Cta = dynamic(() => import("@/src/Home/Cta"));
+const EasyForYou = dynamic(() => import("@/src/Home/EasyForYou"));
+const StatsSection = dynamic(() => import("@/src/Home/StatsSection"));
+const FAQSection = dynamic(() => import("@/src/FAQSection"));
 
 export const metadata = {
   title: "AI Bricks Realtors | India’s First AI-Driven Real Estate Platform",

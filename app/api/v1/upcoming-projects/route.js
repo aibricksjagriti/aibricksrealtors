@@ -21,7 +21,11 @@ export async function GET(request) {
   try {
     const activeOnly = new URL(request.url).searchParams.get('activeOnly') === 'true';
     const projects = await UpcomingProject.getAll({ activeOnly });
-    return NextResponse.json({ success: true, data: projects });
+    return NextResponse.json({ success: true, data: projects }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
