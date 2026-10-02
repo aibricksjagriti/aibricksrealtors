@@ -1,7 +1,12 @@
 "use client";
 
 import { Suspense } from "react";
-import RouteProgress from "./RouteProgress";
+import dynamic from "next/dynamic";
+
+const RouteProgress = dynamic(() => import("./RouteProgress"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function ClientLayout({ children }) {
   return (

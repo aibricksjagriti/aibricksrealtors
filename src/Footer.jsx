@@ -83,6 +83,8 @@ export default function Footer() {
               <img
                 src="/aibricks-logo-2.png"
                 alt="logo"
+                width="554"
+                height="148"
                 className="w-[150px]"
               />
             </div>

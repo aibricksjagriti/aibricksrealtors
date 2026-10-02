@@ -58,6 +58,7 @@ export default function UpcomingProjects() {
                 src={project.image}
                 alt={project.name}
                 fill
+                sizes="(max-width: 640px) 86vw, (max-width: 1024px) 48vw, 400px"
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div

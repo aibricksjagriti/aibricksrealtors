@@ -55,7 +55,6 @@ body {
   font-family: var(--font-sans);
   margin: 0;
   padding: 0;
-  animation: fadeIn 0.8s ease-in-out;
 }
 
 button,
