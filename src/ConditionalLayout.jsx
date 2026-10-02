@@ -32,7 +32,6 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/src/Home/Navbar";
 import Footer from "@/src/Footer";
-import ClientLayout from "@/src/ClientLayout";
 import QueryProvider from "@/src/providers/QueryProvider";
 import DeferredContactModal from "./DeferredContactModal";
 import StickySectionNav from "./Developers/StickySectionNav";
@@ -53,27 +52,25 @@ export default function ConditionalLayout({ children, navBuilders = [], navLocat
   }
 
   const content = (
-    <ClientLayout>
-      <div className="flex flex-col min-h-screen">
-        {!isSubdomainPage && (
-          isPropertyPage ? (
-            <PropertySectionNav />
-          ) : isDeveloperPage ? (
-            <StickySectionNav />
-          ) : (
-            <Navbar initialBuilders={navBuilders} initialLocations={navLocations} />
-          )
-        )}
+    <div className="flex flex-col min-h-screen">
+      {!isSubdomainPage && (
+        isPropertyPage ? (
+          <PropertySectionNav />
+        ) : isDeveloperPage ? (
+          <StickySectionNav />
+        ) : (
+          <Navbar initialBuilders={navBuilders} initialLocations={navLocations} />
+        )
+      )}
 
-        <DeferredContactModal />
+      <DeferredContactModal />
 
-        <main className="flex-1">
-          {children}
-        </main>
+      <main className="flex-1">
+        {children}
+      </main>
 
-        <Footer />
-      </div>
-    </ClientLayout>
+      <Footer />
+    </div>
   );
 
   return isPropertyPage || isSearchPage ? (

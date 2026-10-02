@@ -443,7 +443,7 @@ export default function PropertyTypeSlider() {
                   onClick={() => handleCardClick(type.title)}
                   role="button"
                   tabIndex={0}
-                  className="relative cursor-pointer rounded-3xl overflow-hidden shadow-lg h-full"
+                  className="relative h-[360px] cursor-pointer rounded-3xl overflow-hidden shadow-lg sm:h-[360px] md:h-[400px]"
                 >
                   <Image
                     src={type.image}
