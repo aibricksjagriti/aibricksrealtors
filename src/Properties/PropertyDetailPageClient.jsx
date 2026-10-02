@@ -1,8 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import {
   MapPin,
   IndianRupee,
@@ -18,7 +16,6 @@ import SellerContactActions from "@/src/Properties/SellerContactActions";
 import LoginModal from "@/src/Auth/LoginModal";
 import LeadCaptureModal from "@/src/LeadCapture/LeadCaptureModal";
 import { downloadGalleryImages } from "@/src/utils/downloadGalleryImages";
-import { PropertyDetailSkeleton } from "@/src/skeletons/PropertyDetailSkeleton";
 import { LocationMapWithLoading } from "@/src/skeletons/LocationMapWithLoading";
 import toast from "react-hot-toast";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
@@ -44,24 +41,9 @@ const formatPrice = (price) => {
 
 /* ================= PAGE ================= */
 
-export default function PropertyDetailPageClient() {
-  const { id } = useParams();
+export default function PropertyDetailPageClient({ initialProperty }) {
+  const property = initialProperty;
 
-  const {
-    data: property,
-    isLoading: loading,
-  } = useQuery({
-    queryKey: ["property", id],
-    queryFn: async () => {
-      const response = await fetch(`/api/v1/properties/${id}`);
-      if (!response.ok) throw new Error("Failed to fetch property");
-      const data = await response.json();
-      return data?.data || null;
-    },
-    enabled: !!id,
-  });
-
-  if (loading) return <PropertyDetailSkeleton />;
   if (!property) return <CenterMsg msg="Property not found" />;
 
   return (
@@ -155,15 +137,25 @@ export default function PropertyDetailPageClient() {
 }
 
 function RelatedProjects({ property }) {
-  const { data: projects = [] } = useQuery({
-    queryKey: ["related-properties", property.id],
-    queryFn: async () => {
-      const response = await fetch(`/api/v1/properties/${property.id}/related`);
-      if (!response.ok) return [];
-      const json = await response.json();
-      return json.data || [];
-    },
-  });
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(`/api/v1/properties/${property.id}/related`)
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((json) => {
+        if (!cancelled) setProjects(json.data || []);
+      })
+      .catch(() => {
+        if (!cancelled) setProjects([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [property.id]);
+
   if (!projects.length) return null;
   return (
     <section className="mt-14" aria-labelledby="related-projects-heading">

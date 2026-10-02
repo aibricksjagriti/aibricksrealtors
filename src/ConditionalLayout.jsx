@@ -30,17 +30,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import dynamic from "next/dynamic";
 import Navbar from "@/src/Home/Navbar";
 import Footer from "@/src/Footer";
 import ClientLayout from "@/src/ClientLayout";
+import QueryProvider from "@/src/providers/QueryProvider";
+import DeferredContactModal from "./DeferredContactModal";
 import StickySectionNav from "./Developers/StickySectionNav";
 import PropertySectionNav from "./Properties/PropertySectionNav";
-
-const ContactModal = dynamic(() => import("@/src/Modal/ContactModal"), {
-  ssr: false,
-  loading: () => null,
-});
 
 export default function ConditionalLayout({ children, navBuilders = [], navLocations = [] }) {
   const pathname = usePathname();
@@ -49,13 +45,14 @@ export default function ConditionalLayout({ children, navBuilders = [], navLocat
   const isDeveloperPage =
     pathname === "/developers" || pathname?.startsWith("/developers/");
   const isPropertyPage = pathname?.startsWith("/properties/");
+  const isSearchPage = pathname === "/search";
   const isSubdomainPage = pathname?.startsWith("/sub/");
 
   if (isAdminRoute) {
     return <>{children}</>;
   }
 
-  return (
+  const content = (
     <ClientLayout>
       <div className="flex flex-col min-h-screen">
         {!isSubdomainPage && (
@@ -68,7 +65,7 @@ export default function ConditionalLayout({ children, navBuilders = [], navLocat
           )
         )}
 
-        <ContactModal />
+        <DeferredContactModal />
 
         <main className="flex-1">
           {children}
@@ -78,4 +75,8 @@ export default function ConditionalLayout({ children, navBuilders = [], navLocat
       </div>
     </ClientLayout>
   );
+
+  return isPropertyPage || isSearchPage ? (
+    <QueryProvider>{content}</QueryProvider>
+  ) : content;
 }

@@ -2,7 +2,9 @@ import PropertyDetailPageClient from "@/src/Properties/PropertyDetailPageClient"
 import propertyModel from "@/lib/models/Property";
 import { buildMetadata } from "@/lib/utils/seo";
 import { getPropertySlug } from "@/lib/utils/propertySlug";
+import { convertTimestamps } from "@/lib/utils/timestampConverter";
 import { cache } from "react";
+import { notFound, redirect } from "next/navigation";
 
 export const revalidate = 300;
 
@@ -57,5 +59,17 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function PropertyDetailPage({ params }) {
-  return <PropertyDetailPageClient />;
+  const { id } = await params;
+  const property = await getPropertyByIdentifier(id);
+
+  if (!property) notFound();
+
+  const canonicalSlug = getPropertySlug(property);
+  if (id !== canonicalSlug) redirect(`/properties/${canonicalSlug}`);
+
+  return (
+    <PropertyDetailPageClient
+      initialProperty={convertTimestamps(property)}
+    />
+  );
 }
