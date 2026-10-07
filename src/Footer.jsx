@@ -52,7 +52,7 @@ function CareersModal({ onClose }) {
             <div>
               <p className="text-xs text-gray-400 mb-0.5">Call HR</p>
               <p className="text-[var(--color-darkgray)] font-semibold text-sm group-hover:underline">
-                +91 80870 90024
+                +91 91562 63497
               </p>
             </div>
           </a>

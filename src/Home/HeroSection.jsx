@@ -44,9 +44,8 @@ export default function HeroSection() {
           <img
             src="/home/hero-banner-home-mobile.webp"
             srcSet="
-    /home/hero-banner-home-mobile.webp 828w,
-    /home/hero-banner-home.webp 1600w
-  "
+            /home/hero-banner-home-mobile.webp 828w,
+            /home/hero-banner-home.webp 1600w"
             sizes="100vw"
             width={1600}
             height={792}
@@ -57,7 +56,7 @@ export default function HeroSection() {
             className="block h-full w-full object-cover"
           />
 
-              <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-black/30" />
           <HeroVideo />
 
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/45" />
