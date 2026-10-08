@@ -45,7 +45,7 @@ function CareersModal({ onClose }) {
           </a>
 
           <a
-            href="tel:+918087090024"
+            href="tel:+9191562 63497"
             className="flex items-center gap-3 bg-[#f8f4ec] rounded-xl px-5 py-4 hover:bg-[#f1e5b4] transition group"
           >
             <Phone className="w-5 h-5 text-[var(--color-ochre)] shrink-0" />
@@ -166,7 +166,7 @@ export default function Footer() {
             <div>
               <h3 className="text-lg font-semibold mb-2">Contact Us</h3>
               <p className="mb-2">
-                <span className="font-semibold">Call:</span> 8130120098
+                <span className="font-semibold">Call:</span> 91562 63497
               </p>
               <p className="mb-2">
                 <span className="font-semibold">Address:</span> Office no 428,
@@ -215,7 +215,7 @@ export default function Footer() {
 
         {/* WhatsApp Floating Button */}
         <a
-          href="https://wa.me/8130120098"
+          href="https://wa.me/91562 63497"
           target="_blank"
           rel="noopener noreferrer"
           // className="fixed bottom-5 right-5 bg-green-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
