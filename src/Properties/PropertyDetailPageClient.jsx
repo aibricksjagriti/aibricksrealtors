@@ -102,7 +102,7 @@ export default function PropertyDetailPageClient({ initialProperty }) {
             <div id="amenities">
               <AmenitiesGrid
                 amenities={property.amenities}
-                propertyName={property.propertyTitle}
+                property={property}
               />
             </div>
             <MasterPlan property={property} />
