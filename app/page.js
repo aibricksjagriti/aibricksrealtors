@@ -62,6 +62,7 @@ const organizationSchema = {
   alternateName: "aibricks",
   url: "https://www.aibricksrealtors.com/",
   logo: "https://kommodo.ai/i/O6Ky4JxZwQrCH7KA2wXW",
+  telephone: "+919156263497",
   sameAs: [
     "https://www.instagram.com/aibricksrealtors/",
     "https://www.linkedin.com/company/aibricks-realtors/posts/?feedView=all",

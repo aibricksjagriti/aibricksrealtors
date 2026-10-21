@@ -99,7 +99,7 @@ const PropertyCard = memo(function PropertyCard({ property, onEnquire }) {
               e.stopPropagation();
               onEnquire(property);
             }}
-            className="bg-brickred text-white px-4 py-2 rounded-md text-sm hover:bg-ochre transition cursor-pointer"
+            className="enquiry-blink bg-brickred text-white px-4 py-2 rounded-md text-sm font-semibold shadow-lg ring-2 ring-ochre/70 hover:bg-ochre hover:text-darkgray transition cursor-pointer"
           >
             Enquire Now
           </button>

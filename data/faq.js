@@ -70,7 +70,7 @@ export const propertyFaqs = [
 export const contactFaqs = [
   {
     q: "How can I get in touch with AI Bricks Realtors?",
-    a: "You can contact us via phone at 8130120098, email at info@aibricksrealtors.com, or by using the contact form available on this page. Our team is here to assist you with property enquiries, site visits, and all real estate support.",
+    a: "You can contact us via phone at +91 91562 63497, email at info@aibricksrealtors.com, or by using the contact form available on this page. Our team is here to assist you with property enquiries, site visits, and all real estate support.",
   },
   {
     q: "What information should I include when contacting support?",

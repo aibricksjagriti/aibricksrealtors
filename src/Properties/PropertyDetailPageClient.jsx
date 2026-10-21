@@ -102,7 +102,7 @@ export default function PropertyDetailPageClient({ initialProperty }) {
             <div id="amenities">
               <AmenitiesGrid
                 amenities={property.amenities}
-                propertyName={property.propertyTitle}
+                property={property}
               />
             </div>
             <MasterPlan property={property} />
@@ -1286,7 +1286,6 @@ function BuilderSection({ property }) {
           <p className="text-gray-500 text-sm">Project Developer</p>
         </div>
         <SellerContactActions
-          phone={property.seller?.phoneNumber || property.phoneNumber}
           email={property.seller?.email || property.email}
           propertyTitle={property.propertyTitle}
         />

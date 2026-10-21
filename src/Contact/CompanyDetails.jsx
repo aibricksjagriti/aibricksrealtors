@@ -1,13 +1,18 @@
 "use client";
 
 import { Phone, Mail, MapPin } from "lucide-react";
+import {
+  MAIN_CONTACT_DISPLAY,
+  MAIN_CONTACT_TEL,
+} from "@/lib/constants/contact";
 
 export default function CompanyDetails() {
   const details = [
     {
       icon: <Phone className="w-10 h-10 text-ochre mx-auto" />,
       title: "Call Us",
-      info: "(+91) - 8130120098",
+      info: MAIN_CONTACT_DISPLAY,
+      href: MAIN_CONTACT_TEL,
       subtext: "Monday – Friday: 10:00 am – 06:00 pm, Tuesday - Closed",
     },
     {
@@ -57,7 +62,16 @@ export default function CompanyDetails() {
             <h3 className="text-lg font-semibold text-gray-700">
               {item.title}
             </h3>
-            <p className="text-gray-800 font-medium text-base">{item.info}</p>
+            {item.href ? (
+              <a
+                href={item.href}
+                className="text-gray-800 font-medium text-base hover:text-ochre hover:underline"
+              >
+                {item.info}
+              </a>
+            ) : (
+              <p className="text-gray-800 font-medium text-base">{item.info}</p>
+            )}
             <hr className="w-1/2 border-gray-300" />
             <p className="text-sm text-gray-800">{item.subtext}</p>
           </div>
