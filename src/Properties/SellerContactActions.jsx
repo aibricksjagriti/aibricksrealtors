@@ -2,18 +2,9 @@
 
 import { Mail, Phone } from "lucide-react";
 import toast from "react-hot-toast";
+import { MAIN_CONTACT_TEL } from "@/lib/constants/contact";
 
-export default function SellerContactActions({ phone, email, propertyTitle }) {
-  const handleCall = () => {
-    if (phone) {
-      window.location.href = `tel:${phone}`;
-    } else {
-      toast.error("Agent contact details are currently unavailable", {
-        icon: "ℹ️",
-      });
-    }
-  };
-
+export default function SellerContactActions({ email, propertyTitle }) {
   const handleEmail = () => {
     if (email) {
       window.location.href = `mailto:${email}?subject=Enquiry for ${propertyTitle}`;
@@ -25,12 +16,13 @@ export default function SellerContactActions({ phone, email, propertyTitle }) {
   return (
     <>
       <div className="flex gap-3">
-        <button
-          onClick={handleCall}
+        <a
+          href={MAIN_CONTACT_TEL}
+          aria-label="Call AI Bricks Realtors"
           className="px-5 py-2 bg-brickred text-white rounded-lg cursor-pointer transition hover:bg-ochre"
         >
           <Phone />
-        </button>
+        </a>
 
         <button
           onClick={handleEmail}

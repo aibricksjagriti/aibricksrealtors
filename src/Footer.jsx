@@ -4,6 +4,11 @@ import { useState } from "react";
 import { X, Mail, Phone } from "lucide-react";
 import { ImLinkedin } from "react-icons/im";
 import { FaSquareInstagram } from "react-icons/fa6";
+import {
+  MAIN_CONTACT_DISPLAY,
+  MAIN_CONTACT_TEL,
+  MAIN_CONTACT_WHATSAPP,
+} from "@/lib/constants/contact";
 
 function CareersModal({ onClose }) {
   return (
@@ -45,14 +50,14 @@ function CareersModal({ onClose }) {
           </a>
 
           <a
-            href="tel:+9191562 63497"
+            href={MAIN_CONTACT_TEL}
             className="flex items-center gap-3 bg-[#f8f4ec] rounded-xl px-5 py-4 hover:bg-[#f1e5b4] transition group"
           >
             <Phone className="w-5 h-5 text-[var(--color-ochre)] shrink-0" />
             <div>
               <p className="text-xs text-gray-400 mb-0.5">Call HR</p>
               <p className="text-[var(--color-darkgray)] font-semibold text-sm group-hover:underline">
-                +91 91562 63497
+                {MAIN_CONTACT_DISPLAY}
               </p>
             </div>
           </a>
@@ -166,7 +171,13 @@ export default function Footer() {
             <div>
               <h3 className="text-lg font-semibold mb-2">Contact Us</h3>
               <p className="mb-2">
-                <span className="font-semibold">Call:</span> 91562 63497
+                <span className="font-semibold">Call:</span>{" "}
+                <a
+                  href={MAIN_CONTACT_TEL}
+                  className="hover:underline text-[var(--color-ochre)]"
+                >
+                  {MAIN_CONTACT_DISPLAY}
+                </a>
               </p>
               <p className="mb-2">
                 <span className="font-semibold">Address:</span> Office no 428,
@@ -215,7 +226,7 @@ export default function Footer() {
 
         {/* WhatsApp Floating Button */}
         <a
-          href="https://wa.me/9156263497"
+          href={MAIN_CONTACT_WHATSAPP}
           target="_blank"
           rel="noopener noreferrer"
           // className="fixed bottom-5 right-5 bg-green-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
