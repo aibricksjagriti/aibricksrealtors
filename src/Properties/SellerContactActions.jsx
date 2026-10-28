@@ -1,17 +1,15 @@
 "use client";
 
 import { Mail, Phone } from "lucide-react";
-import toast from "react-hot-toast";
-import { MAIN_CONTACT_TEL } from "@/lib/constants/contact";
+import {
+  MAIN_CONTACT_MAILTO,
+  MAIN_CONTACT_TEL,
+} from "@/lib/constants/contact";
 
-export default function SellerContactActions({ email, propertyTitle }) {
-  const handleEmail = () => {
-    if (email) {
-      window.location.href = `mailto:${email}?subject=Enquiry for ${propertyTitle}`;
-    } else {
-      toast.error("Email not available");
-    }
-  };
+export default function SellerContactActions({ propertyTitle }) {
+  const emailHref = `${MAIN_CONTACT_MAILTO}?subject=${encodeURIComponent(
+    `Enquiry for ${propertyTitle || "a project"}`,
+  )}`;
 
   return (
     <>
@@ -24,12 +22,13 @@ export default function SellerContactActions({ email, propertyTitle }) {
           <Phone />
         </a>
 
-        <button
-          onClick={handleEmail}
+        <a
+          href={emailHref}
+          aria-label="Email AI Bricks Realtors"
           className="px-5 py-2 border border-brickred text-brickred rounded-lg cursor-pointer transition hover:bg-brickred hover:text-white"
         >
           <Mail />
-        </button>
+        </a>
       </div>
     </>
   );

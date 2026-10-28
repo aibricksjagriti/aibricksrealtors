@@ -1286,7 +1286,6 @@ function BuilderSection({ property }) {
           <p className="text-gray-500 text-sm">Project Developer</p>
         </div>
         <SellerContactActions
-          email={property.seller?.email || property.email}
           propertyTitle={property.propertyTitle}
         />
       </div>
