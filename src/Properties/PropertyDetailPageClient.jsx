@@ -39,6 +39,49 @@ const formatPrice = (price) => {
   }
 };
 
+// Finds the available BHK range from the property's actual configuration data.
+function getConfigurationRange(property) {
+  const configurations = [
+    ...(Array.isArray(property?.subTypes) ? property.subTypes : []),
+    ...(Array.isArray(property?.builtUpArea)
+      ? property.builtUpArea.map((entry) => entry?.subType).filter(Boolean)
+      : []),
+    ...(Array.isArray(property?.floorPlans)
+      ? property.floorPlans
+          .map((plan) => plan?.name)
+          .filter((name) => typeof name === "string" && /\d+(?:\.\d+)?\s*BHK/i.test(name))
+      : []),
+  ];
+
+  const uniqueConfigurations = [...new Set(
+    configurations
+      .filter((value) => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean)
+  )];
+
+  const bhkValues = uniqueConfigurations
+    .map((configuration) => {
+      const match = configuration.match(/(\d+(?:\.\d+)?)\s*BHK/i);
+      return match ? Number(match[1]) : null;
+    })
+    .filter((value) => value !== null && Number.isFinite(value));
+
+  if (bhkValues.length > 0) {
+    const min = Math.min(...bhkValues);
+    const max = Math.max(...bhkValues);
+    const formatBhk = (value) => Number.isInteger(value) ? String(value) : String(value);
+
+    return min === max
+      ? `${formatBhk(min)} BHK`
+      : `${formatBhk(min)} BHK – ${formatBhk(max)} BHK`;
+  }
+
+  return uniqueConfigurations.length > 0
+    ? uniqueConfigurations.join(", ")
+    : null;
+}
+
 /* ================= PAGE ================= */
 
 export default function PropertyDetailPageClient({ initialProperty }) {
@@ -79,6 +122,12 @@ export default function PropertyDetailPageClient({ initialProperty }) {
               <p className="text-3xl font-bold text-brickred flex items-center gap-1 justify-end">
                 <IndianRupee size={24} />
                 {formatPrice(property.totalPrice)}
+              </p>
+            )}
+
+            {getConfigurationRange(property) && (
+              <p className="text-sm text-gray-500 mt-1">
+                {getConfigurationRange(property)}
               </p>
             )}
           </div>
