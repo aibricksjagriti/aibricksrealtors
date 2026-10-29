@@ -20,33 +20,6 @@ export const metadata = buildMetadata({
   path: "/properties",
 });
 
-// async function getProperties() {
-//   try {
-//     // For server-side, construct absolute URL
-//     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-//     let url;
-
-//     if (apiUrl) {
-//       url = `${apiUrl}/api/v1/properties`;
-//     } else {
-//       // Fallback: use localhost for development or construct from request
-//       // In Next.js server components, we can use relative URLs for internal routes
-//       url = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/v1/properties`;
-//     }
-
-//     const res = await fetch(url, { cache: "no-store" });
-
-//     if (!res.ok) {
-//       throw new Error("API response not OK");
-//     }
-
-//     return await res.json();
-//   } catch (error) {
-//     console.error("Error fetching properties:", error);
-//     // This will trigger error.jsx
-//     throw new Error("Failed to load properties");
-//   }
-// }
 
 async function getProperties() {
   try {
