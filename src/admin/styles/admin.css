@@ -310,6 +310,26 @@
   border-bottom: none;
 }
 
+/* Keep the essential Interested lead columns and action visible without horizontal scrolling. */
+.interested-compact-table th,
+.interested-compact-table td {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.interested-compact-table .interested-actions-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+@media (min-width: 640px) {
+  .interested-compact-table th,
+  .interested-compact-table td {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
 /* Animations */
 @keyframes slideIn {
   from {

@@ -11,8 +11,12 @@ export async function POST(req) {
     const body = await req.json();
     const { name, phone, email, propertyId, propertyTitle, propertyName, propertyLocation, location, preferredLocation, propertyType, budgetRange, purchaseTimeline, message } = body;
 
-    if (!name?.trim() || !/^\d{10}$/.test(String(phone || "")) || !budgetRange?.trim()) {
-      return NextResponse.json({ success: false, error: 'Name, valid 10-digit phone, and budget are required.' }, { status: 400 });
+    // Previous validation kept for a quick rollback to the longer enquiry form:
+    // if (!name?.trim() || !/^\d{10}$/.test(String(phone || "")) || !budgetRange?.trim()) {
+    //   return NextResponse.json({ success: false, error: 'Name, valid 10-digit phone, and budget are required.' }, { status: 400 });
+    // }
+    if (!name?.trim() || !/^\d{10}$/.test(String(phone || ""))) {
+      return NextResponse.json({ success: false, error: 'Name and a valid 10-digit phone are required.' }, { status: 400 });
     }
 
     const interested = await interestedModel.create({
@@ -25,7 +29,7 @@ export async function POST(req) {
       propertyLocation: propertyLocation || location || null,
       preferredLocation: preferredLocation || null,
       propertyType: propertyType || null,
-      budgetRange,
+      budgetRange: budgetRange || null,
       purchaseTimeline: purchaseTimeline || null,
       message: message || null
     });

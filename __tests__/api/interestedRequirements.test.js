@@ -14,8 +14,17 @@ const request = (body) => ({ json: async () => body });
 describe("interested enquiry requirements", () => {
   beforeEach(() => jest.clearAllMocks());
 
-  test("rejects submissions without a budget", async () => {
+  test("accepts name and phone without a budget or email", async () => {
+    interestedModel.create.mockResolvedValue({ id: "lead-1" });
     const response = await POST(request({ name: "Asha", phone: "9876543210" }));
+    expect(response.status).toBe(201);
+    expect(interestedModel.create).toHaveBeenCalledWith(expect.objectContaining({
+      name: "Asha", phone: "9876543210", email: null, budgetRange: null,
+    }));
+  });
+
+  test("rejects an invalid phone number", async () => {
+    const response = await POST(request({ name: "Asha", phone: "123" }));
     expect(response.status).toBe(400);
     expect(interestedModel.create).not.toHaveBeenCalled();
   });

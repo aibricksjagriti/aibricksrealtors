@@ -4,9 +4,7 @@ import { motion } from "framer-motion";
 import {
   Heart,
   Search,
-  User,
   Phone,
-  Building2,
   Mail,
   X,
 } from "lucide-react";
@@ -115,6 +113,29 @@ export default function InterestedPage() {
     }
   };
 
+  const formatCompactDate = (date) => {
+    if (!date) return "N/A";
+
+    try {
+      const dateObj = typeof date === "object" && date._seconds !== undefined
+        ? new Date(date._seconds * 1000)
+        : new Date(date);
+
+      if (isNaN(dateObj.getTime())) return "N/A";
+
+      return dateObj.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch {
+      return "N/A";
+    }
+  };
+
   return (
     <div className="space-y-6 animate-slide-in">
       {/* Header */}
@@ -152,17 +173,15 @@ export default function InterestedPage() {
         </div>
       ) : (
         <div className="admin-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="admin-table">
+          <div className="w-full overflow-hidden">
+            <table className="admin-table interested-compact-table table-fixed">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Property</th>
-                  <th>Budget</th>
-                  <th>Date</th>
-                  <th>Actions</th>
+                  <th className="w-[21%]">Name</th>
+                  <th className="w-[25%]">Email</th>
+                  <th className="w-[20%]">Phone</th>
+                  <th className="w-[18%]">Date &amp; Time</th>
+                  <th className="interested-actions-cell w-[16%]">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -174,44 +193,44 @@ export default function InterestedPage() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
                     <td>
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center mr-3 text-white font-semibold text-sm">
+                      <div className="flex min-w-0 items-center">
+                        <div className="mr-2 hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-rose-500 text-sm font-semibold text-white sm:flex">
                           {item.name?.[0] || "I"}
                         </div>
-                        <div className="font-semibold text-gray-700">{item.name}</div>
+                        <div className="truncate font-semibold text-gray-700" title={item.name || ""}>
+                          {item.name}
+                        </div>
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center text-gray-600">
-                        <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                        {item.email || "N/A"}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="flex items-center text-gray-600">
-                        <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                        {item.phone}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="flex items-center text-gray-600">
-                        <Building2 className="w-4 h-4 mr-2 text-gray-400" />
-                        <span className="truncate max-w-xs">
-                          {item.propertyTitle || item.propertyName || item.propertyId || "N/A"}
+                      <div className="flex min-w-0 items-center text-gray-600">
+                        <Mail className="mr-2 hidden h-4 w-4 shrink-0 text-gray-400 md:block" />
+                        <span className="truncate" title={item.email || "N/A"}>
+                          {item.email || "N/A"}
                         </span>
                       </div>
                     </td>
-                    <td className="text-gray-600 whitespace-nowrap">{item.budgetRange || "N/A"}</td>
-                    <td className="text-gray-500 text-sm">{formatDate(item.createdAt)}</td>
                     <td>
+                      <div className="flex min-w-0 items-center text-gray-600">
+                        <Phone className="mr-2 hidden h-4 w-4 shrink-0 text-gray-400 lg:block" />
+                        <span className="truncate" title={item.phone || ""}>{item.phone}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="block text-[10px] leading-tight text-gray-500 sm:text-[11px]">
+                        {formatCompactDate(item.createdAt)}
+                      </span>
+                    </td>
+                    <td className="interested-actions-cell">
                       <button
                         onClick={() => {
                           setSelectedItem(item);
                           setShowModal(true);
                         }}
-                        className="text-purple-600 hover:text-purple-700 font-semibold text-sm"
+                        className="inline-flex max-w-full items-center justify-center whitespace-nowrap rounded-lg bg-purple-600 px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-purple-700 sm:px-3 sm:text-sm"
                       >
-                        View Details
+                        <span className="sm:hidden">View</span>
+                        <span className="hidden sm:inline">View Details</span>
                       </button>
                     </td>
                   </motion.tr>
