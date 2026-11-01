@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "@/src/Home/Navbar";
 import Footer from "@/src/Footer";
 import QueryProvider from "@/src/providers/QueryProvider";
-import DeferredContactModal from "./DeferredContactModal";
+import ContactModal from "./Modal/ContactModal";
 import StickySectionNav from "./Developers/StickySectionNav";
 import PropertySectionNav from "./Properties/PropertySectionNav";
 
@@ -34,7 +34,7 @@ export default function ConditionalLayout({ children, navBuilders = [], navLocat
         )
       )}
 
-      <DeferredContactModal />
+      <ContactModal />
 
       <main className="flex-1">
         {children}

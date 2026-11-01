@@ -20,16 +20,18 @@ export default function LeadCaptureModal({
   propertyTitle = null,
   propertyName = null,
   propertyLocation = null,
+  requireCompletion = false,
 }) {
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    preferredLocation: propertyLocation || "",
-    propertyType: "",
-    budgetRange: "",
-    purchaseTimeline: "",
-    message: "",
+    // Legacy fields kept for an easy rollback:
+    // preferredLocation: propertyLocation || "",
+    // propertyType: "",
+    // budgetRange: "",
+    // purchaseTimeline: "",
+    // message: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -47,8 +49,8 @@ export default function LeadCaptureModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name?.trim() || !form.phone?.trim() || !form.budgetRange) {
-      toast.error("Please fill in name, phone, and budget");
+    if (!form.name?.trim() || !form.phone?.trim()) {
+      toast.error("Please fill in name and phone");
       return;
     }
     if (!/^\d{10}$/.test(form.phone)) {
@@ -57,7 +59,7 @@ export default function LeadCaptureModal({
     }
     setSubmitting(true);
     try {
-      const combinedMessage = [messagePrefix?.trim(), form.message?.trim()].filter(Boolean).join("\n\n");
+      const combinedMessage = messagePrefix?.trim();
       const res = await fetch("/api/v1/interested", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,10 +67,11 @@ export default function LeadCaptureModal({
           name: form.name.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
-          preferredLocation: form.preferredLocation.trim() || null,
-          propertyType: form.propertyType || null,
-          budgetRange: form.budgetRange,
-          purchaseTimeline: form.purchaseTimeline || null,
+          // Legacy optional fields can be restored here if the longer form returns:
+          // preferredLocation: form.preferredLocation.trim() || null,
+          // propertyType: form.propertyType || null,
+          // budgetRange: form.budgetRange || null,
+          // purchaseTimeline: form.purchaseTimeline || null,
           message: combinedMessage || null,
           propertyId: propertyId || null,
           propertyTitle: propertyTitle || null,
@@ -81,7 +84,7 @@ export default function LeadCaptureModal({
         throw new Error(data.error || "Submission failed");
       }
       toast.success("Thank you! Your enquiry has been submitted.");
-      setForm({ name: "", email: "", phone: "", preferredLocation: "", propertyType: "", budgetRange: "", purchaseTimeline: "", message: "" });
+      setForm({ name: "", email: "", phone: "" });
       onSuccess?.();
       onClose();
     } catch (err) {
@@ -102,7 +105,7 @@ export default function LeadCaptureModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-xl leading-none px-1"
+            className={`${requireCompletion ? "hidden" : ""} text-gray-500 hover:text-gray-800 text-xl leading-none px-1`}
             aria-label="Close"
           >
             ×
@@ -129,12 +132,14 @@ export default function LeadCaptureModal({
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
+          {/* Legacy requirement fields kept commented for a quick rollback.
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input aria-label="Preferred Location" name="preferredLocation" placeholder="Preferred Location" value={form.preferredLocation} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
             <select aria-label="Configuration" name="propertyType" value={form.propertyType} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">Configuration</option><option>Apartment</option><option>Villa</option><option>Plot</option><option>Commercial</option></select>
             <select aria-label="Budget Range" name="budgetRange" value={form.budgetRange} onChange={handleChange} required className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">Budget Range *</option><option>Under ₹50 Lakhs</option><option>₹50 Lakhs - ₹1 Crore</option><option>₹1 - 2 Crores</option><option>₹2 - 4 Crores</option><option>Above ₹4 Crores</option></select>
             <select aria-label="Purchase Timeline" name="purchaseTimeline" value={form.purchaseTimeline} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">Purchase Timeline</option><option>Immediately</option><option>Within 3 months</option><option>3 - 6 months</option><option>6 - 12 months</option><option>Just exploring</option></select>
           </div>
+          */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Phone (10 digits) *</label>
             <input
@@ -148,6 +153,7 @@ export default function LeadCaptureModal({
               required
             />
           </div>
+          {/* Legacy message field kept commented for a quick rollback.
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Message (optional)</label>
             <textarea
@@ -159,11 +165,12 @@ export default function LeadCaptureModal({
               placeholder="Any specific requirements?"
             />
           </div>
+          */}
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm hover:bg-gray-50"
+              className={`${requireCompletion ? "hidden" : ""} px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm hover:bg-gray-50`}
             >
               Cancel
             </button>

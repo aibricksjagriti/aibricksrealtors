@@ -1,31 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageSquareMore } from "lucide-react";
 import LeadCaptureModal from "@/src/LeadCapture/LeadCaptureModal";
 
 export default function ContactModal() {
   const [open, setOpen] = useState(false);
-  const [autoOpened, setAutoOpened] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const completionRef = useRef(false);
+
+  const completionStorageKey = "enquiryLeadSubmitted";
 
   useEffect(() => {
-    const hasSeen = localStorage.getItem("enquiryPopupSeen");
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
-
-    if (hasSeen || isMobile) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
+    try {
+      const completed = Boolean(localStorage.getItem(completionStorageKey));
+      completionRef.current = completed;
+      setHasSubmitted(completed);
+      setOpen(!completed);
+    } catch {
+      // If storage is unavailable, still require this session's submission.
       setOpen(true);
-      setAutoOpened(true);
-    }, 5000);
-
-    return () => clearTimeout(timer);
+    }
   }, []);
 
+  const recordCompletion = () => {
+    completionRef.current = true;
+    setHasSubmitted(true);
+
+    try {
+      localStorage.setItem(
+        completionStorageKey,
+        JSON.stringify({ submitted: true, submittedAt: new Date().toISOString() }),
+      );
+      localStorage.removeItem("enquiryPopupSeen");
+    } catch {
+      // The in-memory flag still allows the successful submitter to continue.
+    }
+  };
+
   const closePopup = () => {
-    localStorage.setItem("enquiryPopupSeen", "true");
+    if (!completionRef.current) return;
     setOpen(false);
   };
 
@@ -59,8 +73,12 @@ export default function ContactModal() {
       <LeadCaptureModal
         open={open}
         onClose={closePopup}
-        title={autoOpened ? "Tell us what you need" : "Quick enquiry"}
-        subtitle="Share your details and our team will get back to you."
+        onSuccess={recordCompletion}
+        requireCompletion={!hasSubmitted}
+        title={hasSubmitted ? "Quick enquiry" : "Tell us what you need"}
+        subtitle={hasSubmitted
+          ? "Share your details and our team will get back to you."
+          : "Please submit your details to continue to the website."}
         submitLabel="Submit enquiry"
       />
     </>
