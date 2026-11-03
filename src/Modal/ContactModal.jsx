@@ -1,30 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageSquareMore } from "lucide-react";
 import LeadCaptureModal from "@/src/LeadCapture/LeadCaptureModal";
 
 export default function ContactModal() {
   const [open, setOpen] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const completionRef = useRef(false);
 
   const completionStorageKey = "enquiryLeadSubmitted";
 
   useEffect(() => {
+    let completed = false;
+
     try {
-      const completed = Boolean(localStorage.getItem(completionStorageKey));
-      completionRef.current = completed;
+      completed = Boolean(localStorage.getItem(completionStorageKey));
       setHasSubmitted(completed);
-      setOpen(!completed);
     } catch {
-      // If storage is unavailable, still require this session's submission.
-      setOpen(true);
+      // Storage may be unavailable; the dismissible popup can still be shown.
     }
+
+    if (completed) return undefined;
+
+    const timerId = window.setTimeout(() => setOpen(true), 6000);
+    return () => window.clearTimeout(timerId);
   }, []);
 
   const recordCompletion = () => {
-    completionRef.current = true;
     setHasSubmitted(true);
 
     try {
@@ -39,7 +41,6 @@ export default function ContactModal() {
   };
 
   const closePopup = () => {
-    if (!completionRef.current) return;
     setOpen(false);
   };
 
@@ -74,11 +75,11 @@ export default function ContactModal() {
         open={open}
         onClose={closePopup}
         onSuccess={recordCompletion}
-        requireCompletion={!hasSubmitted}
+        requireCompletion={false}
         title={hasSubmitted ? "Quick enquiry" : "Tell us what you need"}
         subtitle={hasSubmitted
           ? "Share your details and our team will get back to you."
-          : "Please submit your details to continue to the website."}
+          : "Share your details and our team will get back to you."}
         submitLabel="Submit enquiry"
       />
     </>
