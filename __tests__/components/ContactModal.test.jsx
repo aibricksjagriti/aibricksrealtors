@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 jest.mock("@/src/LeadCapture/LeadCaptureModal", () => function MockLeadCaptureModal(props) {
   if (!props.open) return null;
@@ -21,21 +21,32 @@ jest.mock("@/src/LeadCapture/LeadCaptureModal", () => function MockLeadCaptureMo
 
 import ContactModal from "@/src/Modal/ContactModal";
 
-describe("mandatory enquiry popup", () => {
-  beforeEach(() => localStorage.clear());
+describe("enquiry popup", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    localStorage.clear();
+  });
 
-  test("opens for a new visitor and cannot close before submitting", async () => {
+  afterEach(() => jest.useRealTimers());
+
+  test("opens after six seconds for a new visitor and can be dismissed", () => {
     render(<ContactModal />);
 
-    expect(await screen.findByTestId("lead-modal")).toHaveTextContent("required");
+    expect(screen.queryByTestId("lead-modal")).not.toBeInTheDocument();
+    act(() => jest.advanceTimersByTime(5999));
+    expect(screen.queryByTestId("lead-modal")).not.toBeInTheDocument();
+
+    act(() => jest.advanceTimersByTime(1));
+    expect(screen.getByTestId("lead-modal")).toHaveTextContent("optional");
     fireEvent.click(screen.getByText("close"));
-    expect(screen.getByTestId("lead-modal")).toBeInTheDocument();
+    expect(screen.queryByTestId("lead-modal")).not.toBeInTheDocument();
   });
 
   test("records a successful submission and allows the visitor to continue", async () => {
     render(<ContactModal />);
 
-    fireEvent.click(await screen.findByText("submit"));
+    act(() => jest.advanceTimersByTime(6000));
+    fireEvent.click(screen.getByText("submit"));
     await waitFor(() => expect(screen.queryByTestId("lead-modal")).not.toBeInTheDocument());
 
     expect(JSON.parse(localStorage.getItem("enquiryLeadSubmitted"))).toEqual(
@@ -47,6 +58,7 @@ describe("mandatory enquiry popup", () => {
     localStorage.setItem("enquiryLeadSubmitted", JSON.stringify({ submitted: true }));
     render(<ContactModal />);
 
-    await waitFor(() => expect(screen.queryByTestId("lead-modal")).not.toBeInTheDocument());
+    act(() => jest.advanceTimersByTime(6000));
+    expect(screen.queryByTestId("lead-modal")).not.toBeInTheDocument();
   });
 });
