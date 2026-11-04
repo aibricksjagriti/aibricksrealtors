@@ -39,6 +39,22 @@ const formatPrice = (price) => {
   }
 };
 
+const getPropertyName = (property) => {
+  const value = [
+    property?.propertyTitle,
+    property?.projectName,
+    property?.title,
+    property?.name,
+  ].find((item) => typeof item === "string" && item.trim());
+
+  return value?.trim() || "Premium Residential Project";
+};
+
+const getLocationText = (property) =>
+  [property?.locality, property?.city]
+    .filter((value) => typeof value === "string" && value.trim())
+    .join(", ") || "Prime Location";
+
 // Finds the available BHK range from the property's actual configuration data.
 function getConfigurationRange(property) {
   const configurations = [
@@ -84,32 +100,40 @@ function getConfigurationRange(property) {
 
 /* ================= PAGE ================= */
 
-export default function PropertyDetailPageClient({ initialProperty }) {
+export default function PropertyDetailPageClient({ initialProperty, pageHeading }) {
   const property = initialProperty;
 
   if (!property) return <CenterMsg msg="Property not found" />;
+
+  const propertyName = getPropertyName(property);
+  const heading = pageHeading || propertyName;
 
   return (
     <div className="bg-[#f4f6f9]">
       <div className="max-w-7xl mx-auto px-4 pt-5 sm:pt-7 lg:pt-8 pb-16">
         {/* ================= TITLE ROW ================= */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">{property.propertyTitle}</h1>
+          <div className="min-w-0 flex-1">
+            <h1
+              className="max-w-4xl text-balance text-2xl font-bold leading-tight sm:text-3xl line-clamp-2"
+              title={heading}
+            >
+              {heading}
+            </h1>
 
             <div className="flex flex-wrap items-center gap-3 text-gray-600 mt-2">
               <span className="flex items-center gap-1">
                 <MapPin size={16} />
-                {property.locality}, {property.city}
+                {getLocationText(property)}
               </span>
 
-              <Badge text={property.propertyStatus} color="green" />
-              <Badge text={property.propertyType} color="blue" />
-              <Badge text={property.listingType} color="purple" />
+              <Badge text={property.propertyStatus || "Premium Community"} color="green" />
+              <Badge text={property.propertyType || "Residential Project"} color="blue" />
+              <Badge text={property.listingType || "For Sale"} color="purple" />
             </div>
           </div>
 
-          <div className="bg-white border rounded-xl px-6 py-4 shadow-sm text-right">
+          <div className="shrink-0 bg-white border rounded-xl px-6 py-4 shadow-sm text-right lg:min-w-64">
             <p className="text-gray-500 text-sm">Price</p>
             {property.priceRangeMin || property.priceRangeMax ? (
               <p className="text-2xl font-bold text-brickred">
@@ -230,7 +254,7 @@ function collectPropertyImages(property) {
   const all = [
     property?.mainPropertyImage,
     ...(Array.isArray(property?.imageGallery) ? property.imageGallery : []),
-  ].filter(Boolean);
+  ].filter((image) => typeof image === "string" && image.trim());
   return [...new Set(all)];
 }
 
@@ -243,7 +267,9 @@ function HeroGallery({ property }) {
     return (
       <div className="bg-white border rounded-xl p-3">
         <div className="bg-gray-200 rounded-lg flex items-center justify-center aspect-[16/9]">
-          <span className="text-gray-500">No Image Available</span>
+          <span className="text-gray-600 font-medium">
+            Curated project visuals available on request
+          </span>
         </div>
       </div>
     );
@@ -340,14 +366,14 @@ function formatAreaDisplay(area) {
     const values = area
       .map((e) => Number(e.area))
       .filter((v) => !isNaN(v) && v > 0);
-    if (values.length === 0) return "—";
+    if (values.length === 0) return "Spacious layouts";
     const min = Math.min(...values);
     const max = Math.max(...values);
     return min === max ? `${min} sq.ft` : `${min} – ${max} sq.ft`;
   }
   if (!Array.isArray(area) && area != null && area !== "" && area !== 0)
     return `${area} sq.ft`;
-  return "—";
+  return "Spacious layouts";
 }
 
 // Returns true only when the area value actually has a usable, filled-in number
@@ -370,10 +396,10 @@ function HighlightStrip({ property }) {
     hasAreaValue(property.carpetArea)
       ? ["Carpet", formatAreaDisplay(property.carpetArea)]
       : null,
-    ["Furnishing", property.furnishing],
+    ["Furnishing", property.furnishing || "Quality finishes"],
     isUnderConstruction
-      ? ["RERA Possession Date", property.possessionDate || "—"]
-      : ["Ownership", property.ownershipType],
+      ? ["RERA Possession Date", property.possessionDate || "Planned possession"]
+      : ["Ownership", property.ownershipType || "Clear ownership guidance"],
   ].filter(Boolean);
 
   return (
@@ -381,7 +407,7 @@ function HighlightStrip({ property }) {
       {items.map(([label, value], i) => (
         <div key={i}>
           <p className="text-gray-500 text-sm">{label}</p>
-          <p className="font-semibold">{value || "—"}</p>
+          <p className="font-semibold">{value || "Thoughtfully planned"}</p>
         </div>
       ))}
     </div>
@@ -391,9 +417,7 @@ function HighlightStrip({ property }) {
 /* ================= OVERVIEW ================= */
 
 function OverviewCard({ property }) {
-  const overviewTitle = property.propertyTitle
-    ? `${property.propertyTitle} Overview`
-    : "Overview";
+  const overviewTitle = `${getPropertyName(property)} Overview`;
 
   const items = [
     ["Builder", property.builderName],
@@ -441,7 +465,7 @@ function DescriptionCard({ property }) {
 
   return (
     <>
-      <Card title={`About ${property.propertyTitle}`}>
+      <Card title={`About ${getPropertyName(property)}`}>
         {/* Description */}
         <div className="relative">
           <div
@@ -517,7 +541,7 @@ function DescriptionCard({ property }) {
 function VideoSection({ property }) {
   if (!property?.videoWalkthrough) return null;
   return (
-    <Card title={`${property.propertyTitle} Project Video`}>
+    <Card title={`${getPropertyName(property)} Project Video`}>
       <a
         href={property.videoWalkthrough}
         target="_blank"
@@ -532,8 +556,15 @@ function VideoSection({ property }) {
 
 /* ================= AMENITIES ================= */
 
-function AmenitiesGrid({ amenities = [], propertyName, property }) {
+function AmenitiesGrid({ amenities = [], property }) {
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
+  const amenityItems = Array.isArray(amenities)
+    ? amenities.filter((item) => typeof item === "string" && item.trim())
+    : [];
+  const amenitiesTitle =
+    [property?.amenities_title, property?.amenitiesTitle].find(
+      (title) => typeof title === "string" && title.trim(),
+    )?.trim() || "Premium Lifestyle Amenities";
 
   const handleEnquire = () => {
     setIsEnquiryOpen(true);
@@ -545,7 +576,7 @@ function AmenitiesGrid({ amenities = [], propertyName, property }) {
 
   return (
     <>
-      <Card title={`${propertyName} Amenities`}>
+      <Card title={amenitiesTitle}>
         {/* Header */}
         <div className="flex items-center justify-between gap-4 mb-5">
           <p className="text-sm text-gray-600">
@@ -577,17 +608,23 @@ function AmenitiesGrid({ amenities = [], propertyName, property }) {
         </div>
 
         {/* Amenities */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {amenities.map((a, i) => (
-            <div key={i} className="border rounded-lg p-4 text-center bg-white">
-              <div className="h-10 w-10 mx-auto flex items-center justify-center bg-brickred/10 text-brickred rounded-full">
-                <Home size={20} />
-              </div>
+        {amenityItems.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {amenityItems.map((amenity, i) => (
+              <div key={`${amenity}-${i}`} className="border rounded-lg p-4 text-center bg-white">
+                <div className="h-10 w-10 mx-auto flex items-center justify-center bg-brickred/10 text-brickred rounded-full">
+                  <Home size={20} />
+                </div>
 
-              <p className="text-sm mt-2">{a}</p>
-            </div>
-          ))}
-        </div>
+                <p className="text-sm mt-2">{amenity}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-lg bg-brickred/5 p-4 text-sm text-gray-700">
+            Thoughtfully planned lifestyle conveniences for comfortable everyday living.
+          </p>
+        )}
       </Card>
 
       {/* Property Enquiry Modal */}
@@ -612,9 +649,13 @@ function hasFloorPlanCarpetArea(carpetArea) {
 
 function MasterPlan({ property }) {
   const floorPlans = Array.isArray(property?.floorPlans)
-    ? property.floorPlans
+    ? property.floorPlans.filter(
+        (plan) => plan && typeof plan === "object" && !Array.isArray(plan),
+      )
     : Array.isArray(property?.floorPlanImages)
-      ? property.floorPlanImages.map((image, idx) => ({
+      ? property.floorPlanImages.filter(
+          (image) => typeof image === "string" && image.trim(),
+        ).map((image, idx) => ({
           name: `Floor Plan ${idx + 1}`,
           image,
           carpetArea: "-",
@@ -633,9 +674,11 @@ function MasterPlan({ property }) {
 
   return (
     <>
-      <Card title={`${property.propertyTitle} Master & Floor Plan`}>
+      <Card title={`${getPropertyName(property)} Master & Floor Plan`}>
         {floorPlans.length === 0 ? (
-          <div className="text-gray-500">Floor Plan Not Available</div>
+          <div className="text-gray-600">
+            Thoughtfully designed floor plans are available with personalized project assistance.
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {floorPlans.map((plan, idx) => (
@@ -661,8 +704,8 @@ function MasterPlan({ property }) {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No Image
+                      <div className="w-full h-full flex items-center justify-center text-center text-gray-500">
+                        Floor plan preview available on request
                       </div>
                     )}
                   </div>
@@ -775,7 +818,7 @@ function ConfigurationsCard({ property }) {
     });
 
   return (
-    <Card title={`${property.propertyTitle} Configurations`}>
+    <Card title={`${getPropertyName(property)} Configurations`}>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -798,11 +841,11 @@ function ConfigurationsCard({ property }) {
                     {entry.subType || "General"}
                   </td>
                   <td className="py-3 pr-4 text-gray-700">
-                    {entry.area ? `${entry.area} sq.ft` : "—"}
+                    {entry.area ? `${entry.area} sq.ft` : "Spacious layout"}
                   </td>
                   {hasCarpetData && (
                     <td className="py-3 text-gray-700">
-                      {carpetEntry?.area ? `${carpetEntry.area} sq.ft` : "—"}
+                      {carpetEntry?.area ? `${carpetEntry.area} sq.ft` : "Efficient layout"}
                     </td>
                   )}
                 </tr>
@@ -865,7 +908,7 @@ function PricingCard({ property }) {
 
   return (
     <>
-      <Card title={`${property.propertyTitle} Pricing`}>
+      <Card title={`${getPropertyName(property)} Pricing`}>
         {/* Price + Enquiry Button */}
         <div className="flex items-center justify-between gap-4 mb-6">
           {priceRange && (
@@ -978,7 +1021,7 @@ function LegalDetails({ property }) {
   ].filter(Boolean);
 
   return (
-    <Card title={`${property.propertyTitle} Legal Details`}>
+    <Card title={`${getPropertyName(property)} Legal Details`}>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(([l, v], i) => (
           <Detail key={i} label={l} value={v} />
@@ -991,7 +1034,9 @@ function LegalDetails({ property }) {
 /* ================= DOCUMENTS ================= */
 
 function DocumentsSection({ property }) {
-  const brochures = property?.brochures || [];
+  const brochures = Array.isArray(property?.brochures)
+    ? property.brochures.filter((document) => document?.url)
+    : [];
   const [showLogin, setShowLogin] = useState(false);
 
   const isLoggedIn = () => {
@@ -1025,9 +1070,11 @@ function DocumentsSection({ property }) {
 
   return (
     <>
-      <Card title={`${property.propertyTitle} Documents`}>
+      <Card title={`${getPropertyName(property)} Documents`}>
         {brochures.length === 0 ? (
-          <p className="text-gray-600">No documents available</p>
+          <p className="text-gray-600">
+            Project brochure and verified property documents are available on request.
+          </p>
         ) : (
           <div className="space-y-3">
             {brochures.map((doc, i) => (
@@ -1101,15 +1148,17 @@ function GallerySlider({ property }) {
 
   if (galleryImages.length === 0) {
     return (
-      <Card title="Gallery">
-        <p className="text-gray-500">No gallery images available</p>
+      <Card title={`${getPropertyName(property)} Gallery`}>
+        <p className="text-gray-600">
+          Curated project visuals are available with personalized property assistance.
+        </p>
       </Card>
     );
   }
 
   return (
     <>
-      <Card title={`${property.propertyTitle} Gallery`}>
+      <Card title={`${getPropertyName(property)} Gallery`}>
         {/* Gallery Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <p className="text-sm text-gray-600">
@@ -1335,7 +1384,7 @@ function BuilderSection({ property }) {
           <p className="text-gray-500 text-sm">Project Developer</p>
         </div>
         <SellerContactActions
-          propertyTitle={property.propertyTitle}
+          propertyTitle={getPropertyName(property)}
         />
       </div>
     </Card>
@@ -1384,7 +1433,9 @@ function FAQSection() {
 function Card({ title, children }) {
   return (
     <div className="bg-white border rounded-xl p-6">
-      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        {title || "Premium Property Highlights"}
+      </h2>
       {children}
     </div>
   );
@@ -1405,7 +1456,7 @@ function Detail({ label, value }) {
   return (
     <div>
       <p className="text-sm text-gray-500">{label}</p>
-      <p className="font-semibold">{value || "-"}</p>
+      <p className="font-semibold">{value || "Thoughtfully Planned"}</p>
     </div>
   );
 }
@@ -1426,7 +1477,7 @@ function GalleryItem({ src, className = "", alt = "", overlay = null, priority =
           className="object-cover"
         />
       ) : (
-        "No Image"
+        "Project Visual"
       )}
       {overlay}
     </div>
