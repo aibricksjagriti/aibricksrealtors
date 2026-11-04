@@ -37,7 +37,10 @@ const { SITE_URL } = require('@/lib/utils/seo');
 
 const { generateMetadata: developerMetadata } = require('@/app/developers/[slug]/page.jsx');
 const { generateMetadata: subMetadata } = require('@/app/sub/[slug]/page.jsx');
-const { generateMetadata: propertyMetadata } = require('@/app/properties/[id]/page.jsx');
+const { generateMetadata: propertyMetadata } = require('@/app/properties/[id]/page.tsx');
+const {
+  getPropertyPageHeading,
+} = require('@/lib/utils/propertyMarketing.ts');
 
 const params = (obj) => ({ params: Promise.resolve(obj) });
 
@@ -138,10 +141,13 @@ describe('/sub/[slug] (subdomain) metadata', () => {
 describe('/properties/[id] metadata', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  test('uses admin SEO fields when present', async () => {
+  test('keeps the admin SEO title separate from the admin visible title', async () => {
     propertyModel.getById.mockResolvedValue({
-      propertyTitle: 'Skyline Towers',
-      metaTitle: 'Skyline Towers 2BHK | Admin',
+      propertyTitle: 'Skyline Towers Wakad',
+      projectName: 'Skyline Towers',
+      metaTitle: 'Skyline Towers | 2 & 3 BHK Flats for Sale in Wakad',
+      subTypes: ['2 BHK', '3 BHK'],
+      locality: 'Wakad',
       metaDescription: 'Admin property description',
       metaKeywords: '2bhk, pune',
       canonicalUrl: 'https://aibricksrealtors.com/properties/custom',
@@ -149,14 +155,19 @@ describe('/properties/[id] metadata', () => {
     });
 
     const meta = await propertyMetadata(params({ id: 'abc123' }));
-    expect(meta.title).toBe('Skyline Towers 2BHK | Admin');
+    expect(meta.title).toBe('Skyline Towers | 2 & 3 BHK Flats for Sale in Wakad');
+    expect(getPropertyPageHeading({
+      propertyTitle: 'Skyline Towers Wakad',
+      projectName: 'Skyline Towers',
+      subTypes: ['2 BHK', '3 BHK'],
+    })).toBe('Skyline Towers Wakad');
     expect(meta.description).toBe('Admin property description');
     expect(meta.keywords).toEqual(['2bhk', 'pune']);
     expect(meta.alternates.canonical).toBe('https://aibricksrealtors.com/properties/custom');
     expect(meta.openGraph.images[0].url).toBe('https://cdn.x/main.jpg');
   });
 
-  test('falls back to title, truncated description and default canonical', async () => {
+  test('falls back to a positive home descriptor, truncated description and canonical', async () => {
     propertyModel.getById.mockResolvedValue({
       propertyTitle: 'Green Villa',
       locality: 'Baner',
@@ -165,7 +176,7 @@ describe('/properties/[id] metadata', () => {
     });
 
     const meta = await propertyMetadata(params({ id: 'abc123' }));
-    expect(meta.title).toBe('Green Villa in Baner, Pune | AI Bricks Realtors');
+    expect(meta.title).toBe('Green Villa | Premium Homes for Sale in Baner');
     expect(meta.description.length).toBeLessThanOrEqual(160);
     expect(meta.alternates.canonical).toBe(`${SITE_URL}/properties/green-villa`);
   });
@@ -173,13 +184,14 @@ describe('/properties/[id] metadata', () => {
   test('does not crash when property is missing', async () => {
     propertyModel.getById.mockResolvedValue(null);
     const meta = await propertyMetadata(params({ id: 'missing' }));
-    expect(meta.title).toBe('Property | AI Bricks Realtors');
+    expect(meta.title).toBe('Premium Properties for Sale – AI Bricks Realtors');
     expect(meta.alternates.canonical).toBe(`${SITE_URL}/properties/missing`);
+    expect(meta.robots.index).toBe(false);
   });
 
   test('does not crash when the model throws', async () => {
     propertyModel.getById.mockRejectedValue(new Error('firestore down'));
     const meta = await propertyMetadata(params({ id: 'err' }));
-    expect(meta.title).toBe('Property | AI Bricks Realtors');
+    expect(meta.title).toBe('Premium Properties for Sale – AI Bricks Realtors');
   });
 });

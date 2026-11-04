@@ -22,7 +22,7 @@ export default function PropertySectionNav() {
 
   const { id } = useParams(); // ✅ get property id
 
-  // ✅ FETCH PROPERTY TITLE WITH TANSTACK QUERY
+  // Fetch the property context used by the sticky section header.
   const { data: property } = useQuery({
     queryKey: ["property", id],
     queryFn: async () => {
@@ -34,7 +34,10 @@ export default function PropertySectionNav() {
     enabled: !!id,
   });
 
-  const propertyTitle = property?.propertyTitle || "Property Details";
+  const propertyTitle =
+    [property?.propertyTitle, property?.projectName].find(
+      (value) => typeof value === "string" && value.trim(),
+    )?.trim() || "Property Details";
 
   // ✅ SCROLL SPY
   useEffect(() => {
@@ -85,8 +88,11 @@ export default function PropertySectionNav() {
             >
               <ChevronLeft size={24} />
             </button>
-            <div className="text-lg md:text-2xl font-bold text-[var(--color-ochre)] truncate">
-              {propertyTitle || "Loading..."}
+            <div
+              className="max-w-[55vw] truncate text-lg font-bold text-[var(--color-ochre)] md:max-w-sm md:text-xl xl:max-w-md"
+              title={propertyTitle}
+            >
+              {propertyTitle}
             </div>
           </div>
 
