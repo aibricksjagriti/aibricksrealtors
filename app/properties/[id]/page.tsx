@@ -14,6 +14,7 @@ import { getPropertySlug } from "@/lib/utils/propertySlug";
 import { buildMetadata } from "@/lib/utils/seo";
 import { convertTimestamps } from "@/lib/utils/timestampConverter";
 import PropertyDetailPageClient from "@/src/Properties/PropertyDetailPageClient";
+import KohinoorAdLandingPage from "@/src/Properties/KohinoorAdLandingPage";
 
 export const revalidate = 300;
 
@@ -92,16 +93,21 @@ export async function generateMetadata({
     });
   }
 
+  const canonicalSlug = getPropertySlug(property);
+  const isKohinoorAdPage = canonicalSlug === "kohinoor-avantara-wakad";
+
   return createMetadata({
     title:
       cleanPropertyText(property.metaTitle) || getPropertyMetaTitle(property),
     description:
       cleanPropertyText(property.metaDescription) ||
-      truncate(property.description) ||
-      truncate(getPropertyMarketingDescription(property)),
+      (isKohinoorAdPage
+        ? "Explore premium 2 and 3 BHK flats at Kohinoor Avantara in Wakad, Pune. View pricing, floor plans, amenities and book a guided site visit."
+        : truncate(property.description) ||
+          truncate(getPropertyMarketingDescription(property))),
     keywords: property.metaKeywords,
     canonicalUrl: property.canonicalUrl,
-    path: `/properties/${getPropertySlug(property)}`,
+    path: `/properties/${canonicalSlug}`,
     image: property.mainPropertyImage,
   });
 }
@@ -118,6 +124,60 @@ export default async function PropertyDetailPage({
 
   const canonicalSlug = getPropertySlug(property);
   if (id !== canonicalSlug) redirect(`/properties/${canonicalSlug}`);
+
+  if (canonicalSlug === "kohinoor-avantara-wakad") {
+    const projectRera = cleanPropertyText(property.description).match(/\bPR\d{8,}\b/i)?.[0];
+    const schema = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          name: "Kohinoor Avantara | 2 & 3 BHK Flats for Sale in Wakad",
+          url: "https://www.aibricksrealtors.com/properties/kohinoor-avantara-wakad",
+          description:
+            "Explore premium 2 and 3 BHK flats at Kohinoor Avantara in Wakad, Pune.",
+          primaryImageOfPage: property.mainPropertyImage,
+        },
+        {
+          "@type": "ApartmentComplex",
+          name: property.projectName || property.propertyTitle,
+          image: property.mainPropertyImage,
+          identifier: projectRera || undefined,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: property.subLocality || property.locality || "Wakad",
+            addressRegion: property.state || "Maharashtra",
+            addressCountry: "IN",
+          },
+        },
+        {
+          "@type": "FAQPage",
+          mainEntity: [
+            ["What configurations are available at Kohinoor Avantara?", "Kohinoor Avantara offers 2 and 3 BHK residences in Wakad, Pune."],
+            ["What is the starting price of Kohinoor Avantara?", "Indicative all-inclusive pricing starts from ₹85.90 lakh. Request the latest authorised price sheet."],
+            ["When is possession expected?", "The current RERA possession timeline is March 2032. Buyers should verify the latest schedule from authorised documents."],
+            ["Can I schedule a site visit?", "Yes. Submit the site-visit form and a property advisor will coordinate a guided visit."],
+          ].map(([name, text]) => ({
+            "@type": "Question",
+            name,
+            acceptedAnswer: { "@type": "Answer", text },
+          })),
+        },
+      ],
+    };
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(schema).replace(/</g, "\\u003c"),
+          }}
+        />
+        <KohinoorAdLandingPage property={convertTimestamps(property)} />
+      </>
+    );
+  }
 
   return (
     <PropertyDetailPageClient
