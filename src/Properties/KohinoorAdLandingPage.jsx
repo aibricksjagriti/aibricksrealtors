@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, ChevronDown, MapPin, MessageCircle, Phone } from "lucide-react";
 
 import {
@@ -37,6 +37,15 @@ export default function KohinoorAdLandingPage({ property }) {
     (String(property?.reraRegistrationNumber || "").startsWith("PR")
       ? property.reraRegistrationNumber
       : null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setLeadSource("Automatic six-second popup"),
+      6000,
+    );
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const residences = useMemo(() => {
     return ["2BHK", "3BHK"].map((key) => {
