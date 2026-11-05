@@ -241,6 +241,64 @@ h1, h2, h3, h4, h5, h6 {
   @apply text-3xl font-semibold;
 }
 
+/* Kohinoor campaign page motion — intentionally scoped to this landing page. */
+.kohinoor-page .kohinoor-hero-image {
+  filter: brightness(1.08) saturate(1.06);
+  transform-origin: 55% 50%;
+  animation: kohinoor-hero-settle 16s ease-out both;
+}
+
+.kohinoor-page .kohinoor-reveal {
+  opacity: 0;
+  transform: translateY(34px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kohinoor-page .kohinoor-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.kohinoor-page article,
+.kohinoor-page button,
+.kohinoor-page main img {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s ease;
+}
+
+.kohinoor-page article:hover {
+  transform: translateY(-6px);
+}
+
+.kohinoor-page button:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes kohinoor-hero-settle {
+  from { transform: scale(1.045); }
+  to { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kohinoor-page .kohinoor-hero-image {
+    animation: none;
+  }
+
+  .kohinoor-page .kohinoor-reveal,
+  .kohinoor-page .kohinoor-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .kohinoor-page article,
+  .kohinoor-page button,
+  .kohinoor-page main img {
+    transition: none;
+  }
+}
+
 /* ===============================
     Rich Text (admin editor + public render)
    =============================== */
