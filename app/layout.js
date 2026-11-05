@@ -1,14 +1,8 @@
-import { Cinzel, Lato } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "@/src/ConditionalLayout";
 import DeferredAnalytics from "@/src/DeferredAnalytics";
 import { Toaster } from "react-hot-toast";
-
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  weight: ["400", "700"],
-});
 
 const lato = Lato({
   subsets: ["latin"],
@@ -37,7 +31,7 @@ export default async function RootLayout({ children }) {
       <head />
       <body
         suppressHydrationWarning
-        className={`${cinzel.variable} ${lato.variable} antialiased bg-[var(--background)] relative`}
+        className={`${lato.variable} antialiased bg-[var(--background)] relative`}
       >
         {/* ✅ Google Tag Manager (noscript) - MUST be first */}
         <noscript>

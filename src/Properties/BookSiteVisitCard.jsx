@@ -283,11 +283,9 @@ export default function BookSiteVisitCard({ property = null }) {
     <div className="relative mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-md">
       <Toaster position="top-right" />
 
-      <div className="mb-5 flex overflow-hidden rounded-lg border">
-        <div className="flex-1 border-b-2 border-ochre bg-white py-2 text-center text-lg font-medium text-textDark">
-          Book Free Site Visit
-        </div>
-      </div>
+      <h2 className="mb-5 text-xl font-bold text-textDark">
+        Book Free Site Visit
+      </h2>
 
       {property && (
         <p className="mt-1 mb-3 text-xs text-gray-500">

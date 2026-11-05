@@ -5,6 +5,7 @@ export type PropertyMarketingRecord = {
   name?: string;
   propertyType?: string;
   locality?: string;
+  subLocality?: string;
   city?: string;
   subTypes?: unknown[];
   builtUpArea?: Array<{ subType?: unknown }>;
@@ -76,6 +77,7 @@ export const getPropertyMetaTitle = (
 ): string => {
   const location =
     cleanPropertyText(property.locality) ||
+    cleanPropertyText(property.subLocality) ||
     cleanPropertyText(property.city) ||
     "Prime Location";
 
@@ -90,7 +92,7 @@ export const getPropertyPageHeading = (
 export const getPropertyMarketingDescription = (
   property: PropertyMarketingRecord,
 ): string => {
-  const location = [property.locality, property.city]
+  const location = [property.locality || property.subLocality, property.city]
     .map(cleanPropertyText)
     .filter(Boolean)
     .join(", ");

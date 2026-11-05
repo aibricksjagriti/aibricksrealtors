@@ -15,11 +15,16 @@ export default function ConditionalLayout({ children, navBuilders = [], navLocat
   const isDeveloperPage =
     pathname === "/developers" || pathname?.startsWith("/developers/");
   const isPropertyPage = pathname?.startsWith("/properties/");
+  const isKohinoorAdPage = pathname === "/properties/kohinoor-avantara-wakad";
   const isSearchPage = pathname === "/search";
   const isSubdomainPage = pathname?.startsWith("/sub/");
 
   if (isAdminRoute) {
     return <>{children}</>;
+  }
+
+  if (isKohinoorAdPage) {
+    return <main>{children}</main>;
   }
 
   const content = (
