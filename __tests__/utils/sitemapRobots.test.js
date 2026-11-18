@@ -31,8 +31,8 @@ describe('sitemap.xml', () => {
 
   test('includes static routes plus properties, developers, and locations', async () => {
     getCachedProperties.mockResolvedValue([
-      { id: 'prop1', updatedAt: '2026-01-01' },
-      { id: 'prop2' },
+      { id: 'prop1', updatedAt: '2026-01-01', city: 'Pune' },
+      { id: 'prop2', city: 'Navi Mumbai' },
       { noId: true },
     ]);
     Developer.getAll.mockResolvedValue([{ slug: 'godrej' }, { name: 'no-slug' }]);
@@ -52,8 +52,14 @@ describe('sitemap.xml', () => {
         `${SITE_URL}/properties/prop2`,
         `${SITE_URL}/developers/godrej`,
         `${SITE_URL}/locations/pune`,
+        `${SITE_URL}/locations/navi-mumbai`,
+        `${SITE_URL}/developers`,
       ])
     );
+    // the "coming soon" news page is noindex, so it must not be submitted
+    expect(urls).not.toContain(`${SITE_URL}/news`);
+    // a city from both properties and the CMS is listed once
+    expect(urls.filter((u) => u === `${SITE_URL}/locations/pune`)).toHaveLength(1);
     // entries without id/slug must be skipped
     expect(urls.filter((u) => u.includes('undefined'))).toHaveLength(0);
     // every entry has a valid lastModified date
@@ -70,6 +76,7 @@ describe('sitemap.xml', () => {
     expect(urls).toContain(`${SITE_URL}`);
     expect(urls).toContain(`${SITE_URL}/properties`);
     expect(entries.length).toBeGreaterThanOrEqual(8);
+    expect(entries.map((e) => e.url)).toContain(`${SITE_URL}/developers`);
   });
 
   test('handles Firestore Timestamp-like objects for lastModified', async () => {

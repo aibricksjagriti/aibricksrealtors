@@ -115,6 +115,22 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
+                    href="/developers"
+                    className="hover:text-[var(--color-ochre)]"
+                  >
+                    Developers
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/locations"
+                    className="hover:text-[var(--color-ochre)]"
+                  >
+                    Locations
+                  </a>
+                </li>
+                <li>
+                  <a
                     href="/contact"
                     className="hover:text-[var(--color-ochre)]"
                   >

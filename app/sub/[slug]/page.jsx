@@ -72,6 +72,23 @@ export async function generateMetadata({ params }) {
     }
   } catch {}
 
+  // Nothing registered for this slug. Only keep the page if active properties
+  // match it as a builder or a city (the same test the page body uses);
+  // otherwise return a real 404 here, before streaming starts — the body's
+  // notFound() alone arrives too late and ships a 200 soft 404.
+  let hasProjects = true;
+  try {
+    const properties = await getCachedProperties({ activeStatus: "Yes" });
+    const builder = formatBuilderName(slug).toLowerCase().trim();
+    const city = formatCityName(slug).toLowerCase().trim();
+    hasProjects = properties.some((item) => {
+      const a = item?.builderName?.toLowerCase().trim();
+      if (a && (a === builder || a.includes(builder) || builder.includes(a))) return true;
+      return item?.city?.toLowerCase().trim() === city;
+    });
+  } catch {}
+  if (!hasProjects) notFound();
+
   return buildMetadata({ canonicalUrl: subdomainUrl });
 }
 

@@ -1,8 +1,11 @@
-export const metadata = {
+import { buildMetadata } from "@/lib/utils/seo";
+
+export const metadata = buildMetadata({
   title: "Disclaimer | AI Bricks Realtors",
   description:
     "Read the disclaimer for AI Bricks Realtors regarding website content, property information, and liability limitations.",
-};
+  path: "/disclaimer",
+});
 
 export default function DisclaimerPage() {
   return (

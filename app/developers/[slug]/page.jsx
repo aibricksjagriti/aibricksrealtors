@@ -9,7 +9,7 @@ import { notFound } from "next/navigation";
 import { getCachedProperties } from "@/lib/data/properties";
 import Developer from "@/lib/models/Developer";
 import { convertTimestamps } from "@/lib/utils/timestampConverter";
-import { buildMetadata } from "@/lib/utils/seo";
+import { buildMetadata, entityCanonical } from "@/lib/utils/seo";
 import { buildDeveloperSchema } from "@/lib/utils/buildDeveloperSchema";
 
 export const revalidate = 300;
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }) {
       developer?.tagline ||
       `Explore ${name} residential and commercial projects, prices, floor plans and offers on AI Bricks Realtors.`,
     keywords: developer?.metaKeywords,
-    canonicalUrl: developer?.canonicalUrl,
+    canonicalUrl: entityCanonical(developer?.canonicalUrl, path),
     path,
     image: developer?.banner || developer?.logo,
   });

@@ -3,6 +3,11 @@ import { preload } from "react-dom";
 import dynamic from "next/dynamic";
 import HeroSection from "@/src/Home/HeroSection";
 import { homeFaqs } from "@/data/faq";
+import ExploreLinks from "@/src/Home/ExploreLinks";
+
+// The Explore block reads live properties/developers; refresh it like the
+// other listing pages.
+export const revalidate = 300;
 
 // preload("/home/hero-banner-home-mobile.webp", {
 //   as: "image",
@@ -146,6 +151,7 @@ export default function Home() {
         <DemandSection />
         <Cta />
         <EasyForYou />
+        <ExploreLinks />
         <FAQSection title="Frequently Asked Questions" faqs={homeFaqs} />
         <StatsSection />
       </main>

@@ -1,8 +1,11 @@
-export const metadata = {
+import { buildMetadata } from "@/lib/utils/seo";
+
+export const metadata = buildMetadata({
   title: "Privacy Policy | AI Bricks Realtors",
   description:
     "Read the privacy policy of AI Bricks Realtors to understand how we collect, use, and protect your personal information.",
-};
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (
