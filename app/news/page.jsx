@@ -6,6 +6,8 @@ export const metadata = buildMetadata({
   title: "Real Estate News | AI Bricks Realtors",
   description: "Latest real estate news, market trends, and property insights from AI Bricks Realtors.",
   path: "/news",
+  // "Coming soon" placeholder: keep it out of the index until it has articles.
+  noIndex: true,
 });
 
 const PageNews = () => {

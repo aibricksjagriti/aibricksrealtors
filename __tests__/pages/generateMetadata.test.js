@@ -38,6 +38,7 @@ const { SITE_URL } = require('@/lib/utils/seo');
 const { generateMetadata: developerMetadata } = require('@/app/developers/[slug]/page.jsx');
 const { generateMetadata: subMetadata } = require('@/app/sub/[slug]/page.jsx');
 const { generateMetadata: propertyMetadata } = require('@/app/properties/[id]/page.tsx');
+const { generateMetadata: locationMetadata } = require('@/app/locations/[slug]/page.jsx');
 const {
   getPropertyPageHeading,
 } = require('@/lib/utils/propertyMarketing.ts');
@@ -130,11 +131,19 @@ describe('/sub/[slug] (subdomain) metadata', () => {
     expect(meta.alternates.canonical).toBe('https://aibricksrealtors.com/locations/pune');
   });
 
-  test('returns safe defaults when nothing is registered', async () => {
+  test('returns safe defaults when only matching properties exist', async () => {
     Developer.getBySlug.mockResolvedValue(null);
     LocationPage.getBySlug.mockResolvedValue(null);
+    getCachedProperties.mockResolvedValueOnce([{ id: 'p1', builderName: 'Unknown' }]);
     const meta = await subMetadata(params({ slug: 'unknown' }));
     expect(meta.alternates.canonical).toBe('https://unknown.aibricksrealtors.com');
+  });
+
+  test('returns a real 404 when nothing matches the slug', async () => {
+    Developer.getBySlug.mockResolvedValue(null);
+    LocationPage.getBySlug.mockResolvedValue(null);
+    getCachedProperties.mockResolvedValueOnce([]);
+    await expect(subMetadata(params({ slug: 'zzz' }))).rejects.toThrow();
   });
 });
 
@@ -193,5 +202,28 @@ describe('/properties/[id] metadata', () => {
     propertyModel.getById.mockRejectedValue(new Error('firestore down'));
     const meta = await propertyMetadata(params({ id: 'err' }));
     expect(meta.title).toBe('Premium Properties for Sale – AI Bricks Realtors');
+  });
+});
+
+describe('/locations/[slug] metadata', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  test('a city with active properties gets a self canonical', async () => {
+    LocationPage.getBySlug.mockResolvedValue(null);
+    getCachedProperties.mockResolvedValueOnce([{ id: 'p1', city: 'Pune' }]);
+    const meta = await locationMetadata(params({ slug: 'pune' }));
+    expect(meta.alternates.canonical).toBe(`${SITE_URL}/locations/pune`);
+  });
+
+  test('an unknown city is a real 404, not an indexable empty page', async () => {
+    LocationPage.getBySlug.mockResolvedValue(null);
+    getCachedProperties.mockResolvedValueOnce([{ id: 'p1', city: 'Pune' }]);
+    await expect(locationMetadata(params({ slug: 'zzzqq' }))).rejects.toThrow();
+  });
+
+  test('ignores an admin canonical that points at another city', async () => {
+    LocationPage.getBySlug.mockResolvedValue({ city: 'Pune', canonicalUrl: '/locations/mumbai' });
+    const meta = await locationMetadata(params({ slug: 'pune' }));
+    expect(meta.alternates.canonical).toBe(`${SITE_URL}/locations/pune`);
   });
 });

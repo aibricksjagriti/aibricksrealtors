@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { MapPin, Bed, Ruler, Calendar, Building2, Flame } from "lucide-react";
 import PropertyEnquiryModal from "../Modal/PropertyEnquiryModal";
 import { getPropertyPath } from "@/lib/utils/propertySlug";
@@ -25,6 +26,14 @@ const formatPrice = (p) => {
   const base = p.priceRangeMin || p.totalPrice || p.monthlyRent;
   const formatted = fmtVal(base);
   return formatted ? `Starts from ₹ ${formatted}` : "Price on request";
+};
+
+/* Card titles are real <a href> links so crawlers can follow them; a plain
+   click still goes through the card's own router.push, while modified clicks
+   (ctrl/cmd/shift — open in new tab/window) are left to the browser. */
+const keepCardNavigation = (e) => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) e.stopPropagation();
+  else e.preventDefault();
 };
 
 /* ---------------- CARD COMPONENT ---------------- */
@@ -70,7 +79,9 @@ const PropertyCard = memo(function PropertyCard({ property, onEnquire }) {
       {/* Content */}
       <div className="p-5">
         <h3 className="text-xl font-semibold text-[var(--color-darkgray)]">
-          {property.name}
+          <Link href={getPropertyPath(property)} onClick={keepCardNavigation}>
+            {property.name}
+          </Link>
         </h3>
 
         <p className="text-darkgray mb-3">{property.type}</p>

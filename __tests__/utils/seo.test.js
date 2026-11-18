@@ -106,3 +106,24 @@ describe('normalizeCanonical (admin-entered canonical values)', () => {
     expect(meta.alternates.canonical).toBe(`${SITE_URL}/developers/godrej-new`);
   });
 });
+
+describe('entityCanonical (admin canonical on developer/location pages)', () => {
+  const { entityCanonical } = require('@/lib/utils/seo');
+
+  test('drops a canonical that points at a different entity of the same kind', () => {
+    expect(entityCanonical(`${SITE_URL}/developers/ajwani`, '/developers/chandrarang')).toBeUndefined();
+    expect(entityCanonical('ajwani', '/developers/chandrarang')).toBeUndefined();
+    expect(entityCanonical('/locations/mumbai', '/locations/pune')).toBeUndefined();
+  });
+
+  test('keeps self, subdomain and cross-section canonicals', () => {
+    expect(entityCanonical(`${SITE_URL}/developers/godrej/`, '/developers/godrej')).toBe(`${SITE_URL}/developers/godrej/`);
+    expect(entityCanonical('https://godrej.aibricksrealtors.com', '/developers/godrej')).toBe('https://godrej.aibricksrealtors.com');
+    expect(entityCanonical('/properties/x', '/developers/godrej')).toBe(`${SITE_URL}/properties/x`);
+  });
+
+  test('returns undefined when no admin canonical is set', () => {
+    expect(entityCanonical(undefined, '/developers/godrej')).toBeUndefined();
+    expect(entityCanonical('  ', '/developers/godrej')).toBeUndefined();
+  });
+});
